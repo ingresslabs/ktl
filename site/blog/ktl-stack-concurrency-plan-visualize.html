@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ktl Stack Concurrency with Plan Visualization</title>
+    <meta
+      name="description"
+      content="How to combine ktl apply plan --visualize with ktl stack DAG concurrency for faster and safer multi-release deployments."
+    />
+    <link rel="canonical" href="https://kubekattle.github.io/ktl/blog/ktl-stack-concurrency-plan-visualize.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="ktl Stack Concurrency with Plan Visualization" />
+    <meta
+      property="og:description"
+      content="A practical deploy pattern: review change blast radius in ktl plan visualization, then execute DAG-aware concurrent rollouts with ktl stack."
+    />
+    <meta property="og:url" content="https://kubekattle.github.io/ktl/blog/ktl-stack-concurrency-plan-visualize.html" />
+    <meta property="og:site_name" content="ktl" />
+    <style>
+      :root {
+        --ink: #f2ede3;
+        --text: #d8d2c7;
+        --muted: #a49c90;
+        --paper: #070709;
+        --line: rgba(200, 179, 138, 0.2);
+        --line-strong: rgba(200, 179, 138, 0.38);
+        --accent: #c8b38a;
+      }
+
+      * { box-sizing: border-box; }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background:
+          radial-gradient(circle at 0% 0%, rgba(200, 179, 138, 0.12), transparent 34%),
+          radial-gradient(circle at 100% 100%, rgba(200, 179, 138, 0.06), transparent 42%),
+          linear-gradient(180deg, #050507 0%, var(--paper) 48%, #050507 100%);
+        color: var(--text);
+      }
+
+      body {
+        font-family: "Avenir Next", "Avenir", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        line-height: 1.72;
+        letter-spacing: 0.005em;
+      }
+
+      .frame {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 46px 24px 90px;
+      }
+
+      .article {
+        background: linear-gradient(180deg, rgba(20, 21, 24, 0.96), rgba(13, 14, 17, 0.96));
+        border: 1px solid var(--line);
+        border-radius: 26px;
+        box-shadow:
+          0 30px 70px rgba(0, 0, 0, 0.48),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        overflow: hidden;
+      }
+
+      .hero {
+        position: relative;
+        padding: 42px 48px 34px;
+        border-bottom: 1px solid var(--line);
+        background:
+          radial-gradient(circle at 18% 0%, rgba(200, 179, 138, 0.14), transparent 46%),
+          linear-gradient(165deg, rgba(29, 30, 34, 0.96) 0%, rgba(20, 21, 25, 0.92) 62%, rgba(13, 14, 17, 0.92) 100%);
+      }
+
+      .back {
+        display: inline-block;
+        margin-bottom: 18px;
+        text-decoration: none;
+        color: var(--muted);
+        font-size: 0.86rem;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+      }
+
+      .back:hover { color: var(--accent); }
+
+      h1 {
+        margin: 0;
+        color: var(--ink);
+        font-family: "Iowan Old Style", "Baskerville", "Times New Roman", serif;
+        font-weight: 500;
+        font-size: clamp(2.2rem, 5.9vw, 3.5rem);
+        line-height: 1.14;
+        letter-spacing: 0.01em;
+        max-width: 18ch;
+        text-wrap: balance;
+      }
+
+      .deck {
+        margin: 14px 0 0;
+        max-width: 58ch;
+        color: #b7ae9f;
+        font-size: 1rem;
+      }
+
+      .hero-quick {
+        margin-top: 12px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .hero-pill {
+        display: inline-block;
+        border: 1px solid rgba(200, 179, 138, 0.28);
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 0.78rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #c6bdae;
+        background: rgba(200, 179, 138, 0.06);
+      }
+
+      .meta {
+        margin-top: 16px;
+        font-size: 0.84rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .content { padding: 38px 48px 52px; }
+
+      h2 {
+        margin: 52px 0 12px;
+        padding-top: 14px;
+        border-top: 1px solid var(--line);
+        font-family: "Iowan Old Style", "Baskerville", "Times New Roman", serif;
+        font-weight: 500;
+        font-size: 1.62rem;
+        line-height: 1.25;
+        color: var(--ink);
+      }
+
+      p {
+        margin: 0 0 16px;
+        font-size: 1.02rem;
+        max-width: 70ch;
+      }
+
+      ul {
+        margin: 10px 0 18px;
+        padding-left: 24px;
+        max-width: 70ch;
+      }
+
+      li { margin-bottom: 8px; }
+
+      code {
+        font-family: "SF Mono", "Menlo", "Consolas", monospace;
+        font-size: 0.93em;
+        background: rgba(200, 179, 138, 0.1);
+        color: #f0e8da;
+        border: 1px solid rgba(200, 179, 138, 0.2);
+        border-radius: 6px;
+        padding: 2px 6px;
+      }
+
+      pre {
+        margin: 12px 0 20px;
+        padding: 16px 18px;
+        border-radius: 12px;
+        border: 1px solid var(--line-strong);
+        background: #0b0c0f;
+        overflow-x: auto;
+        max-width: 84ch;
+      }
+
+      pre code {
+        border: 0;
+        padding: 0;
+        background: transparent;
+        color: #efe7d8;
+      }
+
+      a { color: var(--accent); }
+      a:hover { color: #f1e6d2; }
+
+      .compare {
+        margin: 18px 0 24px;
+        border: 1px solid var(--line-strong);
+        border-radius: 14px;
+        overflow: hidden;
+        max-width: 84ch;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.96rem;
+      }
+
+      th,
+      td {
+        text-align: left;
+        vertical-align: top;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      th {
+        background: rgba(200, 179, 138, 0.08);
+        color: var(--ink);
+      }
+
+      tr:last-child td { border-bottom: 0; }
+
+      .note {
+        margin-top: 20px;
+        padding: 12px 14px;
+        border: 1px solid var(--line-strong);
+        border-radius: 12px;
+        background: rgba(200, 179, 138, 0.08);
+        color: #e7dfcf;
+        max-width: 84ch;
+      }
+
+      @media (max-width: 760px) {
+        .hero,
+        .content {
+          padding: 24px 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="frame">
+      <article class="article">
+        <header class="hero">
+          <a class="back" href="./index.html">Back to blog index</a>
+          <h1>Pair <code>ktl stack</code> Concurrency with <code>apply plan --visualize</code></h1>
+          <div class="hero-quick">
+            <span class="hero-pill">11 min read</span>
+            <span class="hero-pill">Updated February 24, 2026</span>
+          </div>
+          <p class="deck">
+            Use a two-layer deploy model: visualize release-level blast radius first, then execute dependency-safe
+            concurrent rollouts across the stack.
+          </p>
+          <p class="meta">Published February 24, 2026</p>
+        </header>
+
+        <section class="content">
+          <p>
+            Parallel deploys are only useful if operators can still answer two questions quickly: What is changing,
+            and why did rollout behavior change? The strongest pattern in <code>ktl</code> is combining
+            <code>ktl apply plan --visualize</code> with <code>ktl stack</code> DAG concurrency.
+          </p>
+
+          <h2>The Two-Layer Model</h2>
+          <p>
+            Layer 1 is release-level visualization. Layer 2 is stack-level execution. You use both in the same runbook:
+          </p>
+          <ul>
+            <li>First, generate HTML plan views for critical releases and share them in PR or CI artifacts.</li>
+            <li>Then execute the full stack with DAG-aware concurrency and adaptive backoff controls.</li>
+          </ul>
+
+<pre><code># Layer 1: review the change surface
+ktl apply plan \
+  --chart ./charts/api \
+  --release api \
+  --namespace platform \
+  -f ./values/prod/api.yaml \
+  --visualize \
+  --output ./artifacts/plan-api.html
+
+# Optional regression guard against a previous plan
+ktl apply plan \
+  --chart ./charts/api \
+  --release api \
+  --namespace platform \
+  -f ./values/prod/api.yaml \
+  --compare-to ./baselines/api-plan.json \
+  --baseline ./baselines/api-plan.new.json
+
+# Layer 2: run the whole graph
+ktl stack apply --config ./stacks/prod --yes</code></pre>
+
+          <h2>Why This Beats Plain Parallel Flags</h2>
+          <p>
+            A fixed parallel number alone is not enough in real clusters. <code>ktl stack</code> executes only ready
+            nodes in DAG order, and can adjust worker target when failures indicate pressure (rate limits, transport
+            errors, 5xx behavior).
+          </p>
+          <p>
+            Pairing this with plan visualization means reviewers see expected resource changes before rollout, while
+            operators keep high throughput during execution.
+          </p>
+
+          <h2>Recommended Runner Guardrails</h2>
+          <p>
+            Keep concurrency controls in <code>stack.yaml</code> so behavior is consistent between laptop and CI:
+          </p>
+<pre><code>apiVersion: ktl.dev/v1
+kind: Stack
+name: prod
+
+runner:
+  concurrency: 8
+  progressiveConcurrency: true
+  limits:
+    maxParallelPerNamespace: 2
+    maxParallelKind:
+      StatefulSet: 1
+      Job: 2
+    parallelismGroupLimit: 2
+  adaptive:
+    mode: balanced
+    min: 1
+    window: 20
+    rampAfterSuccesses: 2
+    rampMaxFailureRate: 0.30
+    cooldownSevere: 4
+
+releases:
+  - name: api
+    chart: ./charts/api
+  - name: worker
+    chart: ./charts/worker
+    needs: [api]</code></pre>
+
+          <h2>Comparison: Helmfile and Centralized CI/CD</h2>
+          <div class="compare">
+            <table>
+              <thead>
+                <tr>
+                  <th>Concern</th>
+                  <th>ktl model</th>
+                  <th>Helmfile-style orchestration</th>
+                  <th>Centralized CI/CD only</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Concurrency behavior</td>
+                  <td>DAG-safe plus adaptive controls and scope limits.</td>
+                  <td>Usually fixed parallelism, less runtime adaptation.</td>
+                  <td>Parallelism mostly at pipeline job/stage level.</td>
+                </tr>
+                <tr>
+                  <td>Pre-apply review quality</td>
+                  <td><code>apply plan --visualize</code> gives shareable interactive diff/graph views.</td>
+                  <td>Depends on external tooling/scripts.</td>
+                  <td>Depends on platform dashboards and custom jobs.</td>
+                </tr>
+                <tr>
+                  <td>Failure recovery</td>
+                  <td>Resume/rerun-failed workflows with stack state context.</td>
+                  <td>Often manual rerun selection.</td>
+                  <td>Often replay entire pipeline stages.</td>
+                </tr>
+                <tr>
+                  <td>Operator feedback loop</td>
+                  <td>Local and CI parity with stack console and event stream.</td>
+                  <td>CLI output only, less integrated runtime context.</td>
+                  <td>Good governance, slower interactive debugging loop.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2>Pipeline Pattern That Scales</h2>
+          <p>
+            A practical sequence for teams with approval gates:
+          </p>
+          <ul>
+            <li>PR stage: run <code>ktl apply plan --visualize</code> for changed releases, publish HTML artifacts.</li>
+            <li>Approval stage: reviewers inspect rendered diffs and comparison deltas.</li>
+            <li>Deploy stage: run <code>ktl stack apply</code> with config-defined concurrency guardrails.</li>
+            <li>Incident stage: run <code>ktl stack apply --resume --yes</code> after fixing root cause.</li>
+          </ul>
+
+<pre><code># after fixing a failed release
+ktl stack apply --config ./stacks/prod --resume --yes
+
+# follow run status
+ktl stack status --config ./stacks/prod --follow</code></pre>
+
+          <h2>Final Take</h2>
+          <p>
+            If your deploy model needs both speed and confidence, the combination is straightforward:
+            <code>apply plan --visualize</code> for what will change, and <code>stack</code> DAG concurrency for how
+            rollout executes under load. This gives a better balance than either fixed parallel orchestration or
+            fully centralized pipeline-only execution.
+          </p>
+
+          <p class="note">
+            Suggested starting point: set <code>runner.concurrency</code> to 4-8, turn on
+            <code>progressiveConcurrency</code>, and cap <code>StatefulSet</code> parallelism to 1.
+          </p>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>
