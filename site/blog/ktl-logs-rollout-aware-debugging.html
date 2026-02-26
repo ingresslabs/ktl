@@ -436,6 +436,38 @@ ktl logs 'checkout-.*' -n prod-payments \
   --tail 300 \
   --no-follow > checkout-tail.jsonl</code></pre>
 
+          <h2>6) Security scanning superpower: verify before rollout</h2>
+          <p>
+            Fast debugging is not enough if risky manifests keep reappearing. Security scanning should run before and
+            after incidents to catch privilege, policy, and drift problems early.
+          </p>
+
+          <p>
+            A practical pattern is: <code>ktl logs</code> for runtime signals, then <code>verify</code> for policy checks.
+            This gives responders both symptom context and security posture context in the same workflow.
+          </p>
+
+<pre><code># Verify stack health gates from stack config
+ktl stack verify --config stack.yaml
+
+# Verify rendered chart policies before apply
+verify --chart ./chart --release checkout -n prod-payments
+
+# Verify live namespace posture
+verify --namespace prod-payments --context prod-us</code></pre>
+
+<pre><code># Discover and inspect builtin rules
+verify rules list
+verify rules show k8s/container_is_privileged
+
+# Compare to a known-good baseline report
+verify verify.yaml --compare-to ./baseline.json</code></pre>
+
+          <p>
+            This is where scanning matters most: it reduces repeat incidents by preventing insecure rollout patterns from
+            shipping again under time pressure.
+          </p>
+
           <h2>Practical playbook</h2>
           <p>
             If you are migrating from pure <code>kubectl logs</code> usage, this sequence works well:

@@ -166,6 +166,10 @@ ktl stack verify --config stack.yaml
 The standalone `verify` tool checks your manifests against policies and best practices.
 `verify` is built and distributed as a separate binary, so you can install and run it independently from `ktl`.
 
+Security scanning is important because deployment failures are not only availability issues; they are often policy and
+hardening issues. Running `verify` as a standard gate helps catch risky settings (privileged workloads, broad RBAC,
+weak pod security posture) before rollout.
+
 <p align="center">
   <img src="docs/assets/verify-report.png" alt="verify report" width="960">
 </p>
@@ -178,6 +182,16 @@ verify --chart ./chart --release my-app -n default
 
 # Verify a manifest
 verify --manifest ./rendered.yaml
+
+# Verify a live namespace
+verify --namespace default --context my-context
+
+# Discover and inspect builtin security/policy rules
+verify rules list
+verify rules show k8s/container_is_privileged
+
+# Compare current report to a baseline
+verify verify.yaml --compare-to ./baseline.json
 ```
 
 ---
