@@ -407,6 +407,35 @@ ktl --remote-agent agent.internal:9443 --remote-tls \
             This is useful for postmortems because you keep the debugging timeline, not just a few copied snippets.
           </p>
 
+          <h2>Superpower examples (copy/paste)</h2>
+          <p>
+            These are practical commands teams use during real incident windows.
+          </p>
+
+<pre><code># Superpower 1: One command for rollout + events + node signals + capture
+ktl logs deploy/checkout -n prod-payments \
+  --deploy-mode active \
+  --events \
+  --node-logs \
+  --capture ./captures/checkout-live.sqlite \
+  --capture-tag incident=INC-4902</code></pre>
+
+<pre><code># Superpower 2: Dependency-aware logs from stack config
+ktl logs checkout -n prod-payments \
+  --deps \
+  --config ./stack.yaml</code></pre>
+
+<pre><code># Superpower 3: Team-viewable stream for remote responders
+ktl logs 'checkout-.*' -n prod-payments \
+  --events \
+  --ws-listen :9090</code></pre>
+
+<pre><code># Superpower 4: Automation-friendly JSON export (no follow)
+ktl logs 'checkout-.*' -n prod-payments \
+  --output extjson \
+  --tail 300 \
+  --no-follow > checkout-tail.jsonl</code></pre>
+
           <h2>Practical playbook</h2>
           <p>
             If you are migrating from pure <code>kubectl logs</code> usage, this sequence works well:
