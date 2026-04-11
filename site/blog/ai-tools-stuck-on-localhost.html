@@ -265,6 +265,26 @@
         max-width: none;
       }
 
+      .media-shot {
+        margin: 18px 0 24px;
+        max-width: 84ch;
+      }
+
+      .media-shot img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border-radius: 16px;
+        border: 1px solid var(--line-strong);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
+      }
+
+      .media-shot figcaption {
+        margin-top: 10px;
+        color: #c8c0b2;
+        font-size: 0.94rem;
+      }
+
       .note {
         margin-top: 20px;
         padding: 12px 14px;
@@ -312,11 +332,15 @@
             state, and long-running sessions. Most tools still stop at localhost.
           </p>
 
-          <figure class="media-slot">
-            <p class="media-label">Screenshot Placeholder</p>
-            <p class="media-hint">
-              Browser AI workspace with split panes, terminal, and Kubernetes status.
-            </p>
+          <figure class="media-shot">
+            <img
+              src="../assets/ai-tools-browser-workspace.png"
+              alt="Browser AI workspace with split panes, terminal, and assistant context panel."
+              loading="lazy"
+            />
+            <figcaption>
+              A stronger AI surface already looks less like chat and more like an operating console.
+            </figcaption>
           </figure>
 
           <h2>The model is not the problem. The surface is.</h2>
@@ -446,11 +470,15 @@
             and cluster view should be shareable independently.
           </p>
 
-          <figure class="media-slot">
-            <p class="media-label">Video Placeholder</p>
-            <p class="media-hint">
-              Collaboration view with operator, reviewer, and wall display.
-            </p>
+          <figure class="media-shot">
+            <img
+              src="../assets/ai-tools-collaboration-view.png"
+              alt="Collaboration overlay with targets, templates, recent actions, and shared command entry."
+              loading="lazy"
+            />
+            <figcaption>
+              Collaboration needs its own surface, not just a chat transcript and a screen share.
+            </figcaption>
           </figure>
 
           <h2>What I actually want</h2>
