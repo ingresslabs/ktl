@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vibin' Is Easy: It's All About Data and Design Now</title>
+    <meta
+      name="description"
+      content="A short note on how AI made responsive product work practical for a DevOps engineer once the data and design direction were strong."
+    />
+    <link rel="canonical" href="https://kubekattle.github.io/ktl/blog/vibin-is-easy-its-all-about-data-and-design-now.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Vibin' Is Easy: It's All About Data and Design Now" />
+    <meta
+      property="og:description"
+      content="AI did not turn me into a career frontend engineer, but it made responsive design and security product MVPs much easier to ship."
+    />
+    <meta property="og:url" content="https://kubekattle.github.io/ktl/blog/vibin-is-easy-its-all-about-data-and-design-now.html" />
+    <meta property="og:site_name" content="ktl" />
+    <style>
+      :root {
+        --ink: #f2ede3;
+        --text: #d8d2c7;
+        --muted: #a49c90;
+        --paper: #070709;
+        --line: rgba(200, 179, 138, 0.2);
+        --line-strong: rgba(200, 179, 138, 0.38);
+        --accent: #c8b38a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background:
+          radial-gradient(circle at 0% 0%, rgba(200, 179, 138, 0.12), transparent 34%),
+          radial-gradient(circle at 100% 100%, rgba(200, 179, 138, 0.06), transparent 42%),
+          linear-gradient(180deg, #050507 0%, var(--paper) 48%, #050507 100%);
+        color: var(--text);
+      }
+
+      body {
+        font-family: "Avenir Next", "Avenir", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        line-height: 1.72;
+        letter-spacing: 0.005em;
+      }
+
+      .frame {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 46px 24px 90px;
+      }
+
+      .article {
+        background: linear-gradient(180deg, rgba(20, 21, 24, 0.96), rgba(13, 14, 17, 0.96));
+        border: 1px solid var(--line);
+        border-radius: 26px;
+        box-shadow:
+          0 30px 70px rgba(0, 0, 0, 0.48),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        overflow: hidden;
+      }
+
+      .hero {
+        position: relative;
+        padding: 42px 48px 34px;
+        border-bottom: 1px solid var(--line);
+        background:
+          radial-gradient(circle at 18% 0%, rgba(200, 179, 138, 0.14), transparent 46%),
+          linear-gradient(165deg, rgba(29, 30, 34, 0.96) 0%, rgba(20, 21, 25, 0.92) 62%, rgba(13, 14, 17, 0.92) 100%);
+      }
+
+      .back {
+        display: inline-block;
+        margin-bottom: 18px;
+        text-decoration: none;
+        color: var(--muted);
+        font-size: 0.86rem;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+      }
+
+      .back:hover {
+        color: var(--accent);
+      }
+
+      h1 {
+        margin: 0;
+        color: var(--ink);
+        font-family: "Iowan Old Style", "Baskerville", "Times New Roman", serif;
+        font-weight: 500;
+        font-size: clamp(2.2rem, 6vw, 3.6rem);
+        line-height: 1.14;
+        letter-spacing: 0.01em;
+        max-width: 16ch;
+        text-wrap: balance;
+      }
+
+      .deck {
+        margin: 14px 0 0;
+        max-width: 60ch;
+        color: #b7ae9f;
+        font-size: 1rem;
+      }
+
+      .hero-quick {
+        margin-top: 12px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .hero-pill {
+        display: inline-block;
+        border: 1px solid rgba(200, 179, 138, 0.28);
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 0.78rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #c6bdae;
+        background: rgba(200, 179, 138, 0.06);
+      }
+
+      .meta {
+        margin-top: 16px;
+        font-size: 0.84rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .content {
+        padding: 38px 48px 52px;
+      }
+
+      h2 {
+        margin: 52px 0 12px;
+        padding-top: 14px;
+        border-top: 1px solid var(--line);
+        font-family: "Iowan Old Style", "Baskerville", "Times New Roman", serif;
+        font-weight: 500;
+        font-size: 1.62rem;
+        line-height: 1.25;
+        color: var(--ink);
+      }
+
+      p {
+        margin: 0 0 16px;
+        font-size: 1.02rem;
+        max-width: 70ch;
+      }
+
+      ul {
+        margin: 10px 0 18px;
+        padding-left: 24px;
+        max-width: 70ch;
+      }
+
+      li {
+        margin-bottom: 10px;
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      a:hover {
+        color: #f1e6d2;
+      }
+
+      code {
+        font-family: "SF Mono", "Menlo", "Consolas", monospace;
+        font-size: 0.93em;
+        background: rgba(200, 179, 138, 0.1);
+        color: #f0e8da;
+        border: 1px solid rgba(200, 179, 138, 0.2);
+        border-radius: 6px;
+        padding: 2px 6px;
+      }
+
+      .media-shot {
+        margin: 18px 0 24px;
+        max-width: 84ch;
+      }
+
+      .media-shot img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border-radius: 16px;
+        border: 1px solid var(--line-strong);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
+      }
+
+      .media-shot figcaption {
+        margin-top: 10px;
+        color: #c7bca9;
+        font-size: 0.88rem;
+      }
+
+      .note {
+        margin-top: 20px;
+        padding: 12px 14px;
+        border: 1px solid var(--line-strong);
+        border-radius: 12px;
+        background: rgba(200, 179, 138, 0.08);
+        color: #e7dfcf;
+        max-width: 84ch;
+      }
+
+      @media (max-width: 760px) {
+        .hero,
+        .content {
+          padding: 24px 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="frame">
+      <article class="article">
+        <header class="hero">
+          <a class="back" href="./index.html">Back to Blog</a>
+          <h1>Vibin' Is Easy: It's All About Data and Design Now</h1>
+          <div class="hero-quick">
+            <span class="hero-pill">3 min read</span>
+            <span class="hero-pill">Updated April 13, 2026</span>
+          </div>
+          <p class="deck">
+            I am DevOps by trade. AI did not turn me into a career frontend engineer, but it made responsive product
+            work practical enough that I can take an app from rough MVP to something people can actually use.
+          </p>
+          <p class="meta">Published April 13, 2026</p>
+        </header>
+
+        <section class="content">
+          <p>
+            For a long time, the bottleneck for me was not backend logic or automation. I could wire APIs, build the
+            data layer, and get useful workflows running quickly. The part that slowed me down was the last mile:
+            making the frontend feel clear, responsive, and intentional on real screens instead of only functional on my
+            laptop.
+          </p>
+
+          <p>
+            That changed once AI became good enough to accelerate iteration. The important part is not magic prompts.
+            The important part is having strong inputs. If the data is weak, the result is weak. If the design
+            direction is vague, the UI becomes generic. But if the data is solid and the product shape is clear, AI can
+            help close the gap between MVP and usable interface very quickly.
+          </p>
+
+          <h2>One example: security data</h2>
+          <p>
+            A good example is the security app I have been building around CVEs, exploits, advisories, KEV, and related
+            signals. None of that data is rare. A lot of it is already public on the internet. The hard part is not
+            finding it. The hard part is turning it into something that an analyst can scan fast, understand on desktop
+            and mobile, and act on without reading five different sources every time.
+          </p>
+
+          <figure class="media-shot">
+            <img
+              src="../assets/vibin-is-easy-data-design-now.gif"
+              alt="Security app frontend showing a responsive layout and a CVE drawer with AI triage."
+              loading="lazy"
+            />
+            <figcaption>
+              A live app view: the same data becomes much more useful once the layout, hierarchy, and triage flow are
+              easy to read.
+            </figcaption>
+          </figure>
+
+          <p>
+            That is where AI starts to feel practical. I can describe the layout I want, refine it quickly, and keep
+            adjusting until the hierarchy feels right. I am still making product decisions. I am still reviewing the
+            output. But the time from idea to presentable frontend is much shorter than it used to be.
+          </p>
+
+          <h2>Why AI triage fits this model</h2>
+          <p>
+            Vulnerability triage is a strong fit because the input data is already structured enough to work with. CVE
+            records, exploit references, vendor advisories, and environment context can be merged into one view, then AI
+            can help answer the questions an analyst actually cares about:
+          </p>
+
+          <ul>
+            <li>What is this issue in plain language?</li>
+            <li>Is there a real exploitability signal or is this mostly noise?</li>
+            <li>Does it matter to our stack right now?</li>
+            <li>What should we do next: patch, validate, detect, or escalate?</li>
+          </ul>
+
+          <p>
+            That is the shift I care about most. AI is not only writing code here. It is also becoming an interface
+            layer over real data. Once the evidence is collected and normalized, AI can summarize, prioritize, and draft
+            action packs in a way that saves time without hiding the underlying sources.
+          </p>
+
+          <h2>What changed for me</h2>
+          <p>
+            I still do not think this replaces strong frontend engineers. It does change what is accessible to people
+            like me. As a DevOps engineer, I can now build the backend, shape the product, and get much further on the
+            frontend than I could a year ago. For MVPs especially, that changes the speed of execution in a very real
+            way.
+          </p>
+
+          <p class="note">
+            Vibin' is easier now, but only when the data is good and the design is deliberate. That is the part people
+            should pay more attention to.
+          </p>
+
+          <p>I'm open to job opportunities. If you'd like to talk, email me at <a href="mailto:antonvkrylov@gmail.com">antonvkrylov@gmail.com</a>.</p>
+        </section>
+      </article>
+    </main>
+  </body>
+</html>
