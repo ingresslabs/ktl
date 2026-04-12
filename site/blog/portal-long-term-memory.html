@@ -163,6 +163,16 @@
         max-width: 70ch;
       }
 
+      ul {
+        margin: 10px 0 18px;
+        padding-left: 24px;
+        max-width: 70ch;
+      }
+
+      li {
+        margin-bottom: 10px;
+      }
+
       a {
         color: var(--accent);
       }
@@ -372,20 +382,50 @@
             <a href="./ai-tools-stuck-on-localhost.html">Why AI Coding Tools Still Feel Stuck on Localhost</a>,
             the interface has to match how operators really work. Portal's notes section should behave more like
             Jupyter than like a chat transcript: a page made of ordered, typed cells that each have a clear role.
-            A plain text cell can hold a hypothesis or deployment checklist. A prompt cell can capture an instruction
-            for the model. A terminal cell can preserve a command, its output, and the host where it ran. A reference
-            cell can pin a URL, repo path, manifest, or Kubernetes object. Then there is the agent cell, which is the
-            operational unit: it can execute against the current machine, a remote host over <code>ssh</code>, or a
-            Kubernetes-backed runtime.
+            The point is not decoration. Each cell type exists because it carries a different part of the operating
+            context.
           </p>
 
+          <ul>
+            <li>
+              <code>Task</code> cells define the objective, pain point, and constraints. They are needed so every other
+              cell has a stable top-level goal.
+            </li>
+            <li>
+              <code>Plan</code> cells break the task into steps, checks, and decision points. They are needed to make
+              execution reviewable instead of improvisational.
+            </li>
+            <li>
+              <code>Prompt</code> cells hold reusable instructions for the model. They are needed so prompt tuning is
+              separated from evidence and execution.
+            </li>
+            <li>
+              <code>Command</code> cells preserve the exact command, output, exit state, and host. They are needed for
+              replay, debugging, and auditability.
+            </li>
+            <li>
+              <code>Reference</code> cells pin URLs, repo paths, manifests, tickets, commits, pods, or dashboards.
+              They are needed to keep the source context stable.
+            </li>
+            <li>
+              <code>Agent</code> cells run the actual work. They are needed when execution must move to the right
+              surface, whether that is the current machine, a remote host over <code>ssh</code>, or an autoscaled
+              Kubernetes pod.
+            </li>
+            <li>
+              <code>Eval</code> and <code>Summary</code> cells record what passed, what failed, and what should happen
+              next. They are needed to turn raw outputs into a decision.
+            </li>
+          </ul>
+
           <p>
-            The useful part is how these cells link together. Instead of pasting everything into one long thread, each
-            cell can point to another cell by identity and role. A summary cell can link to the terminal cell that
-            produced the evidence. A prompt cell can link to the reference cell that defines the target file or pod. An
-            agent cell can write results back into the notebook while preserving the source links that explain where the
-            output came from. This makes the notebook inspectable. You can follow the chain from idea to evidence to
-            action without rebuilding context from memory.
+            The useful part is how these cells link together. A <code>Plan</code> cell should point back to the
+            <code>Task</code> cell it is trying to satisfy. A <code>Prompt</code> cell should link to the
+            <code>Reference</code> cells that define the target file, pod, or document. An <code>Agent</code> or
+            <code>Command</code> cell should link to the prompt, profile, and references it used. Then an
+            <code>Eval</code> or <code>Summary</code> cell should link back to the exact execution cells that produced
+            the result. That gives Portal a readable chain from goal to plan to action to verification instead of one
+            long mixed transcript.
           </p>
 
           <figure class="media-shot">
