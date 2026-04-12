@@ -267,7 +267,7 @@
           <a class="back" href="./index.html">Back to Blog</a>
           <h1><code>Portal</code> Long-Term Memory Over SSH, Kubernetes, and S3</h1>
           <div class="hero-quick">
-            <span class="hero-pill">7 min read</span>
+            <span class="hero-pill">8 min read</span>
             <span class="hero-pill">Updated April 12, 2026</span>
           </div>
           <p class="deck">
@@ -429,11 +429,37 @@
             Long-term memory for remote AI work is not a bigger context window. It is durable, syncable operator state.
           </p>
 
+          <h2>Notes need branching and history, not only storage</h2>
+          <p>
+            If notes become an operational surface, they also need a history model closer to Git than to chat. A useful
+            notebook should let an operator branch a line of thought before making a risky change, compare two versions
+            of the same investigation, and return to a known-good state without losing the main thread. One branch might
+            be "debug the production rollout." Another might be "test a safer fix in stage." Both should share the same
+            starting cells, then diverge cleanly as commands, prompts, and outputs change.
+          </p>
+
+          <p>
+            This matters because notebook history is not only about text edits. It is also about evidence. If a
+            terminal cell changed because it ran on a different host, the system should preserve that fact. If an agent
+            cell was re-run in a different Kubernetes pod, the notebook should record the runtime identity, profile, and
+            secret context used for that execution. Then a reviewer can diff not only words, but the actual operational
+            path: which cells changed, which outputs were refreshed, and which references stayed stable.
+          </p>
+
+          <p>
+            The Git analogy is useful here because it gives operators a familiar model: branch, diff, merge, tag, and
+            restore. But the unit is not only a file. It is a linked set of cells with execution history. That makes
+            long-term memory much more trustworthy. You can fork an idea, test it remotely, merge only the parts that
+            worked, and keep a readable history of how the final result was produced.
+          </p>
+
           <p class="note">
             The previous post argued that serious AI tooling needs to escape localhost. Shared profile memory is one of
             the missing pieces. Without it, every remote hop forces the operator to rebuild identity, tools, and secrets
             by hand.
           </p>
+
+          <p>I'm open to job opportunities. If you'd like to talk, email me at <a href="mailto:antonvkrylov@gmail.com">antonvkrylov@gmail.com</a>.</p>
         </section>
       </article>
     </main>
