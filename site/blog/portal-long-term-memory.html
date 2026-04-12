@@ -380,12 +380,15 @@
           <h2>Notes cells turn memory into a working notebook</h2>
           <p>
             Long-term memory is not only secrets and profile state. It is also the working document around the task.
-            Portal's notes section should behave more like Jupyter than like a chat transcript: a page made of ordered,
-            typed cells that each have a clear role. A plain text cell can hold a hypothesis or deployment checklist. A
-            prompt cell can capture an instruction for the model. A terminal cell can preserve a command, its output,
-            and the host where it ran. A reference cell can pin a URL, repo path, manifest, or Kubernetes object. Then
-            there is the agent cell, which is the operational unit: it can execute against the current machine, a
-            remote host over <code>ssh</code>, or a Kubernetes-backed runtime.
+            As argued in the previous Portal post,
+            <a href="./ai-tools-stuck-on-localhost.html">Why AI Coding Tools Still Feel Stuck on Localhost</a>,
+            the interface has to match how operators really work. Portal's notes section should behave more like
+            Jupyter than like a chat transcript: a page made of ordered, typed cells that each have a clear role.
+            A plain text cell can hold a hypothesis or deployment checklist. A prompt cell can capture an instruction
+            for the model. A terminal cell can preserve a command, its output, and the host where it ran. A reference
+            cell can pin a URL, repo path, manifest, or Kubernetes object. Then there is the agent cell, which is the
+            operational unit: it can execute against the current machine, a remote host over <code>ssh</code>, or a
+            Kubernetes-backed runtime.
           </p>
 
           <p>
