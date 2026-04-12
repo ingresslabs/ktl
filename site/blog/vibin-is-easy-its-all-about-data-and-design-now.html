@@ -323,6 +323,39 @@
             </figcaption>
           </figure>
 
+          <h2>Any CVE can become a workflow trigger</h2>
+          <p>
+            The other part that makes this interesting is that the same security record does not have to stop at a
+            dashboard. Once a CVE or exploit is normalized, scored, and matched against a real environment, it can turn
+            into an event. That event can send a Telegram message, open a ticket, schedule a follow-up, or kick off a
+            workflow automatically.
+          </p>
+
+          <p>
+            The logic is straightforward. A trigger can fire when a new exploit appears, when a CVE lands in KEV, when
+            EPSS jumps, when the issue matches the stack, or when AI triage marks it as urgent enough to notify a team.
+            From there the app can route the result into a bot message, a scheduled escalation, or a larger playbook.
+            The important part is that the trigger is based on evidence, not only a raw severity score.
+          </p>
+
+          <figure class="media-shot">
+            <img
+              src="../assets/vibin-is-easy-telegram-workflow.png"
+              alt="Telegram workflow builder showing a bot, message, and send chain for turning security events into notifications."
+              loading="lazy"
+            />
+            <figcaption>
+              A simple example: turn a CVE or exploit event into a Telegram workflow that connects the bot, builds the
+              message, and sends or schedules the notification.
+            </figcaption>
+          </figure>
+
+          <p>
+            That is what I mean when I say AI becomes an interface layer over data. It is not only summarizing the
+            issue. It is helping move from signal to action. A good security product should not only explain why an item
+            matters. It should help route that decision into the next operational step.
+          </p>
+
           <h2>What changed for me</h2>
           <p>
             I still do not think this replaces strong frontend engineers. It does change what is accessible to people
