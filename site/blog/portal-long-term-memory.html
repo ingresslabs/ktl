@@ -216,6 +216,32 @@
         border-top: 1px solid rgba(200, 179, 138, 0.18);
       }
 
+      .media-slot {
+        margin: 18px 0 24px;
+        padding: 18px 20px;
+        border: 1px dashed rgba(200, 179, 138, 0.42);
+        border-radius: 16px;
+        background:
+          linear-gradient(180deg, rgba(200, 179, 138, 0.06), rgba(200, 179, 138, 0.03)),
+          rgba(11, 12, 15, 0.9);
+        max-width: 84ch;
+      }
+
+      .media-label {
+        margin: 0 0 6px;
+        color: var(--ink);
+        font-size: 0.84rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .media-hint {
+        margin: 0;
+        color: #c8c0b2;
+        font-size: 0.95rem;
+        max-width: none;
+      }
+
       .note {
         margin-top: 20px;
         padding: 12px 14px;
@@ -241,7 +267,7 @@
           <a class="back" href="./index.html">Back to Blog</a>
           <h1><code>Portal</code> Long-Term Memory Over SSH, Kubernetes, and S3</h1>
           <div class="hero-quick">
-            <span class="hero-pill">5 min read</span>
+            <span class="hero-pill">7 min read</span>
             <span class="hero-pill">Updated April 12, 2026</span>
           </div>
           <p class="deck">
@@ -350,6 +376,49 @@
               <figcaption>One profile update can propagate across different execution surfaces without rebuilding context from scratch.</figcaption>
             </div>
           </figure>
+
+          <h2>Notes cells turn memory into a working notebook</h2>
+          <p>
+            Long-term memory is not only secrets and profile state. It is also the working document around the task.
+            Portal's notes section should behave more like Jupyter than like a chat transcript: a page made of ordered,
+            typed cells that each have a clear role. A plain text cell can hold a hypothesis or deployment checklist. A
+            prompt cell can capture an instruction for the model. A terminal cell can preserve a command, its output,
+            and the host where it ran. A reference cell can pin a URL, repo path, manifest, or Kubernetes object. Then
+            there is the agent cell, which is the operational unit: it can execute against the current machine, a
+            remote host over <code>ssh</code>, or a Kubernetes-backed runtime.
+          </p>
+
+          <p>
+            The useful part is how these cells link together. Instead of pasting everything into one long thread, each
+            cell can point to another cell by identity and role. A summary cell can link to the terminal cell that
+            produced the evidence. A prompt cell can link to the reference cell that defines the target file or pod. An
+            agent cell can write results back into the notebook while preserving the source links that explain where the
+            output came from. This makes the notebook inspectable. You can follow the chain from idea to evidence to
+            action without rebuilding context from memory.
+          </p>
+
+          <div class="media-slot">
+            <p class="media-label">Screenshot Placeholder</p>
+            <p class="media-hint">
+              Notes view showing linked text, prompt, terminal, reference, and agent cells in one notebook surface.
+            </p>
+          </div>
+
+          <p>
+            This is similar to Jupyter notebooks in the important way: the document is not only prose, it is a graph of
+            executable and referential blocks. But Portal extends that model for operations. In Jupyter, the kernel is
+            usually local or attached to a notebook server. In Portal, the agent cell can live somewhere else entirely.
+            A heavy research cell might run in an autoscaled Kubernetes pod. A deployment-debug cell might run on a
+            remote Linux host over <code>ssh</code>. The notebook stays in the browser, but execution can move to the
+            surface that has the right data, network path, and tooling.
+          </p>
+
+          <p>
+            That matters because memory becomes portable at two levels at once. The profile carries identity, secrets,
+            and tool defaults. The notebook carries reasoning, evidence, and links between steps. Together they create
+            something much stronger than a saved chat: a durable operating document where cells can be reviewed, reused,
+            and re-run on the right host without losing the thread.
+          </p>
 
           <p>
             The hard requirement is obvious: this design only works if access control, encryption, and mount scope are
