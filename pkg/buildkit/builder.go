@@ -270,7 +270,7 @@ func BuildDockerfile(ctx context.Context, opts DockerfileBuildOptions) (*BuildRe
 func buildSessionAttachables(cfg *configfile.ConfigFile, opts DockerfileBuildOptions) ([]session.Attachable, error) {
 	attachable := []session.Attachable{}
 	attachable = append(attachable, authprovider.NewDockerAuthProvider(authprovider.DockerAuthProviderConfig{
-		ConfigFile: cfg,
+		AuthConfigProvider: authprovider.LoadAuthConfig(cfg),
 	}))
 	if len(opts.Secrets) > 0 {
 		sources := make([]secretsprovider.Source, 0, len(opts.Secrets))

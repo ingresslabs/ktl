@@ -40,8 +40,6 @@ magick "$ICON" -resize 256x256 "$ICON_SMALL"
 
 # Light lockup
 magick -size 1900x640 xc:none \
-  -fill "$SURFACE" -stroke none -draw "roundrectangle 120,84 1780,556 80,80" \
-  -stroke "$BORDER" -strokewidth 3 -fill none -draw "roundrectangle 120,84 1780,556 80,80" \
   \( "$MARK_PNG" -resize 396x396 \) -gravity center -compose Over -composite \
   "$LOCKUP"
 

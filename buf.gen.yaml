@@ -1,11 +1,11 @@
 version: v1
 
 plugins:
-  - plugin: buf.build/protocolbuffers/go:v1.36.11
+  - plugin: go
     out: pkg/api
     opt:
       - paths=source_relative
-  - plugin: buf.build/grpc/go:v1.6.0
+  - plugin: go-grpc
     out: pkg/api
     opt:
       - paths=source_relative

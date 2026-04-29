@@ -377,6 +377,7 @@
         }
       }
     </style>
+    <link rel="stylesheet" href="./blog.css" />
   </head>
   <body>
     <main class="frame">
@@ -386,13 +387,11 @@
           <h1><code>ktl</code>: Blazing-Fast Deploys</h1>
           <div class="hero-quick">
             <span class="hero-pill">14 min read</span>
-            <span class="hero-pill">Updated February 24, 2026</span>
           </div>
           <p class="deck">
             A deployment model for teams that need high throughput with controlled risk:
             visualize changes first, execute DAG-aware concurrency second, and keep artifacts reproducible.
           </p>
-          <p class="meta">Published February 24, 2026</p>
         </header>
 
         <section class="content">
@@ -402,44 +401,40 @@
             controls, and sealed execution artifacts in one CLI workflow.
           </p>
 
-          <h2>AI Operations: Assistive, Not Fully Autonomous</h2>
+          <h2>Local Diagnostics Before Remediation</h2>
           <p>
-            <code>ktl analyze</code> is effective for AI-assisted diagnosis because it gathers pod status, events, and
-            logs into one analysis flow. But full autonomous remediation is usually not acceptable in production today.
-            Operational reality still requires approval boundaries, context checks, and blast-radius control.
+            <code>ktl analyze</code> gathers pod status, events, and logs into one local diagnosis flow. It keeps
+            remediation explicit: operators get the evidence and suggested next checks, then decide what should change.
           </p>
           <p>
-            A practical model is semi-automatic execution: AI proposes diagnosis and candidate fix, then a human or a
-            policy gate approves execution. In <code>ktl</code> terms, that means defaulting to
-            <code>--ai</code> for diagnosis and using <code>--fix</code> only behind approval.
+            That model fits production better than automatic mutation. The CLI explains the likely failure mode,
+            preserves the context needed for review, and leaves execution behind the same policy and rollout gates used
+            for every other deployment change.
           </p>
 <pre><code># diagnosis-first flow
-ktl analyze pod/api-7d9c6b8f5b-abcde -n platform --ai --provider openai --model gpt-4o
-
-# optional guarded remediation (use with caution)
-ktl analyze pod/api-7d9c6b8f5b-abcde -n platform --ai --fix
+ktl analyze pod/api-7d9c6b8f5b-abcde -n platform
 
 # broad outage triage
-ktl analyze --cluster --ai</code></pre>
+ktl analyze --cluster</code></pre>
 
 <figure class="diagram-card">
   <div class="diagram-card-inner">
     <div class="mermaid">flowchart LR
-  A[Symptom or alert] --> B[ktl analyze --ai]
-  B --> C[Diagnosis and fix proposal]
-  C --> D{Approval gate}
-  D -->|Approved| E[Execute guarded fix]
-  D -->|Rejected| F[Manual adjustment]
+  A[Symptom or alert] --> B[ktl analyze]
+  B --> C[Diagnosis and evidence]
+  C --> D{Operator decision}
+  D -->|Ready| E[Plan controlled change]
+  D -->|Needs more data| F[Collect logs and events]
   E --> G[Validate with logs/status]
   F --> G
     </div>
-    <figcaption>Operator-in-the-loop remediation flow for production reliability.</figcaption>
+    <figcaption>Diagnosis-first remediation flow for production reliability.</figcaption>
   </div>
 </figure>
 
-          <h2>Logs Features That Help AI Agents Debug Faster</h2>
+          <h2>Logs Features That Help Operators Debug Faster</h2>
           <p>
-            AI debugging quality depends on log shape and context quality. <code>ktl logs</code> helps by combining
+            Debugging quality depends on log shape and context quality. <code>ktl logs</code> helps by combining
             multi-pod tailing, event correlation, structured filtering, and replayable capture in one stream.
           </p>
           <ul>
@@ -457,10 +452,10 @@ ktl logs deploy/api -n platform --json --since 15m --tail 200 --filter level=err
 # correlate app logs with cluster events
 ktl logs deploy/api -n platform --events --highlight "BackOff|Failed|panic"
 
-# capture an incident for offline AI replay
+# capture an incident for offline replay
 ktl logs deploy/api -n platform --events --capture ./captures/incident.sqlite
 
-# expose feed to external agent consumers
+# expose feed to external consumers
 ktl logs deploy/api -n platform --json --ws-listen :9090
 
 # include dependencies from stack config during root-cause analysis

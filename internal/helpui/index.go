@@ -383,18 +383,6 @@ func (f *flagAgg) addCommand(path string) {
 	f.commands[path] = struct{}{}
 }
 
-func (f *flagAgg) commandList() []string {
-	if f == nil || len(f.commands) == 0 {
-		return nil
-	}
-	out := make([]string, 0, len(f.commands))
-	for path := range f.commands {
-		out = append(out, path)
-	}
-	sort.Strings(out)
-	return out
-}
-
 func rootPersistentFlags(root *cobra.Command) *pflag.FlagSet {
 	if root == nil {
 		return nil

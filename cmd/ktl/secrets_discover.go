@@ -21,8 +21,6 @@ import (
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/cli"
-	"helm.sh/helm/v3/pkg/cli/values"
-	"helm.sh/helm/v3/pkg/getter"
 	"sigs.k8s.io/yaml"
 )
 
@@ -634,7 +632,7 @@ func scanSetValuesFromMap(agg *secretDiscoverAgg, values map[string]string, owne
 
 func scanSecretRefsInText(text string) []string {
 	var refs []string
-	if strings.Index(text, "secret://") == -1 {
+	if !strings.Contains(text, "secret://") {
 		return refs
 	}
 	i := 0
@@ -745,16 +743,4 @@ func sortedKeysFromSet(set map[string]struct{}) []string {
 	}
 	sort.Strings(out)
 	return out
-}
-
-// Values merging is retained here for potential future use.
-func mergeValues(settings *cli.EnvSettings, valueFiles, setVals, setStringVals, setFileVals []string) (map[string]interface{}, error) {
-	valOpts := &values.Options{
-		ValueFiles:   valueFiles,
-		Values:       setVals,
-		StringValues: setStringVals,
-		FileValues:   setFileVals,
-	}
-	providers := getter.All(settings)
-	return valOpts.MergeValues(providers)
 }

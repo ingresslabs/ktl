@@ -30,7 +30,7 @@ Its core strength is a built-in safety loop: Helmer (https://github.com/kubekatt
     <img src="https://img.shields.io/github/license/kubekattle/ktl?style=for-the-badge" alt="License">
   </a>
   <a href="./go.mod">
-    <img src="https://img.shields.io/badge/Go-1.25.7-00ADD8?style=for-the-badge&logo=go" alt="Go Version">
+    <img src="https://img.shields.io/badge/Go-1.25.9-00ADD8?style=for-the-badge&logo=go" alt="Go Version">
   </a>
 </p>
 
@@ -42,7 +42,6 @@ Its core strength is a built-in safety loop: Helmer (https://github.com/kubekatt
 - Helm preview/apply/delete/revert: `ktl apply plan`, `ktl apply`, `ktl delete`, `ktl revert`
 - Build images with BuildKit: `ktl build`
 - Orchestrate many releases as a DAG: `ktl stack`
-- Secure access to cluster services: `ktl tunnel`
 - HTML viewers: `ktl help --ui`, `ktl apply --ui`, `ktl delete --ui`
 
 ---
@@ -54,16 +53,6 @@ Its core strength is a built-in safety loop: Helmer (https://github.com/kubekatt
 - `ktl`: Blazing-Fast Deploys (plan viz + sealing + sandbox): https://kubekattle.github.io/ktl/blog/ktl-stack-concurrency-plan-visualize.html
 - Build Docker Images Safely with `ktl build`: https://kubekattle.github.io/ktl/blog/ktl-build-safe-builds.html
 - `ktl stack` DAG Workflows: Where It Beats Argo and Helmfile: https://kubekattle.github.io/ktl/blog/ktl-stack-dag-vs-argo.html
-
----
-
-## AI Analyze Highlights
-
-`ktl analyze --ai` helps you move from symptoms to a likely root cause quickly by combining pod status, recent events, and logs into one diagnosis flow.
-
-- AI-assisted pod diagnostics: `ktl analyze my-app-pod-123 --ai`
-- Cluster-wide checks for broad outages: `ktl analyze --cluster --ai`
-- Optional fix flow for guided remediation: `ktl analyze my-app-pod-123 --ai --fix`
 
 ---
 
@@ -86,7 +75,7 @@ Its core strength is a built-in safety loop: Helmer (https://github.com/kubekatt
 
 ## Install
 
-Requires Go 1.25.7+.
+Requires Go 1.25.9+.
 
 ### Build from source
 
@@ -143,9 +132,6 @@ ktl delete --release my-app -n default --ui
 
 # Build an image with BuildKit
 ktl build . -t ghcr.io/acme/app:dev
-
-# Open a tunnel to a service
-ktl tunnel service/my-app 8080:80
 
 # Searchable interactive help
 ktl help --ui

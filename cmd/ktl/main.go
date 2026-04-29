@@ -218,7 +218,6 @@ func newRootCommandWithBuildService(buildService buildsvc.Service) *cobra.Comman
 	secretsCmd := newSecretsCommand(&kubeconfigPath, &kubeContext)
 	waitCmd := newWaitCommand(&kubeconfigPath, &kubeContext)
 	revertCmd := newRevertCommand(&kubeconfigPath, &kubeContext, &logLevel)
-	tunnelCmd := newTunnelCommand(&kubeconfigPath, &kubeContext)
 	applyCmd := newApplyCommand(&kubeconfigPath, &kubeContext, &logLevel, &remoteAgentAddr)
 	deleteCmd := newDeleteCommand(&kubeconfigPath, &kubeContext, &logLevel, &remoteAgentAddr)
 	stackCmd := newStackCommand(&kubeconfigPath, &kubeContext, &logLevel, &remoteAgentAddr)
@@ -229,7 +228,6 @@ func newRootCommandWithBuildService(buildService buildsvc.Service) *cobra.Comman
 		analyzeCmd,
 		revertCmd,
 		applyCmd,
-		tunnelCmd,
 		deleteCmd,
 		stackCmd,
 		listCmd,
@@ -258,9 +256,9 @@ func newRootCommandWithBuildService(buildService buildsvc.Service) *cobra.Comman
   ktl revert --release foo --namespace prod
 
   # Apply chart changes
-  ktl apply --chart ./chart --release foo --namespace prod`
+	  ktl apply --chart ./chart --release foo --namespace prod`
 	decorateCommandHelp(cmd, "Global Flags")
-	bindViper(cmd, initCmd, logsCmd, buildCmd, listCmd, lintCmd, applyCmd, deleteCmd, stackCmd, tunnelCmd)
+	bindViper(cmd, initCmd, logsCmd, buildCmd, listCmd, lintCmd, applyCmd, deleteCmd, stackCmd)
 
 	_ = cmd.RegisterFlagCompletionFunc("profile", cobra.FixedCompletions([]string{"dev", "ci", "secure", "remote"}, cobra.ShellCompDirectiveNoFileComp))
 	_ = cmd.RegisterFlagCompletionFunc("log-level", cobra.FixedCompletions([]string{"debug", "info", "warn", "error"}, cobra.ShellCompDirectiveNoFileComp))
@@ -280,7 +278,7 @@ Usage:
   {{.UseLine}}
 
 Subcommands:
-{{- range $i, $n := (list "init" "build" "apply" "delete" "stack" "revert" "list" "lint" "logs" "tunnel" "env" "secrets" "version") }}
+{{- range $i, $n := (list "init" "build" "analyze" "apply" "delete" "stack" "revert" "list" "lint" "logs" "env" "secrets" "version" "up" "wait") }}
 {{- with (indexCommand $.Commands $n) }}
   {{rpad .Name .NamePadding }} {{.Short}}
 {{- end }}
@@ -618,15 +616,10 @@ func newUpCommand(kubeconfig, kubeContext *string) *cobra.Command {
 	return &cobra.Command{
 		Use:   "up",
 		Short: "Start a development workspace defined in ktl.yaml",
-		Long: `Reads a 'ktl.yaml' file in the current directory and starts all defined tunnels and log streams.
+		Long: `Reads a 'ktl.yaml' file in the current directory and starts all defined log streams.
 This allows you to define your development environment as code.
 
 Example ktl.yaml:
-  tunnels:
-    - target: redis:6379
-      local: 6379
-    - target: postgres:5432
-      local: 5432
   logs:
     - query: my-app
     - query: worker`,
@@ -643,16 +636,11 @@ func runUp(ctx context.Context, kubeconfig, kubeContext *string) error {
 		return fmt.Errorf("failed to read ktl.yaml: %w", err)
 	}
 
-	type TunnelConfig struct {
-		Target string `yaml:"target"`
-		Local  int    `yaml:"local"`
-	}
 	type LogConfig struct {
 		Query string `yaml:"query"`
 	}
 	type Config struct {
-		Tunnels []TunnelConfig `yaml:"tunnels"`
-		Logs    []LogConfig    `yaml:"logs"`
+		Logs []LogConfig `yaml:"logs"`
 	}
 
 	var cfg Config
@@ -660,35 +648,7 @@ func runUp(ctx context.Context, kubeconfig, kubeContext *string) error {
 		return fmt.Errorf("invalid ktl.yaml: %w", err)
 	}
 
-	// Start Tunnels
-	// We need to run them in background.
-	// This is a complex orchestrator.
-	// For MVP, we just start tunnels in goroutines and block.
-
-	fmt.Printf("Starting %d tunnels...\n", len(cfg.Tunnels))
-
-	// Reuse runTunnel logic? runTunnel blocks.
-	// We need to refactor runTunnel to be non-blocking or spawn it.
-	// Ideally we use the TunnelManager we built for the Dashboard.
-
-	// Let's just spawn separate goroutines for now, but we need to handle stdout/err.
-
-	for _, t := range cfg.Tunnels {
-		go func(tc TunnelConfig) {
-			// Construct args
-			target := tc.Target
-			if tc.Local > 0 {
-				// ktl tunnel syntax doesn't support explicit local port in arg yet easily without parsing.
-				// But wait, "target" is "service:remote". Local is auto-assigned or random.
-				// We need to extend tunnel syntax or use lower-level API.
-				// For now, let's assume target includes local mapping if we support it later.
-			}
-			fmt.Printf("Tunneling %s...\n", target)
-			// runTunnel(ctx, kubeconfig, kubeContext, []string{target}, false, "")
-			// This would block this goroutine.
-		}(t)
-	}
-
+	fmt.Printf("Configured %d log streams.\n", len(cfg.Logs))
 	fmt.Println("Workspace started. Press Ctrl+C to stop.")
 	<-ctx.Done()
 	return nil

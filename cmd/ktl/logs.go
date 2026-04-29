@@ -100,23 +100,11 @@ func runLogs(cmd *cobra.Command, args []string, opts *config.Options, kubeconfig
 		}
 
 		// Load Stack
-		// We duplicate logic from tunnel.go for now, but in future we should move to shared util.
-		// Since we can't easily modify internal/stack from here without moving code, we use what's available.
-		// Assuming stack.Discover/Compile/BuildGraph exists.
-
-		// Note: We need absolute path for stack.Discover usually
-		// But let's check what `stack` package exposes.
-		// In tunnel.go we used: stack.Discover(root) -> Compile -> BuildGraph
-
 		// For Logs, we want to construct a PodQuery that matches multiple pods.
 		// Current PodQuery supports regex or simple string match.
 		// If we have "app" and "redis", we want logs from both.
 		// The tailer supports `PodQuery` which is matched against Pod Name.
 		// We can construct a regex: "(app|redis|postgres)"
-
-		// Let's resolve dependencies
-		// ... (Logic similar to tunnel.go expandDependencies but simpler)
-		// We need to resolve names to a list of strings.
 
 		// For simplicity in this iteration, let's assume we just want to ADD dependencies to the query.
 		// If user queried "app", and app depends on "redis", we change query to "(app|redis)".

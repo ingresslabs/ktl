@@ -1,0 +1,211 @@
+:root {
+  --blog-bg: #f4f7fb;
+  --blog-surface: rgba(255, 255, 255, 0.88);
+  --blog-surface-strong: #ffffff;
+  --blog-ink: #0f172a;
+  --blog-text: #334155;
+  --blog-muted: #64748b;
+  --blog-line: rgba(15, 23, 42, 0.1);
+  --blog-accent: #326ce5;
+  --blog-accent-strong: #1d4ed8;
+  --blog-accent-soft: #eaf1ff;
+  --blog-code-bg: #111827;
+  --blog-code-text: #eef2ff;
+}
+
+html,
+body {
+  background: linear-gradient(180deg, #eef2f8 0%, var(--blog-bg) 42%, #ffffff 100%) !important;
+  color: var(--blog-text) !important;
+}
+
+body {
+  font-family: "Avenir Next", "Avenir", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  line-height: 1.65 !important;
+  letter-spacing: 0 !important;
+}
+
+a {
+  color: var(--blog-accent) !important;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  color: var(--blog-accent-strong) !important;
+}
+
+.frame {
+  max-width: 1120px !important;
+  padding: 34px 24px 72px !important;
+}
+
+.article {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+.hero {
+  padding: 34px 0 28px !important;
+  border-bottom: 1px solid var(--blog-line) !important;
+  background: transparent !important;
+}
+
+.hero::before {
+  display: none !important;
+}
+
+.back {
+  display: inline-flex !important;
+  align-items: center;
+  min-height: 34px;
+  margin-bottom: 18px !important;
+  padding: 6px 10px;
+  border: 1px solid var(--blog-line);
+  border-radius: 999px;
+  background: var(--blog-surface);
+  color: var(--blog-muted) !important;
+  font-size: 0.86rem !important;
+  font-weight: 650;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+h1 {
+  max-width: 18ch !important;
+  color: var(--blog-ink) !important;
+  font-family: "Avenir Next", "Avenir", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  font-size: clamp(2rem, 5vw, 3.25rem) !important;
+  font-weight: 760 !important;
+  line-height: 1.1 !important;
+  letter-spacing: 0 !important;
+}
+
+h1 code {
+  color: var(--blog-accent) !important;
+  background: var(--blog-accent-soft) !important;
+  border: 1px solid rgba(50, 108, 229, 0.18) !important;
+  border-radius: 6px !important;
+}
+
+h2,
+h3 {
+  color: var(--blog-ink) !important;
+  font-family: "Avenir Next", "Avenir", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  letter-spacing: 0 !important;
+}
+
+.deck {
+  max-width: 68ch !important;
+  color: var(--blog-muted) !important;
+  font-size: 1.04rem !important;
+}
+
+.hero-quick,
+.hero-links {
+  gap: 8px !important;
+}
+
+.hero-pill,
+.hero-links a {
+  border: 1px solid rgba(50, 108, 229, 0.18) !important;
+  border-radius: 999px !important;
+  background: var(--blog-accent-soft) !important;
+  color: var(--blog-accent-strong) !important;
+  font-weight: 650;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+.meta,
+.post-meta {
+  display: none !important;
+}
+
+.content {
+  padding: 28px 0 44px !important;
+}
+
+.content p,
+.content li {
+  color: var(--blog-text) !important;
+}
+
+.content strong {
+  color: var(--blog-ink);
+}
+
+.post-list {
+  gap: 12px !important;
+}
+
+.post {
+  border: 1px solid var(--blog-line) !important;
+  border-radius: 8px !important;
+  background: var(--blog-surface) !important;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06) !important;
+}
+
+.post-title {
+  color: var(--blog-ink) !important;
+  font-family: "Avenir Next", "Avenir", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  letter-spacing: 0 !important;
+}
+
+pre {
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  border-radius: 8px !important;
+  background: var(--blog-code-bg) !important;
+  color: var(--blog-code-text) !important;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.1);
+}
+
+code {
+  color: var(--blog-ink);
+}
+
+p code,
+li code {
+  border: 1px solid rgba(50, 108, 229, 0.14);
+  border-radius: 6px;
+  background: var(--blog-accent-soft);
+  color: var(--blog-accent-strong);
+  padding: 0.08em 0.32em;
+}
+
+figure,
+.diagram-card,
+.callout,
+blockquote {
+  border: 1px solid var(--blog-line) !important;
+  border-radius: 8px !important;
+  background: var(--blog-surface) !important;
+  box-shadow: none !important;
+}
+
+img {
+  border-radius: 8px;
+}
+
+table {
+  border-color: var(--blog-line) !important;
+}
+
+th {
+  color: var(--blog-ink) !important;
+}
+
+@media (max-width: 760px) {
+  .frame {
+    padding: 24px 18px 54px !important;
+  }
+
+  .hero,
+  .content {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}

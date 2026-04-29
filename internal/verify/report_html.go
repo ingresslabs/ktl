@@ -21,10 +21,11 @@ type htmlPayload struct {
 }
 
 func buildHTMLPayload(rep *Report) htmlPayload {
-	p := htmlPayload{Report: rep, FixPlan: BuildFixPlan(rep.Findings)}
+	p := htmlPayload{Report: rep}
 	if rep == nil {
 		return p
 	}
+	p.FixPlan = BuildFixPlan(rep.Findings)
 
 	nsSet := map[string]bool{}
 	for _, f := range rep.Findings {

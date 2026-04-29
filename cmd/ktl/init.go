@@ -448,12 +448,6 @@ type existingConfig struct {
 	Exists bool
 }
 
-type initTemplate struct {
-	Name    string
-	Content string
-	Source  string
-}
-
 func resolveInitPaths(args []string) (string, string, error) {
 	target := "."
 	if len(args) > 0 && strings.TrimSpace(args[0]) != "" {
@@ -1189,9 +1183,7 @@ func normalizeGitignoreEntry(repoRoot string, secretsPath string) (string, strin
 	if path == "" {
 		return "", ""
 	}
-	if strings.HasPrefix(path, "./") {
-		path = strings.TrimPrefix(path, "./")
-	}
+	path = strings.TrimPrefix(path, "./")
 	if filepath.IsAbs(path) {
 		rel, err := filepath.Rel(repoRoot, path)
 		if err != nil || strings.HasPrefix(rel, "..") {
@@ -1204,9 +1196,7 @@ func normalizeGitignoreEntry(repoRoot string, secretsPath string) (string, strin
 
 func gitignoreKey(entry string) string {
 	entry = strings.TrimSpace(entry)
-	if strings.HasPrefix(entry, "./") {
-		entry = strings.TrimPrefix(entry, "./")
-	}
+	entry = strings.TrimPrefix(entry, "./")
 	return entry
 }
 

@@ -23,8 +23,8 @@ This fragmentation leads to context switching, inconsistent environments between
 **ktl** provides a unified interface for the entire lifecycle:
 1.  **Build**: Integrated BuildKit support (no local Docker daemon required).
 2.  **Deploy**: DAG-aware stack orchestration (replaces Helmfile).
-3.  **Debug**: Zero-config multi-pod log tailing and smart tunnels.
-4.  **Analyze**: AI-powered diagnostics for crashing pods.
+3.  **Debug**: Zero-config multi-pod log tailing and local diagnostics.
+4.  **Analyze**: Heuristic checks for crashing pods.
 
 ---
 
@@ -51,7 +51,7 @@ go install github.com/kubekattle/ktl@latest
 
 2.  **Analyze a failing pod**:
     ```bash
-    ktl analyze pod/my-failing-pod --ai
+    ktl analyze pod/my-failing-pod
     ```
 
 ---
@@ -96,17 +96,6 @@ releases:
 - **Sandboxing**: (Linux only) Run builds inside an `nsjail` sandbox for extreme security.
 - **Cache Intelligence**: Get detailed reports on cache hits/misses to optimize your Dockerfiles.
 
-## 3. The Tunnel (`ktl tunnel`)
-
-Port-forwarding is essential but often painful. `ktl tunnel` makes it smart.
-
-### Key Features
-- **Environment Injection**: Run a local binary, but inject environment variables (like DB credentials) from a remote Kubernetes deployment.
-- **Fault Injection**: Intentionally introduce latency or errors to test your application's resilience.
-- **Dependency Tunneling**: Automatically set up tunnels for all upstream dependencies defined in your stack.
-
----
-
 # Workflow Scenarios
 
 ## Scenario 1: The "Fix & Resume" Loop
@@ -137,43 +126,20 @@ A pod is crashing, and you don't know why.
 
 **With ktl**:
 ```bash
-ktl analyze pod-xyz --ai
+ktl analyze pod-xyz
 ```
 The tool automatically:
 - Checks resource limits vs usage (OOM detection).
 - Scans events for scheduling issues.
 - Grabs logs (current and previous).
 - Correlates stack traces in logs with your *local* source code.
-- Uses AI to explain the root cause and suggest a fix.
-
-## Scenario 3: Local Development with Remote Dependencies
-
-You are working on the `frontend` service. It depends on `backend`, `redis`, and `postgres` running in the cluster.
-
-**With ktl**:
-```bash
-ktl tunnel frontend --deps --env-from deployment/frontend --exec "npm start"
-```
-This command:
-1.  Reads `stack.yaml` to find dependencies.
-2.  Opens tunnels to `backend`, `redis`, and `postgres`.
-3.  Fetches env vars from the remote `frontend` deployment.
-4.  Starts your local `npm start` process with all connectivity and config pre-wired.
-
----
+- Summarizes the likely root cause and practical next checks.
 
 # Advanced Features
 
-## AI Diagnostics
+## Pod Diagnostics
 
-`ktl analyze` supports multiple AI providers:
-- **OpenAI** (`--provider openai`): Uses GPT-4/GPT-5 models.
-- **Local/Mock**: For testing or offline usage.
-
-You can override the model used:
-```bash
-ktl analyze pod/foo --ai --model gpt-4o
-```
+`ktl analyze` runs local checks over pod status, recent events, logs, resource usage, and common failure patterns.
 
 ## Security & Governance
 
@@ -212,8 +178,6 @@ Tail logs from multiple pods.
 Diagnose pod failures.
 
 **Usage**: `ktl analyze [POD] [flags]`
-- `--ai`: Enable AI analysis.
-- `--fix`: Apply suggested patches.
 - `--cluster`: Run cluster-wide checks.
 
 ---

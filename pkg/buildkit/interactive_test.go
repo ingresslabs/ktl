@@ -12,6 +12,7 @@ import (
 	gateway "github.com/moby/buildkit/frontend/gateway/client"
 	"github.com/moby/buildkit/solver/errdefs"
 	"github.com/moby/buildkit/solver/pb"
+	fstypes "github.com/tonistiigi/fsutil/types"
 )
 
 func TestLaunchInteractiveShellBuildsContainerRequest(t *testing.T) {
@@ -91,6 +92,18 @@ func (s *stubContainer) Start(_ context.Context, req gateway.StartRequest) (gate
 }
 
 func (s *stubContainer) Release(context.Context) error { return nil }
+
+func (s *stubContainer) ReadFile(context.Context, gateway.ReadContainerRequest) ([]byte, error) {
+	return nil, nil
+}
+
+func (s *stubContainer) StatFile(context.Context, gateway.StatContainerRequest) (*fstypes.Stat, error) {
+	return nil, nil
+}
+
+func (s *stubContainer) ReadDir(context.Context, gateway.ReadDirContainerRequest) ([]*fstypes.Stat, error) {
+	return nil, nil
+}
 
 type stubProcess struct{}
 

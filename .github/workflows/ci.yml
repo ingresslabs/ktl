@@ -32,7 +32,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
-          go-version: '1.25.7'
+          go-version: '1.25.9'
           cache: true
       - name: Cache Go modules
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
@@ -58,7 +58,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
-          go-version: '1.25.7'
+          go-version: '1.25.9'
           cache: true
       - name: Proto lint
         run: make proto-lint
@@ -76,7 +76,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
-          go-version: '1.25.7'
+          go-version: '1.25.9'
           cache: true
       - name: Install govulncheck
         run: |
@@ -96,7 +96,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
-          go-version: '1.25.7'
+          go-version: '1.25.9'
           cache: true
       - name: Cache Go modules
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
@@ -131,7 +131,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
-          go-version: '1.25.7'
+          go-version: '1.25.9'
           cache: true
       - name: Cache Go modules
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
@@ -148,7 +148,7 @@ jobs:
   matrix-test:
     strategy:
       matrix:
-        go: ['1.24.x', '1.25.7']
+        go: ['1.25.9']
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
@@ -185,7 +185,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
-          go-version: '1.25.7'
+          go-version: '1.25.9'
           cache: true
       - name: Testpoint (manual extras)
         shell: bash
@@ -209,7 +209,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
-          go-version: '1.25.7'
+          go-version: '1.25.9'
           cache: true
       - name: Validate e2e secrets
         shell: bash

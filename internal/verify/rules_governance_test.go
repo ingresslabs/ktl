@@ -76,7 +76,7 @@ func validateRuleMetadata(t *testing.T, ruleDir string) {
 	}
 	req := []string{"id", "queryName", "severity", "category", "descriptionText", "descriptionUrl"}
 	for _, k := range req {
-		v, _ := m[k]
+		v := m[k]
 		s, _ := v.(string)
 		if strings.TrimSpace(s) == "" {
 			t.Fatalf("metadata.json missing/empty %q", k)

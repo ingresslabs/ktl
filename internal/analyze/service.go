@@ -71,7 +71,6 @@ type Diagnosis struct {
 	Suggestion      string
 	Explanation     string
 	ConfidenceScore float64 // 0.0 to 1.0
-	Patch           string  // Optional: Patch to apply
 }
 
 type Analyzer interface {
@@ -431,7 +430,7 @@ func checkPodStateExt(pod *corev1.Pod) []string {
 	// Zombie check
 	if pod.DeletionTimestamp != nil {
 		if time.Since(pod.DeletionTimestamp.Time) > 1*time.Hour {
-			info = append(info, fmt.Sprintf("CRITICAL: Pod has been Terminating for > 1 hour (Zombie). Force delete might be needed."))
+			info = append(info, "CRITICAL: Pod has been Terminating for > 1 hour (Zombie). Force delete might be needed.")
 		}
 	}
 

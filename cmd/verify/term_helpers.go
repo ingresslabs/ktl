@@ -15,12 +15,3 @@ func isTerminalWriter(w io.Writer) bool {
 		return false
 	}
 }
-
-func isTerminalReader(r io.Reader) bool {
-	switch v := r.(type) {
-	case *os.File:
-		return term.IsTerminal(int(v.Fd()))
-	default:
-		return false
-	}
-}

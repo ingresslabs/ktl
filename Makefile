@@ -30,6 +30,9 @@ GH_RELEASE_UPLOAD_FLAGS ?= --clobber
 GH_RELEASE_PACKAGE_GLOBS ?= $(DIST_DIR)/*.deb $(DIST_DIR)/*.rpm
 BUF_VERSION ?= v1.61.0
 BUF ?= $(GO) run github.com/bufbuild/buf/cmd/buf@$(BUF_VERSION)
+PROTOC_GEN_GO_VERSION ?= v1.36.11
+PROTOC_GEN_GO_GRPC_VERSION ?= v1.6.0
+PROTO_BIN ?= $(shell $(GO) env GOPATH)/bin
 GO_TEST_FLAGS ?= $(GOFLAGS)
 REMOTE ?= origin
 RELEASE_BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD 2>/dev/null)
@@ -397,7 +400,9 @@ site-check: ## Verify that ./site is up to date (fails if regen would change fil
 	echo ">> site: OK"
 
 proto: ## Generate gRPC/protobuf stubs under pkg/api
-	$(BUF) generate
+	GOBIN=$(PROTO_BIN) $(GO) install google.golang.org/protobuf/cmd/protoc-gen-go@$(PROTOC_GEN_GO_VERSION)
+	GOBIN=$(PROTO_BIN) $(GO) install google.golang.org/grpc/cmd/protoc-gen-go-grpc@$(PROTOC_GEN_GO_GRPC_VERSION)
+	PATH="$(PROTO_BIN):$$PATH" $(BUF) generate
 
 proto-lint: ## Lint protobuf definitions
 	$(BUF) lint

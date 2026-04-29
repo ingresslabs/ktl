@@ -70,13 +70,11 @@ func (m *BuilderManager) ProvisionEphemeralBuilder(ctx context.Context) (string,
 
 	// 1. Check for existing Pod
 	existingPod, err := m.kubeClient.CoreV1().Pods(m.namespace).Get(ctx, podName, metav1.GetOptions{})
-	var pod *corev1.Pod
 	reused := false
 
 	if err == nil {
 		if existingPod.Status.Phase == corev1.PodRunning {
 			klog.Infof("Reusing existing builder pod %s", podName)
-			pod = existingPod
 			reused = true
 		} else {
 			// Cleanup dead/pending pod to be safe
@@ -93,7 +91,7 @@ func (m *BuilderManager) ProvisionEphemeralBuilder(ctx context.Context) (string,
 	if !reused {
 		// Create Pod
 		hostPathDir := corev1.HostPathDirectory
-		pod = &corev1.Pod{
+		pod := &corev1.Pod{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      podName,
 				Namespace: m.namespace,

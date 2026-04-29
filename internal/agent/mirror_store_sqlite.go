@@ -424,12 +424,20 @@ func (s *sqliteMirrorStore) DeleteSession(ctx context.Context, sessionID string)
 	if ctx == nil {
 		ctx = context.Background()
 	}
-	res, err := s.writeDB.ExecContext(ctx, `DELETE FROM ktl_mirror_sessions WHERE session_id = ?`, sessionID)
+	deleted := false
+	err := s.enqueueSync(ctx, func(ctx context.Context, tx *sql.Tx) error {
+		res, err := tx.ExecContext(ctx, `DELETE FROM ktl_mirror_sessions WHERE session_id = ?`, sessionID)
+		if err != nil {
+			return err
+		}
+		n, _ := res.RowsAffected()
+		deleted = n > 0
+		return nil
+	})
 	if err != nil {
 		return false, err
 	}
-	n, _ := res.RowsAffected()
-	return n > 0, nil
+	return deleted, nil
 }
 
 func (s *sqliteMirrorStore) GetSession(ctx context.Context, sessionID string) (MirrorSession, bool, error) {
@@ -658,8 +666,9 @@ ORDER BY sequence
 }
 
 type writeRequest struct {
-	ctx context.Context
-	fn  func(context.Context, *sql.Tx) error
+	ctx  context.Context
+	fn   func(context.Context, *sql.Tx) error
+	done chan error
 }
 
 func (s *sqliteMirrorStore) enqueue(ctx context.Context, fn func(context.Context, *sql.Tx) error) error {
@@ -687,12 +696,53 @@ func (s *sqliteMirrorStore) enqueue(ctx context.Context, fn func(context.Context
 	}
 }
 
+func (s *sqliteMirrorStore) enqueueSync(ctx context.Context, fn func(context.Context, *sql.Tx) error) error {
+	if s == nil {
+		return nil
+	}
+	if err := s.firstWriteErr(); err != nil {
+		return err
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	s.mu.Lock()
+	closed := s.closed
+	s.mu.Unlock()
+	if closed {
+		return errors.New("mirror store is closed")
+	}
+	done := make(chan error, 1)
+	select {
+	case s.queue <- writeRequest{ctx: ctx, fn: fn, done: done}:
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+		atomic.AddUint64(&s.dropped, 1)
+		return errors.New("mirror store queue is full")
+	}
+	select {
+	case err := <-done:
+		return err
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+}
+
 func (s *sqliteMirrorStore) writerLoop() {
 	defer s.wg.Done()
 
 	batch := make([]writeRequest, 0, s.batchSize)
+	complete := func(batch []writeRequest, err error) {
+		for _, req := range batch {
+			if req.done != nil {
+				req.done <- err
+			}
+		}
+	}
 	flush := func() bool {
 		if len(batch) == 0 || s.firstWriteErr() != nil {
+			complete(batch, s.firstWriteErr())
 			batch = batch[:0]
 			return false
 		}
@@ -700,6 +750,7 @@ func (s *sqliteMirrorStore) writerLoop() {
 		tx, err := s.writeDB.BeginTx(ctx, nil)
 		if err != nil {
 			s.setWriteErr(err)
+			complete(batch, err)
 			batch = batch[:0]
 			return true
 		}
@@ -711,12 +762,16 @@ func (s *sqliteMirrorStore) writerLoop() {
 			if err := req.fn(reqCtx, tx); err != nil {
 				_ = tx.Rollback()
 				s.setWriteErr(err)
+				complete(batch, err)
 				batch = batch[:0]
 				return true
 			}
 		}
 		if err := tx.Commit(); err != nil {
 			s.setWriteErr(err)
+			complete(batch, err)
+		} else {
+			complete(batch, nil)
 		}
 		batch = batch[:0]
 		return true
