@@ -1,6 +1,11 @@
 # ktl
 
-Kubernetes workflow CLI for teams that need reviewable deploys, useful logs, BuildKit builds, and policy checks in the same toolchain.
+Agent-first Kubernetes delivery CLI.
+
+`ktl` gives humans and AI agents one reliable loop for Kubernetes delivery:
+build, verify, plan, apply, capture evidence, and explain what happened.
+
+**Docs:** https://ingresslabs.github.io/ktl/
 
 <p align="center">
   <a href="https://ingresslabs.github.io/ktl/">
@@ -8,29 +13,22 @@ Kubernetes workflow CLI for teams that need reviewable deploys, useful logs, Bui
   </a>
 </p>
 
-<p align="center">
-  <a href="https://github.com/ingresslabs/ktl/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/ingresslabs/ktl/ci.yml?branch=main&label=CI&style=for-the-badge" alt="CI">
-  </a>
-  <a href="https://ingresslabs.github.io/ktl/">
-    <img src="https://img.shields.io/github/actions/workflow/status/ingresslabs/ktl/pages.yml?branch=main&label=Docs&style=for-the-badge" alt="Docs">
-  </a>
-  <a href="https://github.com/ingresslabs/ktl/releases">
-    <img src="https://img.shields.io/github/v/release/ingresslabs/ktl?style=for-the-badge" alt="Release">
-  </a>
-  <a href="./LICENSE">
-    <img src="https://img.shields.io/github/license/ingresslabs/ktl?style=for-the-badge" alt="License">
-  </a>
-</p>
+## Ship
 
-## What It Does
+```bash
+ktl ship --chart ./chart --release api -n prod \
+  --build . --tag ghcr.io/acme/api:dev --yes
+```
 
-- `ktl logs`: rollout-aware pod logs for deployments, jobs, services, and selectors.
-- `ktl apply plan`: render Helm changes into reviewable plans with diffs.
-- `ktl apply`, `ktl delete`, `ktl revert`: safer deploy lifecycle commands.
-- `ktl build`: BuildKit builds with cache insight, sandboxing, and attestations.
-- `ktl stack`: DAG execution for multi-release environments.
-- `verifier`: policy checks for charts, manifests, and live namespaces.
+Runs build -> verify -> plan -> apply -> capture -> explain.
+
+## Features
+
+- Golden deploy workflow with one trusted command.
+- Portable evidence for builds, deploys, logs, and stacks.
+- Reviewable Helm plans, diffs, Markdown, and visual artifacts.
+- Agent automation through `ktl-agent` gRPC workflows.
+- BuildKit, SBOM/provenance, verifier reports, and policy checks.
 
 ## Install
 
@@ -47,34 +45,3 @@ From a checkout:
 make build
 ./bin/ktl --help
 ```
-
-## Quickstart
-
-```bash
-ktl init
-ktl logs deploy/my-app -n default
-ktl apply plan --chart ./chart --release my-app -n default
-ktl apply --chart ./chart --release my-app -n default --ui
-ktl build . -t ghcr.io/acme/app:dev
-ktl stack verify --config stack.yaml
-```
-
-## Docs
-
-- Docs site: https://ingresslabs.github.io/ktl/
-- Recipes: [docs/recipes.md](docs/recipes.md)
-- Architecture: [docs/architecture.md](docs/architecture.md)
-- Config atlas: [docs/config-atlas.md](docs/config-atlas.md)
-- Troubleshooting: [docs/troubleshooting.md](docs/troubleshooting.md)
-- Contributor guide: [AGENTS.md](AGENTS.md)
-
-## Development
-
-```bash
-make preflight
-make test
-make fmt
-make lint
-```
-
-Main repo: https://github.com/ingresslabs/ktl
