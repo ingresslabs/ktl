@@ -24,5 +24,18 @@ dist/
 /ktl
 kubeconfig-lab
 
+# AI agent / local assistant workspace files
+AGENTS.md
+**/AGENTS.md
+DESIGN.md
+CLAUDE.md
+GEMINI.md
+.agents/
+.codex/
+.cursor/
+.windsurf/
+.continue/
+.aider*
+
 # Trae IDE config
 .trae/
