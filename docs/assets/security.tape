@@ -8,7 +8,7 @@ Set Theme "Dracula"
 Set WindowBar Colorful
 Set Padding 18
 Set TypingSpeed 14ms
-Set PlaybackSpeed 0.95
+Set PlaybackSpeed 0.76
 
 Hide
 Type@0ms "clear"
