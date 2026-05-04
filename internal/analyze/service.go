@@ -15,6 +15,7 @@ import (
 	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/klog/v2"
 )
 
 // Evidence collects all relevant data for analysis
@@ -1014,7 +1015,7 @@ func checkScheduling(pod *corev1.Pod, node *corev1.Node) []string {
 		for _, taint := range node.Spec.Taints {
 			tolerated := false
 			for _, tol := range pod.Spec.Tolerations {
-				if tol.ToleratesTaint(&taint) {
+				if tol.ToleratesTaint(klog.Background(), &taint, false) {
 					tolerated = true
 					break
 				}
