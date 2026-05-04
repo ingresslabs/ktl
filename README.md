@@ -4,6 +4,9 @@ Agent-first Kubernetes delivery CLI.
 
 `ktl` gives humans and AI agents one reliable loop for Kubernetes delivery:
 build, verify, plan, apply, capture evidence, and explain what happened.
+The evidence layer is file-first: captures, reports, and chart archives are
+self-contained SQLite artifacts that can be copied, stored in CI, attached to a
+review, or inspected later without a running `ktl` service.
 
 <p align="center">
   <a href="https://github.com/ingresslabs/ktl/actions/workflows/ci.yml">
@@ -38,10 +41,15 @@ Runs build -> verify -> plan -> apply -> capture -> explain.
 ## Features
 
 - Golden deploy workflow with one trusted command.
-- Portable evidence for builds, deploys, logs, and stacks.
+- Self-contained SQLite evidence for builds, deploys, logs, stacks, and chart archives.
 - Reviewable Helm plans, diffs, Markdown, and visual artifacts.
 - Agent automation through `ktl-agent` gRPC workflows.
 - BuildKit, SBOM/provenance, verifier reports, and policy checks.
+
+## Utilities
+
+- `helmer` is the standalone Helm plan viewer shipped from this repo. It renders reviewable plan previews before a release, including creates/updates/deletes, diff visualizations, compare overlays, and quota/headroom context.
+- `verifier` is the standalone Kubernetes configuration verifier shipped from this repo. It checks Helm charts, rendered manifests, and live namespaces with the same policy engine used by `ktl` verification workflows, producing reports suitable for local review and CI.
 
 ## Install
 
@@ -49,6 +57,7 @@ Requires Go 1.25.9+.
 
 ```bash
 go install github.com/ingresslabs/ktl/cmd/ktl@latest
+go install github.com/ingresslabs/ktl/cmd/helmer@latest
 go install github.com/ingresslabs/ktl/cmd/verifier@latest
 ```
 
