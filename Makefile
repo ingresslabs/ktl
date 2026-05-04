@@ -55,7 +55,7 @@ LOGS_LDFLAGS ?= $(LDFLAGS) -X github.com/ingresslabs/ktl/cmd/ktl.buildMode=$(LOG
 
 .DEFAULT_GOAL := help
 
-.PHONY: help build build-% build-verifier build-verify build-packagecli build-logs build-all install install-verifier install-verify install-packagecli install-all release dist-checksums dist-checksums-all gh-release gh-release-all tag-release push-release changelog test test-short test-integration fmt lint tidy verify preflight docs site site-check proto proto-lint clean loc print-% test-ci smoke-package-verify verify-charts-e2e testpoint testpoint-ci testpoint-unit testpoint-integration testpoint-charts-e2e testpoint-e2e-real testpoint-all
+.PHONY: help build build-% build-verifier build-verify build-packagecli build-logs build-all install install-verifier install-verify install-packagecli install-all release dist-checksums dist-checksums-all gh-release gh-release-all tag-release push-release changelog test test-short test-integration fmt lint tidy verify preflight docs docs-no-gifs site site-check proto proto-lint clean loc print-% test-ci smoke-package-verify verify-charts-e2e testpoint testpoint-ci testpoint-unit testpoint-integration testpoint-charts-e2e testpoint-e2e-real testpoint-all
 PACKAGE_IMAGE ?= ktl-packager
 PACKAGE_PLATFORMS ?= linux/amd64
 
@@ -369,6 +369,7 @@ lint: ## Run go vet (and staticcheck when available)
 	else \
 		echo ">> staticcheck not installed; skipping"; \
 	fi
+	@./scripts/check-docs-no-gifs.sh
 
 tidy: ## Ensure go.mod/go.sum are tidy
 	$(GO) mod tidy
@@ -399,6 +400,9 @@ package: ## Build .deb/.rpm packages into ./dist (Docker-based)
 
 docs: ## (No-op) Docs build pipeline is not checked in
 	@echo ">> docs: no docs build pipeline is checked into this repo"
+
+docs-no-gifs: ## Ensure docs and generated site output do not contain GIFs
+	@./scripts/check-docs-no-gifs.sh
 
 site: ## Generate the static help site under ./site (index.html + index.json)
 	@./scripts/gen-site.sh
