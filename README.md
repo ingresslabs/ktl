@@ -23,6 +23,9 @@ review, or inspected later without a running `ktl` service.
   </a>
 </p>
 
+<details>
+<summary>Fast delivery GIF demo</summary>
+
 <p align="center">
   <a href="https://ingresslabs.github.io/ktl/">
     <img src="docs/assets/ktl-showcase.gif" alt="ktl fast delivery demo" width="900">
@@ -34,6 +37,11 @@ review, or inspected later without a running `ktl` service.
   <code>stack plan</code>, and <code>logs</code> form a fast reviewable delivery loop.
 </p>
 
+</details>
+
+<details>
+<summary>Security GIF demo</summary>
+
 <p align="center">
   <a href="https://ingresslabs.github.io/ktl/">
     <img src="docs/assets/ktl-security.gif" alt="ktl security features demo" width="900">
@@ -44,6 +52,8 @@ review, or inspected later without a running `ktl` service.
   <strong>Security demo:</strong> verifier reports, strict build sandboxing,
   SBOM/provenance, secret discovery, and verified deploy gates.
 </p>
+
+</details>
 
 ## Deliver
 
