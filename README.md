@@ -79,6 +79,30 @@ ktl stack apply --config ./stacks/prod --yes --capture ./stack.sqlite
 ktl stack status --config ./stacks/prod --follow
 ```
 
+## DAG Demos
+
+Demo 1: a basic chain processes `base -> dependent`.
+
+```bash
+ktl stack plan --config testdata/stack/e2e/01-basic-chain
+ktl stack plan --config testdata/stack/e2e/01-basic-chain --output json
+```
+
+Demo 2: fanout and fanin fixtures show wave scheduling from shared roots and joins.
+
+```bash
+ktl stack plan --config testdata/stack/e2e/02-fanout
+ktl stack plan --config testdata/stack/e2e/03-fanin
+```
+
+Demo 3: a larger graph can be sealed as a review bundle, while invalid DAGs fail during planning.
+
+```bash
+ktl stack plan --config testdata/stack/e2e/10-large-graph --bundle ./dist/stack-large-graph.tgz
+ktl stack plan --config testdata/stack/e2e/x1-cycle-detect
+ktl stack plan --config testdata/stack/e2e/x2-missing-dep
+```
+
 ## Features
 
 - Golden deploy workflow with one trusted loop.
