@@ -63,6 +63,3 @@ torque stack plan --config ./stacks/prod --bundle ./stack-plan.tgz
 torque stack apply --config ./stacks/prod --yes --capture ./stack.sqlite
 torque stack status --config ./stacks/prod --follow
 ```
-
-The GitHub Pages site has the full walkthrough, install script, and visual demos:
-https://ingresslabs.github.io/torque/
