@@ -120,6 +120,11 @@ mv "${tmp_docs_html}" "${OUT_DIR}/docs.html"
 mv "${tmp_json}" "${OUT_DIR}/index.json"
 install -m 0644 scripts/install.sh "${OUT_DIR}/install.sh"
 install -m 0644 docs/assets/logo/torque-logo-icon-256.png "${OUT_DIR}/assets/torque-logo.png"
+mkdir -p "${OUT_DIR}/assets/demos"
+install -m 0644 .github/readme/torque-showcase.gif "${OUT_DIR}/assets/demos/torque-showcase.gif"
+install -m 0644 .github/readme/torque-security.gif "${OUT_DIR}/assets/demos/torque-security.gif"
+install -m 0644 .github/readme/verifier-demo.gif "${OUT_DIR}/assets/demos/verifier-demo.gif"
+install -m 0644 .github/readme/torque-compare.gif "${OUT_DIR}/assets/demos/torque-compare.gif"
 
 echo ">> wrote:"
 ls -la "${OUT_DIR}/index.html" "${OUT_DIR}/docs.html" "${OUT_DIR}/index.json" "${OUT_DIR}/install.sh" "${OUT_DIR}/.nojekyll" | sed -n '1,200p'

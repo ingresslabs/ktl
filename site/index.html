@@ -11,14 +11,18 @@
     <link rel="icon" href="./assets/torque-logo.png" />
     <style>
       :root {
-        --bg: #f6f7f4;
-        --text: #111312;
-        --muted: #5e6661;
-        --line: #d9ded8;
-        --panel: rgba(255, 255, 255, 0.68);
-        --accent: #2563eb;
+        --bg: #f3f4f1;
+        --text: #101312;
+        --muted: #606760;
+        --line: rgba(92, 99, 93, 0.24);
+        --line-strong: rgba(72, 79, 73, 0.34);
+        --panel: rgba(255, 255, 255, 0.72);
+        --metal: #c8cec9;
+        --palladium: #ecece7;
+        --accent: #245bc7;
         --accent-2: #0f766e;
-        --code: #101312;
+        --code: #111412;
+        --shadow: 0 26px 70px rgba(38, 43, 39, 0.13);
       }
 
       * { box-sizing: border-box; }
@@ -30,7 +34,8 @@
         margin: 0;
         color: var(--text);
         background:
-          linear-gradient(180deg, rgba(255,255,255,0.68), rgba(246,247,244,0.92)),
+          linear-gradient(90deg, rgba(112, 118, 111, 0.10) 1px, transparent 1px) 0 0 / 96px 96px,
+          linear-gradient(180deg, rgba(255,255,255,0.86), rgba(243,244,241,0.94)),
           var(--bg);
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         letter-spacing: 0;
@@ -44,7 +49,7 @@
       a:hover { color: var(--accent); }
 
       .page {
-        width: min(1080px, calc(100% - 40px));
+        width: min(1160px, calc(100% - 40px));
         margin: 0 auto;
         min-height: 100svh;
         display: grid;
@@ -56,20 +61,24 @@
         align-items: center;
         justify-content: space-between;
         gap: 24px;
-        padding: 30px 0;
+        padding: 28px 0;
       }
 
       .brand {
         display: inline-flex;
         align-items: center;
-        gap: 11px;
-        font-weight: 720;
-        font-size: 1rem;
+        gap: 14px;
+        font-weight: 760;
+        font-size: 1.36rem;
       }
 
       .brand img {
-        width: 28px;
-        height: 28px;
+        width: 54px;
+        height: 54px;
+        border-radius: 12px;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.8),
+          0 14px 34px rgba(37, 99, 235, 0.14);
       }
 
       nav {
@@ -83,59 +92,108 @@
       main {
         display: grid;
         align-content: center;
-        padding: 36px 0 56px;
+        padding: 24px 0 52px;
       }
 
       .hero {
         display: grid;
-        gap: 28px;
+        gap: 22px;
       }
 
       .eyebrow {
-        color: var(--accent-2);
+        width: fit-content;
+        color: #33413a;
         font-size: 0.82rem;
         font-weight: 760;
         letter-spacing: 0.08em;
         text-transform: uppercase;
+        padding: 8px 11px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,0.88), rgba(209, 214, 209, 0.55)),
+          var(--palladium);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
       }
 
       h1 {
         margin: 0;
-        max-width: 840px;
-        font-size: clamp(3.1rem, 9vw, 7.5rem);
-        line-height: 0.92;
+        max-width: 1060px;
+        font-size: clamp(3rem, 6vw, 5.2rem);
+        line-height: 0.94;
         letter-spacing: 0;
       }
 
       .lede {
         margin: 0;
-        max-width: 700px;
+        max-width: 790px;
         color: var(--muted);
-        font-size: clamp(1.1rem, 2vw, 1.45rem);
+        font-size: clamp(1.05rem, 1.7vw, 1.28rem);
         line-height: 1.45;
       }
 
       .install {
         display: grid;
-        gap: 12px;
-        max-width: 880px;
-        margin-top: 8px;
+        max-width: 940px;
+        margin-top: 10px;
+        border: 1px solid var(--line-strong);
+        border-radius: 10px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,0.82), rgba(222, 226, 222, 0.66) 42%, rgba(255,255,255,0.7)),
+          var(--panel);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.92),
+          inset 0 -1px 0 rgba(98, 105, 98, 0.10),
+          var(--shadow);
+        overflow: hidden;
       }
 
-      .row {
-        display: grid;
-        grid-template-columns: 118px minmax(0, 1fr) auto;
+      .install-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
         align-items: center;
-        gap: 14px;
-        min-height: 62px;
-        padding: 11px 12px 11px 16px;
-        border: 1px solid var(--line);
-        background: var(--panel);
-        border-radius: 8px;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+        color: #46504a;
+        font-size: 0.84rem;
+        font-weight: 760;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .material {
+        display: inline-flex;
+        gap: 7px;
+        align-items: center;
+        color: rgba(70, 80, 74, 0.72);
+        text-transform: none;
+        letter-spacing: 0;
+        font-weight: 620;
+      }
+
+      .material::before {
+        content: "";
+        width: 42px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #8d9690, transparent);
+      }
+
+      .cmd-row {
+        display: grid;
+        grid-template-columns: 96px minmax(0, 1fr) 44px;
+        align-items: center;
+        gap: 16px;
+        min-height: 66px;
+        padding: 12px 14px 12px 16px;
+      }
+
+      .cmd-row + .cmd-row {
+        border-top: 1px solid var(--line);
       }
 
       .label {
-        color: var(--muted);
+        color: #49514c;
         font-size: 0.84rem;
         font-weight: 760;
         text-transform: uppercase;
@@ -148,22 +206,28 @@
         overflow-x: auto;
         white-space: nowrap;
         color: var(--code);
-        font: 0.95rem/1.5 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        font: 0.96rem/1.5 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
         scrollbar-width: thin;
       }
 
       button {
         appearance: none;
-        border: 1px solid var(--line);
-        border-radius: 6px;
-        min-height: 40px;
-        padding: 0 15px;
-        background: #ffffff;
+        border: 1px solid rgba(71, 78, 72, 0.24);
+        border-radius: 8px;
+        width: 42px;
+        height: 42px;
+        display: inline-grid;
+        place-items: center;
+        padding: 0;
+        background:
+          linear-gradient(180deg, #ffffff, #dfe4df 48%, #f8f9f6),
+          #ffffff;
         color: var(--text);
         font: inherit;
-        font-size: 0.9rem;
-        font-weight: 680;
         cursor: pointer;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.95),
+          0 8px 18px rgba(48, 54, 50, 0.10);
       }
 
       button:hover {
@@ -171,18 +235,83 @@
         color: var(--accent);
       }
 
-      .links {
-        display: flex;
-        gap: 18px;
-        align-items: center;
-        flex-wrap: wrap;
-        color: var(--muted);
-        font-size: 0.95rem;
+      button svg {
+        width: 18px;
+        height: 18px;
+        stroke-width: 1.8;
       }
 
-      .links a:first-child {
-        color: var(--text);
-        font-weight: 720;
+      button[data-copied="true"] {
+        color: var(--accent-2);
+      }
+
+      .links {
+        display: none;
+      }
+
+      .demos {
+        display: grid;
+        gap: 16px;
+        margin-top: 8px;
+        max-width: 1060px;
+      }
+
+      .section-label {
+        color: #3d4741;
+        font-size: 0.86rem;
+        font-weight: 780;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .demo-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .demo {
+        border: 1px solid var(--line-strong);
+        border-radius: 10px;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,0.86), rgba(211, 216, 212, 0.58) 48%, rgba(250,251,248,0.78)),
+          var(--panel);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.92),
+          0 18px 48px rgba(38, 43, 39, 0.10);
+        overflow: hidden;
+      }
+
+      .demo summary {
+        cursor: pointer;
+        list-style: none;
+        padding: 13px 14px;
+        color: #3e4942;
+        font-size: 0.84rem;
+        font-weight: 760;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--line);
+        background:
+          linear-gradient(180deg, rgba(255,255,255,0.72), rgba(224, 228, 224, 0.56));
+      }
+
+      .demo summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .demo-media {
+        padding: 10px;
+      }
+
+      .demo img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 1200 / 620;
+        object-fit: cover;
+        border: 1px solid rgba(63, 71, 65, 0.18);
+        border-radius: 7px;
+        background: #f7f8f5;
       }
 
       footer {
@@ -202,7 +331,11 @@
           flex-direction: column;
         }
         nav { gap: 14px; flex-wrap: wrap; }
-        .row {
+        .install-head {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+        .cmd-row {
           grid-template-columns: 1fr auto;
           gap: 8px 12px;
         }
@@ -211,6 +344,9 @@
         }
         code {
           font-size: 0.86rem;
+        }
+        .demo-grid {
+          grid-template-columns: 1fr;
         }
       }
     </style>
@@ -241,29 +377,67 @@
           </p>
 
           <div class="install" aria-label="Install commands">
-            <div class="row">
+            <div class="install-head">
+              <span>Install</span>
+              <span class="material">release binary or source build</span>
+            </div>
+            <div class="cmd-row">
               <div class="label">Binary</div>
               <code id="binary-cmd">curl -fsSL https://ingresslabs.github.io/torque/install.sh | sh</code>
-              <button type="button" data-copy="binary-cmd">Copy</button>
+              <button type="button" data-copy="binary-cmd" aria-label="Copy binary install command">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true" focusable="false">
+                  <rect x="9" y="9" width="10" height="10" rx="2"></rect>
+                  <path d="M5 15V7a2 2 0 0 1 2-2h8"></path>
+                </svg>
+              </button>
             </div>
-            <div class="row">
+            <div class="cmd-row">
               <div class="label">Source</div>
-              <code id="source-cmd">GOPRIVATE=github.com/ingresslabs/torque go install github.com/ingresslabs/torque/cmd/torque@latest</code>
-              <button type="button" data-copy="source-cmd">Copy</button>
+              <code id="source-cmd">go install github.com/ingresslabs/torque/cmd/torque@latest</code>
+              <button type="button" data-copy="source-cmd" aria-label="Copy source install command">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true" focusable="false">
+                  <rect x="9" y="9" width="10" height="10" rx="2"></rect>
+                  <path d="M5 15V7a2 2 0 0 1 2-2h8"></path>
+                </svg>
+              </button>
             </div>
           </div>
 
-          <div class="links" aria-label="Next links">
-            <a href="./docs.html">Open docs</a>
-            <a href="https://github.com/ingresslabs/torque/releases/latest">Latest release</a>
-            <a href="https://github.com/ingresslabs/torque/blob/main/README.md">README</a>
+          <div class="demos" aria-label="Demos">
+            <div class="section-label">Demos</div>
+            <div class="demo-grid">
+              <details class="demo" open>
+                <summary>Build, plan, apply, logs</summary>
+                <div class="demo-media">
+                  <img src="./assets/demos/torque-showcase.gif" alt="torque build, plan, apply, and logs workflow" loading="lazy" />
+                </div>
+              </details>
+              <details class="demo" open>
+                <summary>Security and evidence gates</summary>
+                <div class="demo-media">
+                  <img src="./assets/demos/torque-security.gif" alt="torque security and evidence workflow" loading="lazy" />
+                </div>
+              </details>
+              <details class="demo" open>
+                <summary>Verifier report</summary>
+                <div class="demo-media">
+                  <img src="./assets/demos/verifier-demo.gif" alt="verifier report demo" loading="lazy" />
+                </div>
+              </details>
+              <details class="demo" open>
+                <summary>Compared with split tooling</summary>
+                <div class="demo-media">
+                  <img src="./assets/demos/torque-compare.gif" alt="torque compared with helmfile and separate Kubernetes tooling" loading="lazy" />
+                </div>
+              </details>
+            </div>
           </div>
         </section>
       </main>
 
       <footer>
         <span>Agent-first Kubernetes delivery.</span>
-        <span>Private installs use GH_TOKEN or GITHUB_TOKEN.</span>
+        <span>Build logs, release plans, and audit trails as files.</span>
       </footer>
     </div>
 
@@ -275,9 +449,13 @@
           var text = target.textContent.trim();
           try {
             await navigator.clipboard.writeText(text);
-            var old = button.textContent;
-            button.textContent = "Copied";
-            window.setTimeout(function() { button.textContent = old; }, 1200);
+            var oldLabel = button.getAttribute("aria-label") || "Copy command";
+            button.dataset.copied = "true";
+            button.setAttribute("aria-label", "Copied");
+            window.setTimeout(function() {
+              button.dataset.copied = "false";
+              button.setAttribute("aria-label", oldLabel);
+            }, 1200);
           } catch (_) {
             window.getSelection().selectAllChildren(target);
           }
