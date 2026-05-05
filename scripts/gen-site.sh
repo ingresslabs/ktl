@@ -125,6 +125,7 @@ install -m 0644 .github/readme/torque-sandbox-secrets.gif "${OUT_DIR}/assets/dem
 install -m 0644 .github/readme/torque-helmer-verifier.gif "${OUT_DIR}/assets/demos/torque-helmer-verifier.gif"
 install -m 0644 .github/readme/torque-plan-report.gif "${OUT_DIR}/assets/demos/torque-plan-report.gif"
 install -m 0644 .github/readme/torque-dag-performance.gif "${OUT_DIR}/assets/demos/torque-dag-performance.gif"
+install -m 0644 .github/readme/torque-logs-capture.gif "${OUT_DIR}/assets/demos/torque-logs-capture.gif"
 
 echo ">> wrote:"
 ls -la "${OUT_DIR}/index.html" "${OUT_DIR}/docs.html" "${OUT_DIR}/index.json" "${OUT_DIR}/install.sh" "${OUT_DIR}/.nojekyll" | sed -n '1,200p'

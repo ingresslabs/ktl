@@ -101,6 +101,9 @@ func TestBuildIndex_IncludesDemosDoc(t *testing.T) {
 		if !strings.Contains(entry.Content, "Helmer HTML plan reports") {
 			t.Fatalf("expected demos content to include HTML plan report demo")
 		}
+		if !strings.Contains(entry.Content, "Kubernetes logs and evidence capture") {
+			t.Fatalf("expected demos content to include logging demo")
+		}
 		if strings.Contains(entry.Content, "Build, plan, apply, and logs") {
 			t.Fatalf("expected build/plan/apply/logs demo to be removed from demos content")
 		}

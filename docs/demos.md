@@ -76,3 +76,20 @@ Produces a reviewable HTML plan report while attaching the same portable build
 evidence reviewers use for release decisions.
 
 </details>
+
+<details open>
+<summary>Kubernetes logs and evidence capture</summary>
+
+```bash
+torque logs 'checkout-.*' -n prod-payments \
+  --events --highlight 'ERROR|WARN' --capture ./logs.sqlite --tail 100
+torque logs deploy/checkout -n prod-payments \
+  --deploy-mode stable+canary --ws-listen :9090
+torque explain ./logs.sqlite --format markdown
+```
+
+Tails matching pods with events and highlighted failure signals, mirrors the
+same stream over WebSocket for live review, and stores the session as portable
+SQLite evidence for later explanation.
+
+</details>
