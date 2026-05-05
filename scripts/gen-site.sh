@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Generate the static help-ui site under ./site by running the local torque binary
-# and scraping its HTML + JSON endpoints.
+# Generate the static Pages site under ./site by running the local torque binary
+# and scraping its HTML + JSON endpoints. The root page is a small landing page;
+# the searchable help UI is published as docs.html next to index.json.
 #
 # This avoids duplicating help-ui template/index logic in another generator.
 
@@ -20,6 +21,7 @@ fi
 mkdir -p "${OUT_DIR}"
 touch "${OUT_DIR}/.nojekyll"
 rm -rf "${OUT_DIR}/assets"
+mkdir -p "${OUT_DIR}/assets"
 
 if [[ ! -x "${TORQUE_BIN}" ]]; then
   echo ">> building ${TORQUE_BIN}"
@@ -76,14 +78,14 @@ for i in $(seq 1 80); do
   fi
 done
 
-tmp_html="$(mktemp)"
+tmp_docs_html="$(mktemp)"
 tmp_json="$(mktemp)"
 
 echo ">> fetching HTML + index.json"
-curl -fsS "${base_url}/" >"${tmp_html}"
+curl -fsS "${base_url}/" >"${tmp_docs_html}"
 # Prefer /index.json so the fetched HTML works as a static site without an /api/ router.
 curl -fsS "${base_url}/index.json" >"${tmp_json}"
-python3 - "${tmp_html}" "${TORQUE_SITE_VERSION_LABEL:-torque docs}" <<'PY'
+python3 - "${tmp_docs_html}" "${TORQUE_SITE_VERSION_LABEL:-torque docs}" <<'PY'
 import re
 import sys
 from html import escape
@@ -113,8 +115,11 @@ with open(path, "w", encoding="utf-8") as fh:
     fh.write("\n")
 PY
 
-mv "${tmp_html}" "${OUT_DIR}/index.html"
+install -m 0644 scripts/templates/site_landing.html "${OUT_DIR}/index.html"
+mv "${tmp_docs_html}" "${OUT_DIR}/docs.html"
 mv "${tmp_json}" "${OUT_DIR}/index.json"
+install -m 0644 scripts/install.sh "${OUT_DIR}/install.sh"
+install -m 0644 docs/assets/logo/torque-logo-icon-256.png "${OUT_DIR}/assets/torque-logo.png"
 
 echo ">> wrote:"
-ls -la "${OUT_DIR}/index.html" "${OUT_DIR}/index.json" "${OUT_DIR}/.nojekyll" | sed -n '1,200p'
+ls -la "${OUT_DIR}/index.html" "${OUT_DIR}/docs.html" "${OUT_DIR}/index.json" "${OUT_DIR}/install.sh" "${OUT_DIR}/.nojekyll" | sed -n '1,200p'

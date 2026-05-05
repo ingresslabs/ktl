@@ -404,7 +404,7 @@ docs: ## (No-op) Docs build pipeline is not checked in
 docs-no-gifs: ## Ensure docs and generated site output do not contain GIFs
 	@./scripts/check-docs-no-gifs.sh
 
-site: ## Generate the static help site under ./site (index.html + index.json)
+site: ## Generate the static Pages site under ./site (landing + docs + index.json)
 	@./scripts/gen-site.sh
 
 site-check: ## Verify that ./site is up to date (fails if regen would change files)
