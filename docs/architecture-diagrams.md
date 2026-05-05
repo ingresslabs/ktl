@@ -79,6 +79,25 @@ guardrail reports.
 </details>
 
 <details open>
+<summary>Verifier and agent safety matrix</summary>
+
+```bash
+verifier --chart ./chart --release checkout -n prod \
+  --format json --report verify.json
+torque apply plan --chart ./chart --release checkout -n prod \
+  --verify-report verify.json --output plan.md
+torque agent simulate --scenario prod-apply --scenario destructive-delete \
+  --scenario print-secrets --report agent-safety.json
+```
+
+Shows verifier coverage across 50 bad manifest categories with
+blocked/warned/missed scoring, then maps agent attempts such as prod apply,
+destructive delete, secret printing, unverified deploys, and broad log scraping
+to guardrail outcomes.
+
+</details>
+
+<details open>
 <summary>Package boundaries</summary>
 
 ```text

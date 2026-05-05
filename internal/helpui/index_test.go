@@ -149,6 +149,7 @@ func TestBuildIndex_IncludesArchitectureDiagramsDoc(t *testing.T) {
 			"Evidence model",
 			"Stack DAG scheduler",
 			"Secret-safe delivery path",
+			"Verifier and agent safety matrix",
 			"Package boundaries",
 		} {
 			if !strings.Contains(entry.Content, want) {

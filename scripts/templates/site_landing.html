@@ -92,16 +92,16 @@
       .brand {
         display: inline-flex;
         align-items: center;
-        gap: 10px;
+        gap: 16px;
         color: var(--text);
         font-weight: 760;
-        font-size: 1.5rem;
+        font-size: 1.9rem;
         line-height: 1;
       }
 
       .brand-mark {
-        width: 30px;
-        height: 30px;
+        width: 76px;
+        height: 76px;
         color: currentColor;
         flex: 0 0 auto;
       }
@@ -327,9 +327,11 @@
           0 18px 48px rgba(0, 0, 0, 0.28);
         overflow: hidden;
         transform: translateY(0) scale(1);
+        scale: 1;
+        translate: 0 0;
         transform-origin: center top;
         transform-style: preserve-3d;
-        transition: transform 0.58s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.42s ease, box-shadow 0.42s ease;
+        transition: scale 0.42s cubic-bezier(0.2, 0.8, 0.2, 1), translate 0.42s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.42s ease, box-shadow 0.42s ease;
         animation: demo-rise 1s cubic-bezier(0.16, 1, 0.3, 1) both;
       }
 
@@ -371,7 +373,8 @@
         box-shadow:
           inset 0 1px 0 rgba(255, 255, 255, 0.10),
           0 40px 88px rgba(0, 0, 0, 0.42);
-        transform: translateY(-10px) scale(1.018) rotateX(1.8deg);
+        scale: 1.035;
+        translate: 0 -10px;
       }
 
       .demo:hover::after,
@@ -422,11 +425,6 @@
       .architecture-diagrams .demo img {
         aspect-ratio: 1600 / 620;
         object-fit: contain;
-      }
-
-      .architecture-diagrams .demo:hover img,
-      .architecture-diagrams .demo:focus-within img {
-        transform: scale(1.075);
       }
 
       .diagram-modal {
@@ -505,6 +503,8 @@
         .demo:hover,
         .demo:focus-within {
           transform: none;
+          scale: 1;
+          translate: 0 0;
         }
       }
 
@@ -596,6 +596,14 @@
         header {
           align-items: flex-start;
           flex-direction: column;
+        }
+        .brand {
+          gap: 12px;
+          font-size: 1.65rem;
+        }
+        .brand-mark {
+          width: 58px;
+          height: 58px;
         }
         footer {
           grid-template-columns: minmax(0, 1fr);
@@ -780,6 +788,12 @@
                 <summary>Secret-safe delivery path</summary>
                 <div class="demo-media">
                   <img src="./assets/architecture/torque-architecture-secret-path.png" alt="torque secret-safe delivery path architecture diagram" loading="lazy" />
+                </div>
+              </details>
+              <details class="demo" open>
+                <summary>Verifier and agent safety matrix</summary>
+                <div class="demo-media">
+                  <img src="./assets/architecture/torque-architecture-safety-matrix.png" alt="torque verifier policy coverage and agent safety matrix architecture diagram" loading="lazy" />
                 </div>
               </details>
               <details class="demo" open>

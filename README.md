@@ -167,6 +167,8 @@ Expected: torque remains useful when deploys fail, not only when they pass.
 
 ### 5. Verifier Policy Coverage Matrix
 
+![Verifier and agent safety matrix](.github/readme/torque-architecture-safety-matrix.png)
+
 Run 50 intentionally bad manifests through verifier and score each as
 `blocked`, `warned`, or `missed`.
 
