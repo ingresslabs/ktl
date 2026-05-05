@@ -8,7 +8,6 @@
       name="description"
       content="Kubernetes delivery CLI that turns builds, Helm plans, rollouts, and logs into portable SQLite evidence."
     />
-    <link rel="icon" href="./assets/torque-logo.png" />
     <style>
       :root {
         color-scheme: dark;
@@ -61,6 +60,10 @@
         text-decoration: none;
       }
 
+      html {
+        scroll-behavior: smooth;
+      }
+
       a:hover { color: var(--accent); }
 
       ::selection {
@@ -89,20 +92,10 @@
       .brand {
         display: inline-flex;
         align-items: center;
-        gap: 18px;
         color: var(--text);
         font-weight: 760;
         font-size: 1.5rem;
         line-height: 1;
-      }
-
-      .brand img {
-        width: 82px;
-        height: 82px;
-        border-radius: 18px;
-        box-shadow:
-          0 18px 46px rgba(0, 0, 0, 0.36),
-          0 0 0 1px rgba(237, 241, 245, 0.14);
       }
 
       nav {
@@ -122,7 +115,26 @@
       }
 
       nav a {
-        transition: color 0.22s ease, opacity 0.22s ease;
+        transition: color 0.22s ease, opacity 0.22s ease, border-color 0.22s ease, background 0.22s ease;
+      }
+
+      nav a.docs-link {
+        color: var(--text);
+        padding: 9px 12px;
+        margin: -9px -2px;
+        border: 1px solid rgba(237, 241, 245, 0.28);
+        border-radius: 8px;
+        background:
+          linear-gradient(180deg, rgba(237, 241, 245, 0.14), rgba(184, 189, 196, 0.04)),
+          rgba(16, 16, 20, 0.78);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+      }
+
+      nav a.docs-link:hover {
+        border-color: rgba(237, 241, 245, 0.48);
+        background:
+          linear-gradient(180deg, rgba(237, 241, 245, 0.20), rgba(184, 189, 196, 0.06)),
+          rgba(16, 16, 20, 0.94);
       }
 
       main {
@@ -277,6 +289,7 @@
         gap: 16px;
         margin-top: 14px;
         max-width: 1080px;
+        perspective: 1400px;
       }
 
       .demo-grid {
@@ -286,6 +299,8 @@
       }
 
       .demo {
+        position: relative;
+        scroll-margin-top: 32px;
         border: 1px solid var(--line);
         border-radius: var(--radius);
         background:
@@ -295,6 +310,41 @@
           inset 0 1px 0 rgba(255, 255, 255, 0.08),
           0 18px 48px rgba(0, 0, 0, 0.28);
         overflow: hidden;
+        transform: translateY(0) scale(1);
+        transform-origin: center top;
+        transition: transform 0.42s ease, border-color 0.42s ease, box-shadow 0.42s ease;
+        animation: demo-rise 0.72s ease both;
+      }
+
+      .demo:nth-child(2) { animation-delay: 0.08s; }
+      .demo:nth-child(3) { animation-delay: 0.16s; }
+      .demo:nth-child(4) { animation-delay: 0.24s; }
+      .demo:nth-child(5) { animation-delay: 0.32s; }
+
+      .demo::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(115deg, transparent 0 34%, rgba(255,255,255,0.10) 44%, transparent 56% 100%);
+        opacity: 0;
+        transform: translateX(-42%);
+        transition: opacity 0.42s ease, transform 0.78s ease;
+      }
+
+      .demo:hover,
+      .demo:focus-within {
+        border-color: rgba(237, 241, 245, 0.28);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.10),
+          0 30px 72px rgba(0, 0, 0, 0.36);
+        transform: translateY(-4px) scale(1.012);
+      }
+
+      .demo:hover::after,
+      .demo:focus-within::after {
+        opacity: 1;
+        transform: translateX(42%);
       }
 
       .demo summary {
@@ -329,13 +379,61 @@
         background: #101014;
       }
 
+      @keyframes demo-rise {
+        from {
+          opacity: 0;
+          transform: translateY(24px) scale(0.982);
+          filter: saturate(0.78);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+          filter: saturate(1);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+        .demo {
+          animation: none;
+          transition: none;
+        }
+        .demo::after {
+          display: none;
+        }
+        .demo:hover,
+        .demo:focus-within {
+          transform: none;
+        }
+      }
+
+      @supports (animation-timeline: view()) {
+        .demo {
+          animation-name: demo-rise;
+          animation-duration: auto;
+          animation-timing-function: linear;
+          animation-fill-mode: both;
+          animation-timeline: view();
+          animation-range: entry 0% cover 34%;
+        }
+        .demo:nth-child(2),
+        .demo:nth-child(3),
+        .demo:nth-child(4),
+        .demo:nth-child(5) {
+          animation-delay: 0s;
+        }
+      }
+
       footer {
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        gap: 30px;
-        margin-top: 10px;
-        padding: 24px 24px;
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+        align-items: center;
+        gap: 28px;
+        margin-top: 48px;
+        min-height: 118px;
+        padding: 24px 28px;
         color: var(--muted);
         border: 1px solid var(--line);
         border-radius: var(--radius);
@@ -349,18 +447,21 @@
       }
 
       footer span:first-child {
+        min-width: 0;
         color: transparent;
         background: linear-gradient(180deg, #ffffff, #aeb4bb 64%, #f7f9fb);
         -webkit-background-clip: text;
         background-clip: text;
-        font-size: clamp(1.38rem, 2.9vw, 3rem);
+        font-size: clamp(1.5rem, 3.4vw, 2.55rem);
         font-weight: 840;
-        line-height: 0.95;
+        line-height: 1.02;
         letter-spacing: 0;
+        text-wrap: balance;
       }
 
       footer span:last-child {
-        max-width: 360px;
+        min-width: 0;
+        max-width: 410px;
         color: #f3f5f7;
         font: 0.72rem/1.45 var(--font-mono);
         font-weight: 760;
@@ -375,16 +476,18 @@
           gap: 22px;
           padding-bottom: 36px;
         }
-        header, footer {
+        header {
           align-items: flex-start;
           flex-direction: column;
         }
-        footer span:last-child {
-          text-align: left;
+        footer {
+          grid-template-columns: minmax(0, 1fr);
+          align-items: flex-start;
+          margin-top: 34px;
         }
-        .brand img {
-          width: 64px;
-          height: 64px;
+        footer span:last-child {
+          max-width: none;
+          text-align: left;
         }
         nav { gap: 14px; flex-wrap: wrap; }
         h1 {
@@ -419,11 +522,10 @@
     <div class="page">
       <header>
         <a class="brand" href="./" aria-label="torque home">
-          <img src="./assets/torque-logo.png" alt="" />
           <span>torque</span>
         </a>
         <nav aria-label="Primary">
-          <a href="./docs.html">Docs</a>
+          <a class="docs-link" href="./docs.html">Docs</a>
           <a href="https://github.com/ingresslabs/torque">GitHub</a>
           <a href="https://github.com/ingresslabs/torque/releases">Releases</a>
         </nav>
@@ -464,21 +566,33 @@
           <div class="demos" aria-label="Demos">
             <div class="demo-grid">
               <details class="demo" open>
-                <summary>Build, plan, apply, logs</summary>
-                <div class="demo-media">
-                  <img src="./assets/demos/torque-showcase.gif" alt="torque build, plan, apply, and logs workflow" loading="lazy" />
-                </div>
-              </details>
-              <details class="demo" open>
-                <summary>Security and evidence gates</summary>
-                <div class="demo-media">
-                  <img src="./assets/demos/torque-security.gif" alt="torque security and evidence workflow" loading="lazy" />
-                </div>
-              </details>
-              <details class="demo" open>
                 <summary>Complex DAG stack orchestration</summary>
                 <div class="demo-media">
                   <img src="./assets/demos/torque-dag.gif" alt="torque complex DAG stack orchestration workflow" loading="lazy" />
+                </div>
+              </details>
+              <details class="demo" open>
+                <summary>DAG performance scheduling</summary>
+                <div class="demo-media">
+                  <img src="./assets/demos/torque-dag-performance.gif" alt="torque DAG performance scheduling workflow" loading="lazy" />
+                </div>
+              </details>
+              <details class="demo" open>
+                <summary>Sandboxed builds and secrets</summary>
+                <div class="demo-media">
+                  <img src="./assets/demos/torque-sandbox-secrets.gif" alt="torque sandboxed build and secret handling workflow" loading="lazy" />
+                </div>
+              </details>
+              <details class="demo" open>
+                <summary>Helmer archives and verifier gates</summary>
+                <div class="demo-media">
+                  <img src="./assets/demos/torque-helmer-verifier.gif" alt="torque Helmer archive and verifier gate workflow" loading="lazy" />
+                </div>
+              </details>
+              <details class="demo" open>
+                <summary>Helmer HTML plan reports</summary>
+                <div class="demo-media">
+                  <img src="./assets/demos/torque-plan-report.gif" alt="torque Helmer HTML plan report workflow" loading="lazy" />
                 </div>
               </details>
             </div>

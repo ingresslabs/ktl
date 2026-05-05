@@ -95,8 +95,17 @@ func TestBuildIndex_IncludesDemosDoc(t *testing.T) {
 		if entry.Title != "Demos" {
 			t.Fatalf("unexpected demos title %q", entry.Title)
 		}
-		if !strings.Contains(entry.Content, "Security and evidence gates") {
-			t.Fatalf("expected demos content to include evidence-gate demo")
+		if !strings.Contains(entry.Content, "Complex DAG stack orchestration") {
+			t.Fatalf("expected demos content to include DAG demo")
+		}
+		if !strings.Contains(entry.Content, "Helmer HTML plan reports") {
+			t.Fatalf("expected demos content to include HTML plan report demo")
+		}
+		if strings.Contains(entry.Content, "Build, plan, apply, and logs") {
+			t.Fatalf("expected build/plan/apply/logs demo to be removed from demos content")
+		}
+		if strings.Contains(entry.Content, "Security and evidence gates") {
+			t.Fatalf("expected security/evidence demo to be removed from demos content")
 		}
 		if strings.Contains(entry.Content, "torque compared with split tooling") {
 			t.Fatalf("expected comparison demo to be removed from demos content")

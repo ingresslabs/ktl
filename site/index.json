@@ -732,16 +732,18 @@
       "id": "doc:demos",
       "kind": "doc",
       "title": "Demos",
-      "subtitle": "Build, release, and evidence-gate demos",
-      "content": "# Demos\n\nRunnable demos for the core `torque` workflows. Each one is intentionally small\nenough to paste into a terminal or CI job.\n\n<details open>\n<summary>Build, plan, apply, and logs</summary>\n\n```bash\ntorque build . --tag ghcr.io/acme/api:dev --capture ./build.sqlite\ntorque apply plan --chart ./chart --release api -n prod \\\n  --build-capture ./build.sqlite --github-comment --output plan.md\ntorque apply --chart ./chart --release api -n prod --capture ./apply.sqlite --yes\ntorque logs 'api-.*' -n prod --capture ./logs.sqlite --tail 100\n```\n\nBuilds an image, writes a reviewable plan, applies the release, captures rollout\nevidence, and records the last logs for the release.\n\n</details>\n\n<details open>\n<summary>Security and evidence gates</summary>\n\n```bash\ntorque build . --tag ghcr.io/acme/api:dev --capture ./build.sqlite\nverifier --chart ./chart --release api -n prod --format json --report verify.json\ntorque apply plan --chart ./chart --release api -n prod \\\n  --verify-report verify.json --build-capture ./build.sqlite \\\n  --github-comment --output plan.md\ntorque apply --chart ./chart --release api -n prod \\\n  --require-verified verify.json --capture ./apply.sqlite --yes\n```\n\nKeeps build provenance, verifier output, plan review, and the final apply tied\ntogether so CI can block on the same evidence reviewers saw.\n\n</details>",
+      "subtitle": "DAG, sandbox, Helmer, verifier, and report demos",
+      "content": "# Demos\n\nText-only companion commands for the landing page demos. The animated demos live\non the landing page; docs stay copy/paste friendly and free of GIF assets.\n\n<details open>\n<summary>Complex DAG stack orchestration</summary>\n\n```bash\ntorque stack plan --config testdata/stack/e2e/10-large-graph \\\n  --bundle ./dist/stack-large-graph.tgz\ntorque stack plan --config testdata/stack/e2e/10-large-graph --output json\ntorque stack status --config ./stacks/prod --follow\n```\n\nPlans a dependency-ordered stack, seals the review bundle, and follows rollout\nstatus in dependency waves.\n\n</details>\n\n<details open>\n<summary>DAG performance scheduling</summary>\n\n```bash\ntorque stack plan --config testdata/stack/e2e/02-fanout --output json\ntorque stack plan --config testdata/stack/e2e/03-fanin --output json\ntorque stack plan --config testdata/stack/e2e/10-large-graph --output json\n```\n\nShows how shared roots, joins, and larger graphs are reduced into deterministic\nwaves before anything is applied.\n\n</details>\n\n<details open>\n<summary>Sandboxed builds and secrets</summary>\n\n```bash\ntorque build sandbox doctor --sandbox-config sandbox/linux-ci.cfg\ntorque build . --sandbox --sandbox-config sandbox/linux-ci.cfg \\\n  --capture ./build.sqlite\n```\n\nChecks the sandbox profile, then runs the build inside the constrained builder\nwhile writing portable build evidence.\n\n</details>\n\n<details open>\n<summary>Helmer archives and verifier gates</summary>\n\n```bash\nhelmer archive ./chart --output ./chart.tgz\nverifier --chart ./chart --release api -n prod --format json --report verify.json\ntorque apply plan --chart ./chart --release api -n prod \\\n  --verify-report verify.json --output plan.md\n```\n\nKeeps the chart archive, rendered manifests, verifier report, and release plan\nbound together for review.\n\n</details>\n\n<details open>\n<summary>Helmer HTML plan reports</summary>\n\n```bash\nhelmer report ./chart --output ./plan.html\ntorque apply plan --chart ./chart --release api -n prod \\\n  --visualize --output ./plan.html\ntorque apply plan --chart ./chart --release api -n prod \\\n  --build-capture ./build.sqlite --format html --output ./plan.html\n```\n\nProduces a reviewable HTML plan report while attaching the same portable build\nevidence reviewers use for release decisions.\n\n</details>",
       "tags": [
         "doc",
         "demos",
         "examples",
-        "build",
-        "release",
+        "dag",
+        "stack",
+        "sandbox",
+        "helmer",
         "verifier",
-        "evidence"
+        "report"
       ]
     },
     {
