@@ -410,6 +410,8 @@
         border: 1px solid rgba(237, 241, 245, 0.12);
         border-radius: 7px;
         background: #101014;
+        transform-origin: center;
+        transition: transform 0.42s cubic-bezier(0.2, 0.8, 0.2, 1);
       }
 
       .architecture-diagrams .demo-media,
@@ -420,6 +422,11 @@
       .architecture-diagrams .demo img {
         aspect-ratio: 1600 / 620;
         object-fit: contain;
+      }
+
+      .architecture-diagrams .demo:hover img,
+      .architecture-diagrams .demo:focus-within img {
+        transform: scale(1.075);
       }
 
       .diagram-modal {
