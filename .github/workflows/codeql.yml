@@ -17,6 +17,7 @@ permissions:
 jobs:
   analyze:
     name: Analyze (go)
+    if: ${{ !github.event.repository.private || vars.CODEQL_PRIVATE_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -41,4 +42,3 @@ jobs:
 
       - name: Analyze
         uses: github/codeql-action/analyze@45cbd0c69e560cd9e7cd7f8c32362050c9b7ded2 # v4.32.2
-
