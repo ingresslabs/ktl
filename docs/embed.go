@@ -6,6 +6,9 @@ var (
 	//go:embed architecture.md
 	ArchitectureMD string
 
+	//go:embed architecture-diagrams.md
+	ArchitectureDiagramsMD string
+
 	//go:embed deps.md
 	DepsMD string
 

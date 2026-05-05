@@ -92,10 +92,18 @@
       .brand {
         display: inline-flex;
         align-items: center;
+        gap: 10px;
         color: var(--text);
         font-weight: 760;
         font-size: 1.5rem;
         line-height: 1;
+      }
+
+      .brand-mark {
+        width: 30px;
+        height: 30px;
+        color: currentColor;
+        flex: 0 0 auto;
       }
 
       nav {
@@ -298,6 +306,19 @@
         gap: clamp(36px, 5vw, 72px);
       }
 
+      .architecture-diagrams {
+        margin-top: clamp(64px, 9vw, 116px);
+      }
+
+      .section-heading {
+        color: var(--accent);
+        font: 0.78rem/1 var(--font-mono);
+        font-weight: 760;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        padding: 0 2px;
+      }
+
       .demo {
         --demo-offset-x: 0;
         --demo-tilt: 0deg;
@@ -451,6 +472,14 @@
         }
       }
 
+      @media (max-width: 700px) {
+        .demo:nth-child(odd),
+        .demo:nth-child(even) {
+          --demo-offset-x: 0;
+          --demo-tilt: 0deg;
+        }
+      }
+
       footer {
         display: grid;
         grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
@@ -547,6 +576,11 @@
     <div class="page">
       <header>
         <a class="brand" href="./" aria-label="torque home">
+          <svg class="brand-mark" viewBox="0 0 32 32" fill="none" aria-hidden="true" focusable="false">
+            <path d="M16 2.5 29.5 16 16 29.5 2.5 16 16 2.5Z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"></path>
+            <path d="M16 8.5 23.5 16 16 23.5 8.5 16 16 8.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" opacity="0.68"></path>
+            <path d="M16 2.5v27M2.5 16h27" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity="0.42"></path>
+          </svg>
           <span>torque</span>
         </a>
         <nav aria-label="Primary">
@@ -654,6 +688,42 @@
                 <summary>Stack resume and rerun failed</summary>
                 <div class="demo-media">
                   <img src="./assets/demos/torque-stack-rerun.gif" alt="torque stack resume and rerun failed workflow" loading="lazy" />
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <div class="demos architecture-diagrams" aria-label="Architecture diagrams">
+            <div class="section-heading">Architecture diagrams</div>
+            <div class="demo-grid">
+              <details class="demo" open>
+                <summary>End-to-end delivery loop</summary>
+                <div class="demo-media">
+                  <img src="./assets/architecture/torque-architecture-delivery-loop.png" alt="torque end-to-end delivery loop architecture diagram" loading="lazy" />
+                </div>
+              </details>
+              <details class="demo" open>
+                <summary>Evidence model</summary>
+                <div class="demo-media">
+                  <img src="./assets/architecture/torque-architecture-evidence-model.png" alt="torque portable evidence model architecture diagram" loading="lazy" />
+                </div>
+              </details>
+              <details class="demo" open>
+                <summary>Stack DAG scheduler</summary>
+                <div class="demo-media">
+                  <img src="./assets/architecture/torque-architecture-stack-scheduler.png" alt="torque stack DAG scheduler architecture diagram" loading="lazy" />
+                </div>
+              </details>
+              <details class="demo" open>
+                <summary>Secret-safe delivery path</summary>
+                <div class="demo-media">
+                  <img src="./assets/architecture/torque-architecture-secret-path.png" alt="torque secret-safe delivery path architecture diagram" loading="lazy" />
+                </div>
+              </details>
+              <details class="demo" open>
+                <summary>Package boundaries</summary>
+                <div class="demo-media">
+                  <img src="./assets/architecture/torque-architecture-package-boundaries.png" alt="torque package boundaries architecture diagram" loading="lazy" />
                 </div>
               </details>
             </div>

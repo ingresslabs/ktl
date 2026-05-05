@@ -132,3 +132,30 @@ func TestBuildIndex_IncludesDemosDoc(t *testing.T) {
 	}
 	t.Fatalf("expected demos doc in help index")
 }
+
+func TestBuildIndex_IncludesArchitectureDiagramsDoc(t *testing.T) {
+	root := &cobra.Command{Use: "torque"}
+
+	index := BuildIndex(root, false)
+	for _, entry := range index.Entries {
+		if entry.ID != "doc:architecture-diagrams" {
+			continue
+		}
+		if entry.Title != "Architecture Diagrams" {
+			t.Fatalf("unexpected architecture diagrams title %q", entry.Title)
+		}
+		for _, want := range []string{
+			"End-to-end delivery loop",
+			"Evidence model",
+			"Stack DAG scheduler",
+			"Secret-safe delivery path",
+			"Package boundaries",
+		} {
+			if !strings.Contains(entry.Content, want) {
+				t.Fatalf("expected architecture diagrams content to include %q", want)
+			}
+		}
+		return
+	}
+	t.Fatalf("expected architecture diagrams doc in help index")
+}

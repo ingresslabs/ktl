@@ -247,6 +247,17 @@ func BuildIndex(root *cobra.Command, includeHidden bool) Index {
 		})
 	}
 
+	if md := strings.TrimSpace(torquedocs.ArchitectureDiagramsMD); md != "" {
+		entries = append(entries, Entry{
+			ID:       "doc:architecture-diagrams",
+			Kind:     "doc",
+			Title:    "Architecture Diagrams",
+			Subtitle: "Delivery loop, evidence model, DAG scheduler, secrets, and package boundaries",
+			Content:  md,
+			Tags:     []string{"doc", "architecture", "diagrams", "delivery", "evidence", "stack", "secrets", "packages"},
+		})
+	}
+
 	if md := strings.TrimSpace(torquedocs.TroubleshootingMD); md != "" {
 		entries = append(entries, Entry{
 			ID:       "doc:troubleshooting",
