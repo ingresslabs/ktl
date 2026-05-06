@@ -95,6 +95,9 @@ func TestBuildIndex_IncludesDemosDoc(t *testing.T) {
 		if entry.Title != "Demos" {
 			t.Fatalf("unexpected demos title %q", entry.Title)
 		}
+		if !strings.Contains(entry.Content, "Ship subcommand release flow") {
+			t.Fatalf("expected demos content to include ship demo")
+		}
 		if !strings.Contains(entry.Content, "Complex DAG stack orchestration") {
 			t.Fatalf("expected demos content to include DAG demo")
 		}
@@ -145,12 +148,8 @@ func TestBuildIndex_IncludesArchitectureDiagramsDoc(t *testing.T) {
 			t.Fatalf("unexpected architecture diagrams title %q", entry.Title)
 		}
 		for _, want := range []string{
-			"End-to-end delivery loop",
-			"Evidence model",
-			"Stack DAG scheduler",
 			"Secret-safe delivery path",
 			"Verifier and agent safety matrix",
-			"Package boundaries",
 		} {
 			if !strings.Contains(entry.Content, want) {
 				t.Fatalf("expected architecture diagrams content to include %q", want)

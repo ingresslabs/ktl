@@ -4,6 +4,23 @@ Text-only companion commands for the landing page demos. The animated demos live
 on the landing page; docs stay copy/paste friendly and free of GIF assets.
 
 <details open>
+<summary>Ship subcommand release flow</summary>
+
+```bash
+torque ship --chart ./chart --release api -n prod \
+  --build . --tag ghcr.io/acme/api:dev --yes
+torque ship --chart ./chart --release api -n prod \
+  --build . --tag ghcr.io/acme/api:dev --plan-only
+torque explain ./dist/torque-ship-api/apply.sqlite --format markdown
+```
+
+Runs the focused build-to-deploy path as one command, writing build/apply
+captures, verifier output, plan output, explain output, and `ship.json` into a
+portable evidence directory.
+
+</details>
+
+<details open>
 <summary>Complex DAG stack orchestration</summary>
 
 ```bash

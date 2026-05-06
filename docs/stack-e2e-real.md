@@ -20,7 +20,7 @@ For a more "realistic" (and intentionally more complex) demo stack, see `testdat
 ## Run
 
 ```bash
-export KUBECONFIG_PATH="$HOME/.kube/archimedes.yaml"
+export KUBECONFIG_PATH="$HOME/.kube/config"
 export TORQUE_STACK_E2E_NAMESPACE="torque-stack-e2e"
 export TORQUE_STACK_E2E_CONFIRM=1
 
@@ -32,7 +32,7 @@ export TORQUE_STACK_E2E_CONFIRM=1
 The standard suite above uses ConfigMaps only. For a separate verify-focused suite that creates Deployments/Pods and validates the `verify` phase behavior, use:
 
 ```bash
-export KUBECONFIG_PATH="$HOME/.kube/archimedes.yaml"
+export KUBECONFIG_PATH="$HOME/.kube/config"
 export TORQUE_STACK_VERIFY_E2E_NAMESPACE="torque-stack-verify-e2e"
 export TORQUE_STACK_VERIFY_E2E_CONFIRM=1
 
@@ -56,7 +56,6 @@ Per success fixture (`01-...` through `10-...`):
   - `--diff` (diff preview; current deploy engine treats diff as dry-run)
   - `--concurrency` + `--progressive-concurrency`
   - `--retry`
-  - optional verify phase when enabled via `stack.yaml` (`verify:`)
 - `torque stack status`:
   - `--format raw|table|json`
   - `--follow` for sqlite-backed runs (follows until it observes `RUN_COMPLETED`, then stops)
@@ -68,10 +67,6 @@ Per success fixture (`01-...` through `10-...`):
   - `torque stack seal --bundle`
   - `torque stack apply --sealed-dir` (real apply, no diff)
 - `torque stack delete` with concurrency controls
-
-Expected-apply-failure fixtures:
-
-- `12-verify-warning-fail`: `torque stack apply` must fail in the `verify` phase (injects a Warning Event tied to a managed object).
 
 Expected-failure fixtures:
 

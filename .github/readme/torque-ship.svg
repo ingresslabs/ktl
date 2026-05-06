@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+  <title id="title">torque ship subcommand demo</title>
+  <desc id="desc">Calm terminal-style demo showing torque ship build, verify, plan, apply, and explain steps with evidence artifacts.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#11151c"/>
+      <stop offset="0.52" stop-color="#08090d"/>
+      <stop offset="1" stop-color="#12161d"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#171b23"/>
+      <stop offset="1" stop-color="#0d0f14"/>
+    </linearGradient>
+    <linearGradient id="rail" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7edaee" stop-opacity="0.18"/>
+      <stop offset="0.5" stop-color="#7edaee" stop-opacity="0.72"/>
+      <stop offset="1" stop-color="#edf1f5" stop-opacity="0.18"/>
+    </linearGradient>
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.49 0 0 0 0 0.85 0 0 0 0 0.93 0 0 0 0.38 0"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <style>
+      .mono { font-family: "SF Mono", "Monaco", "Inconsolata", "Fira Code", ui-monospace, monospace; }
+      .sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+      .muted { fill: #a7aeb8; }
+      .bright { fill: #f8fafc; }
+      .accent { fill: #7edaee; }
+      .panel { fill: url(#panel); stroke: rgba(237,241,245,0.16); stroke-width: 1.2; }
+      .flow-rail { stroke: #7edaee; stroke-opacity: 0.2; stroke-width: 4; stroke-linecap: round; }
+      .flow-dash {
+        stroke: #edf1f5;
+        stroke-opacity: 0.72;
+        stroke-width: 3.2;
+        stroke-linecap: round;
+        stroke-dasharray: 24 56;
+        animation: flowDash 6.4s linear infinite;
+        filter: url(#softGlow);
+      }
+      .flow-node { fill: #7edaee; opacity: 0.68; filter: url(#softGlow); }
+      @keyframes flowDash {
+        to { stroke-dashoffset: -160; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .flow-dash { animation: none; }
+      }
+    </style>
+  </defs>
+
+  <rect width="1200" height="620" fill="url(#bg)"/>
+  <path d="M0 104h1200M0 228h1200M0 352h1200M0 476h1200M150 0v620M450 0v620M750 0v620M1050 0v620" stroke="#ffffff" stroke-opacity="0.032"/>
+  <rect x="36" y="34" width="1128" height="552" rx="18" fill="#06070a" stroke="#edf1f5" stroke-opacity="0.12"/>
+
+  <g transform="translate(66 64)">
+    <rect width="1068" height="222" rx="14" class="panel"/>
+    <circle cx="24" cy="24" r="6" fill="#ef6a6a"/>
+    <circle cx="46" cy="24" r="6" fill="#e8c468"/>
+    <circle cx="68" cy="24" r="6" fill="#74d28a"/>
+    <text x="92" y="29" class="mono muted" font-size="15">torque ship</text>
+
+    <text x="28" y="72" class="mono bright" font-size="18">$ torque ship --chart ./chart --release api -n prod \</text>
+    <text x="48" y="104" class="mono bright" font-size="18">--build . --tag ghcr.io/acme/api:dev --yes</text>
+
+    <g transform="translate(28 142)">
+      <text x="0" y="0" class="mono accent" font-size="16">ship: build</text>
+      <text x="150" y="0" class="mono muted" font-size="16">image + build.sqlite</text>
+      <text x="0" y="30" class="mono accent" font-size="16">ship: verify</text>
+      <text x="150" y="30" class="mono muted" font-size="16">verify.json accepted</text>
+    </g>
+    <g transform="translate(600 142)">
+      <text x="0" y="0" class="mono accent" font-size="16">ship: plan</text>
+      <text x="138" y="0" class="mono muted" font-size="16">plan.json ready</text>
+      <text x="0" y="30" class="mono accent" font-size="16">ship: apply</text>
+      <text x="138" y="30" class="mono muted" font-size="16">apply.sqlite captured</text>
+      <text x="0" y="60" class="mono accent" font-size="16">ship: explain</text>
+      <text x="138" y="60" class="mono muted" font-size="16">summary written</text>
+    </g>
+  </g>
+
+  <g transform="translate(66 344)">
+    <g transform="translate(0 0)">
+      <rect width="156" height="148" rx="14" class="panel"/>
+      <text x="78" y="36" text-anchor="middle" class="mono accent" font-size="15">BUILD</text>
+      <text x="78" y="72" text-anchor="middle" class="sans bright" font-size="26" font-weight="760">OK</text>
+      <text x="78" y="106" text-anchor="middle" class="mono muted" font-size="13">build.sqlite</text>
+      <text x="78" y="128" text-anchor="middle" class="mono muted" font-size="13">image</text>
+    </g>
+    <g transform="translate(180 0)">
+      <rect width="156" height="148" rx="14" class="panel"/>
+      <text x="78" y="36" text-anchor="middle" class="mono accent" font-size="15">VERIFY</text>
+      <text x="78" y="72" text-anchor="middle" class="sans bright" font-size="26" font-weight="760">OK</text>
+      <text x="78" y="106" text-anchor="middle" class="mono muted" font-size="13">verify.json</text>
+      <text x="78" y="128" text-anchor="middle" class="mono muted" font-size="13">gate</text>
+    </g>
+    <g transform="translate(360 0)">
+      <rect width="156" height="148" rx="14" class="panel"/>
+      <text x="78" y="36" text-anchor="middle" class="mono accent" font-size="15">PLAN</text>
+      <text x="78" y="72" text-anchor="middle" class="sans bright" font-size="26" font-weight="760">OK</text>
+      <text x="78" y="106" text-anchor="middle" class="mono muted" font-size="13">plan.json</text>
+      <text x="78" y="128" text-anchor="middle" class="mono muted" font-size="13">review</text>
+    </g>
+    <g transform="translate(540 0)">
+      <rect width="156" height="148" rx="14" class="panel"/>
+      <text x="78" y="36" text-anchor="middle" class="mono accent" font-size="15">APPLY</text>
+      <text x="78" y="72" text-anchor="middle" class="sans bright" font-size="26" font-weight="760">OK</text>
+      <text x="78" y="106" text-anchor="middle" class="mono muted" font-size="13">apply.sqlite</text>
+      <text x="78" y="128" text-anchor="middle" class="mono muted" font-size="13">rollout</text>
+    </g>
+    <g transform="translate(720 0)">
+      <rect width="156" height="148" rx="14" class="panel"/>
+      <text x="78" y="36" text-anchor="middle" class="mono accent" font-size="15">EXPLAIN</text>
+      <text x="78" y="72" text-anchor="middle" class="sans bright" font-size="26" font-weight="760">OK</text>
+      <text x="78" y="106" text-anchor="middle" class="mono muted" font-size="13">ship.md</text>
+      <text x="78" y="128" text-anchor="middle" class="mono muted" font-size="13">ship.json</text>
+    </g>
+    <g transform="translate(900 0)">
+      <rect width="168" height="148" rx="14" fill="#111820" stroke="#7edaee" stroke-opacity="0.34"/>
+      <text x="24" y="36" class="mono accent" font-size="15">EVIDENCE</text>
+      <text x="24" y="70" class="mono bright" font-size="14">dist/torque-ship</text>
+      <text x="24" y="102" class="mono muted" font-size="13">captures</text>
+      <text x="24" y="124" class="mono muted" font-size="13">reports + plan</text>
+    </g>
+
+    <path class="flow-rail" d="M78 166H984" fill="none"/>
+    <path class="flow-dash" d="M78 166H984" fill="none"/>
+    <circle class="flow-node" cx="78" cy="166" r="4.4"/>
+    <circle class="flow-node" cx="258" cy="166" r="4.4"/>
+    <circle class="flow-node" cx="438" cy="166" r="4.4"/>
+    <circle class="flow-node" cx="618" cy="166" r="4.4"/>
+    <circle class="flow-node" cx="798" cy="166" r="4.4"/>
+    <circle class="flow-node" cx="984" cy="166" r="4.4"/>
+  </g>
+
+  <text x="66" y="570" class="mono muted" font-size="14">single command: build -> verify -> plan -> apply -> explain -> evidence</text>
+</svg>

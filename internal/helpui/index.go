@@ -241,9 +241,9 @@ func BuildIndex(root *cobra.Command, includeHidden bool) Index {
 			ID:       "doc:demos",
 			Kind:     "doc",
 			Title:    "Demos",
-			Subtitle: "DAG, sandbox, logs, remotes, captures, drift, and resume demos",
+			Subtitle: "Ship, DAG, sandbox, logs, remotes, captures, drift, and resume demos",
 			Content:  md,
-			Tags:     []string{"doc", "demos", "examples", "dag", "stack", "sandbox", "helmer", "verifier", "report", "logs", "remote", "capture", "drift", "resume"},
+			Tags:     []string{"doc", "demos", "examples", "ship", "dag", "stack", "sandbox", "helmer", "verifier", "report", "logs", "remote", "capture", "drift", "resume"},
 		})
 	}
 
@@ -252,9 +252,9 @@ func BuildIndex(root *cobra.Command, includeHidden bool) Index {
 			ID:       "doc:architecture-diagrams",
 			Kind:     "doc",
 			Title:    "Architecture Diagrams",
-			Subtitle: "Delivery loop, evidence model, DAG scheduler, secrets, and package boundaries",
+			Subtitle: "Secret-safe delivery path and verifier/agent safety matrix",
 			Content:  md,
-			Tags:     []string{"doc", "architecture", "diagrams", "delivery", "evidence", "stack", "secrets", "packages"},
+			Tags:     []string{"doc", "architecture", "diagrams", "secrets", "verifier", "agent", "safety"},
 		})
 	}
 
