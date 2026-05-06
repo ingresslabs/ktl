@@ -95,6 +95,9 @@ func TestBuildIndex_IncludesDemosDoc(t *testing.T) {
 		if entry.Title != "Demos" {
 			t.Fatalf("unexpected demos title %q", entry.Title)
 		}
+		if !strings.Contains(entry.Content, "Ship subcommand release flow") {
+			t.Fatalf("expected demos content to include ship demo")
+		}
 		if !strings.Contains(entry.Content, "Complex DAG stack orchestration") {
 			t.Fatalf("expected demos content to include DAG demo")
 		}

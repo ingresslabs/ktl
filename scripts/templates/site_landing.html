@@ -359,6 +359,7 @@
       .demo:nth-child(9) { animation-delay: 0.64s; }
       .demo:nth-child(10) { animation-delay: 0.72s; }
       .demo:nth-child(11) { animation-delay: 0.80s; }
+      .demo:nth-child(12) { animation-delay: 0.88s; }
 
       .demo::after {
         content: "";
@@ -710,7 +711,8 @@
         .demo:nth-child(8),
         .demo:nth-child(9),
         .demo:nth-child(10),
-        .demo:nth-child(11) {
+        .demo:nth-child(11),
+        .demo:nth-child(12) {
           animation-delay: 0s;
         }
       }
@@ -879,6 +881,12 @@
 
           <div class="demos" aria-label="Demos">
             <div class="demo-grid">
+              <details class="demo" open>
+                <summary>Ship subcommand release flow</summary>
+                <div class="demo-media">
+                  <img src="./assets/demos/torque-ship.svg" alt="torque ship subcommand build verify plan apply explain workflow" loading="lazy" />
+                </div>
+              </details>
               <details class="demo" open>
                 <summary>Complex DAG stack orchestration</summary>
                 <div class="demo-media">
