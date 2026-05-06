@@ -178,6 +178,12 @@
         line-height: 1.78;
       }
 
+      .article-body a {
+        color: var(--text);
+        border-bottom: 1px solid rgba(237, 241, 245, 0.36);
+        overflow-wrap: anywhere;
+      }
+
       .article-body code {
         color: var(--code);
         font: 0.92em/1 var(--font-mono);
@@ -488,6 +494,8 @@
         <article class="article-body" aria-label="Article">
           <p>Torque exists because not every delivery loop belongs in a hosted CI control plane. Some teams work in air-gapped networks, regulated environments, edge sites, customer labs, or recovery drills where runners cannot phone home and artifacts must stay close. In those places, the useful shape is CI in a box: build, verify, plan, apply, capture, and explain from one workstation, VM, or isolated build host.</p>
 
+          <p>Agentic engineering is not vibing. It is closer to serious programming with a larger test bench: you set up labs, virtual infrastructure, physical infrastructure when the problem needs it, and repeatable tasks that prove the agent can operate under real constraints. The agent still needs guidance, review, and product judgment. Someone has to shape the goal, sequence the work, check the evidence, and decide what is acceptable, much like a product manager or product owner does before a release. That is the operating style behind <a href="https://ingresslabs.net/blog/">Ingress Labs</a>: agents are useful when they are driven through real systems, not when they are left to improvise in a blank prompt.</p>
+
           <p>Modern DevOps tools should be easy for an agent to drive and still comfortable for a human to inspect. The operator should not have to click every button by hand, but the agent should not get an open shell either. Torque sits in the middle: it gives agents named actions for building images, shipping releases, checking charts, reading logs, replaying sessions, warming caches, and reviewing evidence. Every action has inputs, outputs, and a trail another person or process can read later.</p>
 
           <p>The bridge is the key idea. A Mac-based agent can call <code>torque-mcp</code> as a local tool server, while a Linux host does the real build and deploy work through <code>torque-agent</code>. The model asks for a task in a small, typed format. Torque forwards it to the remote service, redacts sensitive output, and returns evidence instead of a wall of terminal noise.</p>
@@ -568,7 +576,7 @@
             </div>
           </figure>
 
-          <p>Two of the nicer human-facing features are the <a href="https://ingresslabs.github.io/torque/showcase/reports/verifier-report.html">verifier report</a> and <a href="https://ingresslabs.github.io/torque/showcase/reports/helmer-plan.html#resource=showcase:deployment:verify-findings-showcase">Helmer plan report</a>. The verifier report turns policy findings, risk levels, skipped checks, and release blockers into a reviewable page instead of raw JSON. The Helmer report does the same for rendered Kubernetes resources: reviewers can inspect the plan, jump to a specific deployment, and compare what an agent proposes before anything touches the cluster.</p>
+          <p>Two of the nicer human-facing features are the verifier report (<a href="https://ingresslabs.github.io/torque/showcase/reports/verifier-report.html">https://ingresslabs.github.io/torque/showcase/reports/verifier-report.html</a>) and Helmer plan report (<a href="https://ingresslabs.github.io/torque/showcase/reports/helmer-plan.html#resource=showcase:deployment:verify-findings-showcase">https://ingresslabs.github.io/torque/showcase/reports/helmer-plan.html#resource=showcase:deployment:verify-findings-showcase</a>). The verifier report turns policy findings, risk levels, skipped checks, and release blockers into a reviewable page instead of raw JSON. The Helmer report does the same for rendered Kubernetes resources: reviewers can inspect the plan, jump to a specific deployment, and compare what an agent proposes before anything touches the cluster.</p>
 
           <p>The broader project is built around the same idea. Torque can build containers, package charts, verify policy, plan Kubernetes changes, apply or delete stacks, follow logs, explain captured runs, and preserve evidence as files that move with the incident or release. The new agent surface does not replace those capabilities. It makes them callable by an agent without hiding what happened.</p>
 

@@ -89,12 +89,6 @@
         padding: 28px 0 36px;
       }
 
-      .brand-stack {
-        display: inline-grid;
-        justify-items: center;
-        gap: 14px;
-      }
-
       .brand {
         display: inline-flex;
         align-items: center;
@@ -110,14 +104,6 @@
         height: 52px;
         color: currentColor;
         flex: 0 0 auto;
-      }
-
-      .header-actions {
-        display: flex;
-        align-items: flex-start;
-        justify-content: flex-end;
-        gap: 18px;
-        padding-top: 12px;
       }
 
       nav {
@@ -157,46 +143,6 @@
         background:
           linear-gradient(180deg, rgba(237, 241, 245, 0.20), rgba(184, 189, 196, 0.06)),
           rgba(16, 16, 20, 0.94);
-      }
-
-      .ingress-logo {
-        display: grid;
-        justify-items: center;
-        gap: 7px;
-        min-width: 76px;
-        color: var(--text);
-      }
-
-      .ingress-logo:hover {
-        color: var(--accent);
-      }
-
-      .ingress-logo-mark {
-        display: grid;
-        place-items: center;
-        width: 52px;
-        height: 52px;
-        border: 1px solid rgba(237, 241, 245, 0.20);
-        border-radius: 15px;
-        background:
-          radial-gradient(circle at 50% 50%, rgba(237, 241, 245, 0.12), rgba(16, 16, 20, 0.92) 58%, #050505),
-          #050505;
-        box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.12),
-          0 14px 32px rgba(0, 0, 0, 0.34);
-      }
-
-      .ingress-logo-mark svg {
-        width: 34px;
-        height: 34px;
-        stroke-width: 1.55;
-      }
-
-      .ingress-logo-text {
-        color: var(--muted-strong);
-        font: 0.62rem/1 var(--font-mono);
-        font-weight: 800;
-        letter-spacing: 0.08em;
       }
 
       main {
@@ -930,15 +876,6 @@
           width: 46px;
           height: 46px;
         }
-        .header-actions {
-          align-items: flex-start;
-          flex-direction: column;
-          gap: 16px;
-          padding-top: 0;
-        }
-        .ingress-logo {
-          justify-items: center;
-        }
         footer {
           grid-template-columns: minmax(0, 1fr);
           align-items: flex-start;
@@ -983,35 +920,20 @@
   <body>
     <div class="page">
       <header>
-        <div class="brand-stack">
-          <a class="brand" href="./" aria-label="torque home">
-            <svg class="brand-mark" viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false">
-              <path d="M24 5.5 42.5 24 24 42.5 5.5 24Z" stroke="currentColor" stroke-width="2.8" stroke-linejoin="round"></path>
-              <path d="M18 19h12" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"></path>
-              <path d="M24 19v12" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"></path>
-            </svg>
-            <span>torque</span>
-          </a>
-          <a class="ingress-logo" href="https://ingresslabs.net/blog/" aria-label="ingresslabs blog">
-            <span class="ingress-logo-mark" aria-hidden="true">
-              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" focusable="false">
-                <circle cx="24" cy="24" r="16"></circle>
-                <circle cx="24" cy="24" r="2" fill="currentColor" stroke="none"></circle>
-                <path d="M24 9v9M24 30v9M9 24h9M30 24h9"></path>
-                <path d="m13.4 13.4 6.4 6.4M28.2 28.2l6.4 6.4M34.6 13.4l-6.4 6.4M19.8 28.2l-6.4 6.4"></path>
-              </svg>
-            </span>
-            <span class="ingress-logo-text">ingresslabs</span>
-          </a>
-        </div>
-        <div class="header-actions">
-          <nav aria-label="Primary">
-            <a class="docs-link" href="./docs.html">Docs</a>
-            <a href="./blog-mcp-s3-cache.html">Blog</a>
-            <a href="https://github.com/ingresslabs/torque">GitHub</a>
-            <a href="https://github.com/ingresslabs/torque/releases">Releases</a>
-          </nav>
-        </div>
+        <a class="brand" href="https://github.com/ingresslabs/torque" aria-label="torque GitHub repository">
+          <svg class="brand-mark" viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false">
+            <path d="M24 5.5 42.5 24 24 42.5 5.5 24Z" stroke="currentColor" stroke-width="2.8" stroke-linejoin="round"></path>
+            <path d="M18 19h12" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"></path>
+            <path d="M24 19v12" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"></path>
+          </svg>
+          <span>torque</span>
+        </a>
+        <nav aria-label="Primary">
+          <a class="docs-link" href="./docs.html">Docs</a>
+          <a href="./blog-mcp-s3-cache.html">Blog</a>
+          <a href="https://github.com/ingresslabs/torque">GitHub</a>
+          <a href="https://github.com/ingresslabs/torque/releases">Releases</a>
+        </nav>
       </header>
 
       <main>
