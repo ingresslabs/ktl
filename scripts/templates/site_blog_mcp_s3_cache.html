@@ -299,20 +299,20 @@
         display: grid;
         gap: 8px;
         padding: clamp(14px, 1.8vw, 20px);
-        border: 1px solid rgba(237, 241, 245, 0.14);
+        border: 1px solid rgba(237, 241, 245, 0.22);
         border-radius: 8px;
-        background: rgba(5, 5, 5, 0.66);
-        color: var(--code);
+        background: rgba(0, 0, 0, 0.82);
+        color: #f7f9fb;
         font: clamp(0.68rem, 1vw, 0.84rem)/1.45 var(--font-mono);
-        overflow: hidden;
+        overflow: visible;
       }
 
       .terminal-shot span {
         display: block;
         min-width: 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: normal;
+        overflow: visible;
+        overflow-wrap: anywhere;
       }
 
       .metric-strip {
@@ -521,7 +521,7 @@
                   <span>gRPC services</span>
                 </div>
               </div>
-              <div class="terminal-shot" aria-hidden="true">
+              <div class="terminal-shot">
                 <span>{ "tool": "torque.ship.run", "safety": { "confirm": true } }</span>
                 <span>bridge: MCP request -> remote gRPC operation</span>
                 <span>session: mirror evidence returned, token redacted</span>
