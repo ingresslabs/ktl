@@ -40,7 +40,7 @@ torque init --plan --plan-output .torque/init-plan.json
 torque init --apply-plan .torque/init-plan.json
 
 # Launch the interactive help UI
-torque help --ui
+torque --help --ui
 ```
 
 ## Apply a chart (with and without the UI)
@@ -85,6 +85,88 @@ torque apply --chart ./chart --release foo -n default \
   --require-verified verify.json --capture ./apply.sqlite --yes
 torque explain ./apply.sqlite --format markdown
 ```
+
+## Agent MCP bridge
+
+```bash
+# Run the MCP server over stdio for an IDE or agent host.
+torque-mcp --stdio
+
+# Route agent tool calls to a remote Torque node over gRPC.
+export TORQUE_REMOTE_TOKEN="$(openssl rand -hex 24)"
+torque-agent -listen :7443 -token "$TORQUE_REMOTE_TOKEN"
+torque-mcp --stdio \
+  --remote-agent 127.0.0.1:7443 \
+  --remote-token "$TORQUE_REMOTE_TOKEN"
+```
+
+## Durable Linux agent host
+
+```bash
+# Install torque, torque-agent, torque-mcp, and systemd units.
+curl -fsSL https://ingresslabs.github.io/torque/install.sh | sh -s -- --mode systemd-daemon
+
+# Inspect generated tokens and verify authenticated HTTP MCP.
+. /etc/torque/agent.env
+systemctl status torque-agent.service torque-mcp.service
+curl -fsS -H "authorization: Bearer $TORQUE_MCP_TOKEN" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' \
+  http://127.0.0.1:7331/mcp
+```
+
+Enterprise remote bridge with mTLS:
+
+```bash
+export TORQUE_REMOTE_TOKEN="<from secret manager>"
+torque-agent -listen 0.0.0.0:7443 -token "$TORQUE_REMOTE_TOKEN" \
+  -tls-cert /etc/torque/tls/agent.crt \
+  -tls-key /etc/torque/tls/agent.key \
+  -tls-client-ca /etc/torque/tls/client-ca.crt \
+  -mirror-store /var/lib/torque/agent/mirror.sqlite
+
+torque-mcp --stdio --remote-agent torque-agent.prod.internal:7443 \
+  --remote-tls --remote-tls-ca /etc/torque/tls/ca.crt \
+  --remote-tls-client-cert /etc/torque/tls/client.crt \
+  --remote-tls-client-key /etc/torque/tls/client.key \
+  --remote-tls-server-name torque-agent.prod.internal \
+  --enable-write
+```
+
+## Build and ship with S3 cache
+
+```bash
+# Build with native BuildKit S3 cache import/export.
+torque build . --tag ghcr.io/acme/foo:dev \
+  --s3-cache s3://acme-build-cache/torque/main \
+  --s3-cache-region us-east-1
+
+# Forward the same cache settings through the full ship workflow.
+torque ship --chart ./chart --release foo -n default --build . \
+  --tag ghcr.io/acme/foo:dev \
+  --s3-cache s3://acme-build-cache/torque/main \
+  --s3-cache-region us-east-1 --yes
+```
+
+For MCP agents, use first-class cache tools before build fanout:
+
+```json
+{
+  "tool": "torque.cache.plan",
+  "arguments": {
+    "contextDir": ".",
+    "dockerfile": "Dockerfile",
+    "tags": ["ghcr.io/acme/foo:dev"],
+    "changedPaths": ["go.mod", "cmd/foo/main.go"],
+    "s3Cache": "s3://acme-build-cache/torque/main",
+    "s3CacheRegion": "us-east-1",
+    "s3CacheName": "foo-main"
+  }
+}
+```
+
+Warm writes cache exports, so it requires `torque-mcp --enable-write` and
+`"safety": {"confirm": true}`. AWS credentials stay on the BuildKit daemon or
+workload identity, not in MCP arguments.
 
 ## 5-minute demo (public chart)
 

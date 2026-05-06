@@ -73,6 +73,21 @@ func Catalog() []VarInfo {
 		},
 		{
 			Category:    "Build",
+			Name:        "TORQUE_S3_CACHE",
+			Description: "Enable BuildKit S3 cache import/export for `torque build` and `torque ship` (equivalent to --s3-cache).",
+		},
+		{
+			Category:    "Build",
+			Name:        "TORQUE_S3_CACHE_REGION",
+			Description: "AWS region used by --s3-cache when set through the environment.",
+		},
+		{
+			Category:    "Build",
+			Name:        "AWS_REGION",
+			Description: "AWS SDK region used by BuildKit S3 cache when the daemon or --s3-cache-region does not provide one.",
+		},
+		{
+			Category:    "Build",
 			Name:        "TORQUE_DOCKER_CONTEXT",
 			Description: "Docker context to use for Buildx fallback (when provisioning a Docker-backed BuildKit builder).",
 		},
@@ -166,6 +181,56 @@ func Catalog() []VarInfo {
 			Name:        "TORQUE_NSJAIL_BUILDER",
 			Internal:    true,
 			Description: "Legacy alias for TORQUE_SANDBOX_BUILDER.",
+		},
+		{
+			Category:    "Agent",
+			Name:        "TORQUE_REMOTE_TOKEN",
+			Description: "Bearer token used by torque-agent gRPC clients and by torque-mcp when bridging to a remote agent.",
+		},
+		{
+			Category:    "Agent",
+			Name:        "TORQUE_AGENT_LISTEN",
+			Description: "systemd daemon-mode gRPC listen address for torque-agent.",
+		},
+		{
+			Category:    "Agent",
+			Name:        "TORQUE_AGENT_HTTP_LISTEN",
+			Description: "systemd daemon-mode HTTP mirror gateway listen address for torque-agent.",
+		},
+		{
+			Category:    "Agent",
+			Name:        "TORQUE_AGENT_MIRROR_STORE",
+			Description: "SQLite MirrorService flight recorder path used by torque-agent durable mode.",
+		},
+		{
+			Category:    "Agent",
+			Name:        "TORQUE_AGENT_SANDBOX_BIN",
+			Description: "Default sandbox runtime binary used by systemd torque-agent remote builds.",
+		},
+		{
+			Category:    "Agent",
+			Name:        "TORQUE_AGENT_SANDBOX_CONFIG",
+			Description: "Default sandbox policy config used by systemd torque-agent remote builds.",
+		},
+		{
+			Category:    "MCP",
+			Name:        "TORQUE_MCP_TOKEN",
+			Description: "Bearer token required by torque-mcp HTTP when --auth-token is configured.",
+		},
+		{
+			Category:    "MCP",
+			Name:        "TORQUE_MCP_LISTEN",
+			Description: "systemd daemon-mode HTTP listen address for torque-mcp.",
+		},
+		{
+			Category:    "MCP",
+			Name:        "TORQUE_MCP_REMOTE_AGENT",
+			Description: "Remote torque-agent gRPC endpoint used by torque-mcp.",
+		},
+		{
+			Category:    "MCP",
+			Name:        "TORQUE_MCP_ENABLE_WRITE",
+			Description: "Enable mutating MCP tools when requests also include safety.confirm=true.",
 		},
 		{
 			Category:    "Capture",

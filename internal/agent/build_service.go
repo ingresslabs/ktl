@@ -29,6 +29,11 @@ type BuildServer struct {
 	Service buildsvc.Service
 	Mirror  *MirrorServer
 	Logger  logr.Logger
+
+	RequireSandbox bool
+	SandboxConfig  string
+	SandboxBin     string
+	SandboxLogs    bool
 }
 
 // RunBuild executes a remote build and streams progress.
@@ -37,7 +42,7 @@ func (s *BuildServer) RunBuild(req *apiv1.RunBuildRequest, stream apiv1.BuildSer
 		return status.Error(codes.Unavailable, "build service not configured")
 	}
 	ctx := stream.Context()
-	opts := convert.BuildOptionsFromProto(req.GetOptions())
+	opts := s.buildOptions(req)
 	sessionID := strings.TrimSpace(req.GetSessionId())
 	producer := "build"
 	if strings.TrimSpace(req.GetRequester()) != "" {
@@ -98,6 +103,30 @@ func (s *BuildServer) RunBuild(req *apiv1.RunBuildRequest, stream apiv1.BuildSer
 		}
 	}
 	return err
+}
+
+func (s *BuildServer) buildOptions(req *apiv1.RunBuildRequest) buildsvc.Options {
+	var pb *apiv1.BuildOptions
+	if req != nil {
+		pb = req.GetOptions()
+	}
+	opts := convert.BuildOptionsFromProto(pb)
+	if s == nil {
+		return opts
+	}
+	if s.RequireSandbox {
+		opts.RequireSandbox = true
+	}
+	if strings.TrimSpace(opts.SandboxConfig) == "" {
+		opts.SandboxConfig = strings.TrimSpace(s.SandboxConfig)
+	}
+	if strings.TrimSpace(opts.SandboxBin) == "" {
+		opts.SandboxBin = strings.TrimSpace(s.SandboxBin)
+	}
+	if s.SandboxLogs {
+		opts.SandboxLogs = true
+	}
+	return opts
 }
 
 type buildStreamObserver struct {

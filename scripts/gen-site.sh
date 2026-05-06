@@ -116,6 +116,7 @@ with open(path, "w", encoding="utf-8") as fh:
 PY
 
 install -m 0644 scripts/templates/site_landing.html "${OUT_DIR}/index.html"
+install -m 0644 scripts/templates/site_blog_mcp_s3_cache.html "${OUT_DIR}/blog-mcp-s3-cache.html"
 mv "${tmp_docs_html}" "${OUT_DIR}/docs.html"
 mv "${tmp_json}" "${OUT_DIR}/index.json"
 install -m 0644 scripts/install.sh "${OUT_DIR}/install.sh"
@@ -144,4 +145,4 @@ install -m 0644 docs/showcase/reports/verifier-report.json "${OUT_DIR}/showcase/
 install -m 0644 docs/showcase/reports/verifier-report.rendered.yaml "${OUT_DIR}/showcase/reports/verifier-report.rendered.yaml"
 
 echo ">> wrote:"
-ls -la "${OUT_DIR}/index.html" "${OUT_DIR}/docs.html" "${OUT_DIR}/index.json" "${OUT_DIR}/install.sh" "${OUT_DIR}/.nojekyll" | sed -n '1,200p'
+ls -la "${OUT_DIR}/index.html" "${OUT_DIR}/blog-mcp-s3-cache.html" "${OUT_DIR}/docs.html" "${OUT_DIR}/index.json" "${OUT_DIR}/install.sh" "${OUT_DIR}/.nojekyll" | sed -n '1,200p'

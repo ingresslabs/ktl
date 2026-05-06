@@ -99,6 +99,7 @@ type Options struct {
 	Secrets            []string
 	CacheFrom          []string
 	CacheTo            []string
+	S3Cache            S3CacheOptions
 	Hermetic           bool
 	AllowNetwork       bool
 	AllowUnpinnedBases bool

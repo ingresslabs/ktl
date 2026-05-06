@@ -107,6 +107,9 @@ func newStackCommand(kubeconfig *string, kubeContext *string, logLevel *string, 
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		// Default UX: `torque stack` behaves like `torque stack plan` (safe, read-only).
+		if strings.TrimSpace(derefString(common.remoteAgent)) != "" {
+			return runRemoteStackPlanCommand(cmd, common, "", false)
+		}
 		out := cmd.OutOrStdout()
 		outFormat := strings.ToLower(strings.TrimSpace(output))
 		_, selected, _, err := compileInferSelect(cmd, common)
@@ -166,7 +169,7 @@ func newStackCommand(kubeconfig *string, kubeContext *string, logLevel *string, 
 	cmd.AddCommand(newStackExplainCommand(common))
 
 	cmd.AddCommand(newStackSealCommand(&rootDir, &profile, &clusters, &inferDeps, &inferConfigRefs, &tags, &fromPaths, &releases, &gitRange, &gitIncludeDeps, &gitIncludeDependents, &includeDeps, &includeDependents, &allowMissingDeps))
-	cmd.AddCommand(newStackStatusCommand(&rootDir))
+	cmd.AddCommand(newStackStatusCommand(&rootDir, remoteAgent))
 	cmd.AddCommand(newStackRunsCommand(common))
 	cmd.AddCommand(newStackAuditCommand(&rootDir))
 	cmd.AddCommand(newStackExportCommand(&rootDir))
@@ -210,6 +213,9 @@ func newStackPlanCommand(common stackCommandCommon) *cobra.Command {
 		Short: "Compile stack configs into an execution plan",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if strings.TrimSpace(derefString(common.remoteAgent)) != "" {
+				return runRemoteStackPlanCommand(cmd, common, bundlePath, bundleDiffSummary)
+			}
 			_, selected, effective, err := compileInferSelect(cmd, common)
 			if err != nil {
 				return err

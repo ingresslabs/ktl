@@ -32,31 +32,37 @@ type shipOptions struct {
 	secretProvider  string
 	secretConfig    string
 
-	buildContext    string
-	dockerfile      string
-	tags            []string
-	platforms       []string
-	buildArgs       []string
-	buildSecrets    []string
-	cacheFrom       []string
-	cacheTo         []string
-	push            bool
-	load            bool
-	noCache         bool
-	attest          bool
-	sbom            bool
-	provenance      bool
-	attestDir       string
-	hermetic        bool
-	allowNetwork    bool
-	allowUnpinned   bool
-	buildPolicy     string
-	buildPolicyMode string
-	builder         string
-	authFile        string
-	sandbox         bool
-	sandboxConfig   string
-	buildOutput     string
+	buildContext     string
+	dockerfile       string
+	tags             []string
+	platforms        []string
+	buildArgs        []string
+	buildSecrets     []string
+	cacheFrom        []string
+	cacheTo          []string
+	s3Cache          string
+	s3CacheRegion    string
+	s3CacheName      string
+	s3CacheMode      string
+	s3CacheEndpoint  string
+	s3CachePathStyle bool
+	push             bool
+	load             bool
+	noCache          bool
+	attest           bool
+	sbom             bool
+	provenance       bool
+	attestDir        string
+	hermetic         bool
+	allowNetwork     bool
+	allowUnpinned    bool
+	buildPolicy      string
+	buildPolicyMode  string
+	builder          string
+	authFile         string
+	sandbox          bool
+	sandboxConfig    string
+	buildOutput      string
 
 	verifyMode   string
 	verifyFailOn string
@@ -194,6 +200,12 @@ func newShipCommandWithRunner(service buildsvc.Service, globalProfile *string, g
 	cmd.Flags().StringArrayVar(&opts.buildSecrets, "build-secret", nil, "Expose an environment variable as a BuildKit secret (NAME)")
 	cmd.Flags().StringArrayVar(&opts.cacheFrom, "cache-from", nil, "BuildKit cache import source")
 	cmd.Flags().StringArrayVar(&opts.cacheTo, "cache-to", nil, "BuildKit cache export destination")
+	cmd.Flags().StringVar(&opts.s3Cache, "s3-cache", "", "Enable BuildKit S3 cache import/export at s3://BUCKET[/PREFIX]")
+	cmd.Flags().StringVar(&opts.s3CacheRegion, "s3-cache-region", "", "AWS region for --s3-cache")
+	cmd.Flags().StringVar(&opts.s3CacheName, "s3-cache-name", "", "S3 cache manifest name (defaults to first tag or context name)")
+	cmd.Flags().Var(newEnumStringValue(&opts.s3CacheMode, "max", "min", "max"), "s3-cache-mode", "S3 cache export mode: min or max")
+	cmd.Flags().StringVar(&opts.s3CacheEndpoint, "s3-cache-endpoint-url", "", "Custom S3-compatible endpoint URL for --s3-cache")
+	cmd.Flags().BoolVar(&opts.s3CachePathStyle, "s3-cache-path-style", false, "Use path-style addressing for --s3-cache")
 	cmd.Flags().BoolVar(&opts.push, "push", opts.push, "Push built image tags to their registries")
 	cmd.Flags().BoolVar(&opts.load, "load", false, "Load the resulting image into the local container runtime")
 	cmd.Flags().BoolVar(&opts.noCache, "no-cache", false, "Disable BuildKit cache usage")
@@ -599,6 +611,24 @@ func shipBuildArgs(opts shipOptions, paths shipPaths) []string {
 	}
 	for _, value := range opts.cacheTo {
 		args = append(args, "--cache-to", value)
+	}
+	if strings.TrimSpace(opts.s3Cache) != "" {
+		args = append(args, "--s3-cache", opts.s3Cache)
+	}
+	if strings.TrimSpace(opts.s3CacheRegion) != "" {
+		args = append(args, "--s3-cache-region", opts.s3CacheRegion)
+	}
+	if strings.TrimSpace(opts.s3CacheName) != "" {
+		args = append(args, "--s3-cache-name", opts.s3CacheName)
+	}
+	if strings.TrimSpace(opts.s3CacheMode) != "" {
+		args = append(args, "--s3-cache-mode", opts.s3CacheMode)
+	}
+	if strings.TrimSpace(opts.s3CacheEndpoint) != "" {
+		args = append(args, "--s3-cache-endpoint-url", opts.s3CacheEndpoint)
+	}
+	if opts.s3CachePathStyle {
+		args = append(args, "--s3-cache-path-style")
 	}
 	if opts.push {
 		args = append(args, "--push")

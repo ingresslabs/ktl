@@ -1,0 +1,312 @@
+version: torque.mcp.scenarios/v1
+description: >
+  End-to-end MCP scenarios for one Torque process driving another Torque
+  endpoint through torque-mcp, remote gRPC, ship, build, and stack orchestration.
+scenarios:
+  - id: remote-ship-core-fanout
+    title: Remote ship from a shared base image into API, worker, and scheduler releases.
+    topology:
+      shape: fanout
+      nodes: [base-image, api, worker, scheduler]
+      edges: [[base-image, api], [base-image, worker], [base-image, scheduler]]
+    build:
+      mode: dockerfile
+      contexts: [cmd/torque-mcp]
+      artifacts: [registry.local/torque-mcp:fanout]
+      cache: [registry, local, s3]
+    mcp:
+      calls: [torque.cache.inspect, torque.cache.plan, torque.cache.warm, torque.build.run, torque.ship.run, torque.stack.plan, torque.stack.apply]
+      remoteGrpc: [BuildService.RunBuild, DeployService.Apply, StackService.Plan, StackService.Apply, MirrorService.Subscribe]
+    safety:
+      writeRequires: [enable-write, safety.confirm]
+      redactions: [TORQUE_REMOTE_TOKEN, remote-token-argv]
+    validation:
+      expect: [cache-plan, cache-warmed, image-digest, ship-summary, stack-run-completed]
+
+  - id: compose-diamond-promotion
+    title: Compose build creates api and worker images that join at an integration release.
+    topology:
+      shape: diamond
+      nodes: [gateway, api, worker, integration, rollout]
+      edges: [[gateway, api], [gateway, worker], [api, integration], [worker, integration], [integration, rollout]]
+    build:
+      mode: compose
+      contexts: [testdata/build/compose]
+      services: [api, worker, proxy]
+      artifacts: [registry.local/api:diamond, registry.local/worker:diamond]
+    mcp:
+      calls: [torque.build.run, torque.verify.chart, torque.apply.run, torque.session.tail]
+      remoteGrpc: [BuildService.RunBuild, VerifyService.Verify, DeployService.Apply, MirrorService.Subscribe]
+    safety:
+      writeRequires: [enable-write, safety.confirm]
+      redactions: [build-secret, registry-password]
+    validation:
+      expect: [compose-services-built, verify-passed, mirror-frames]
+
+  - id: stack-progressive-large-dag
+    title: Large stack runs with progressive concurrency and namespace budgets.
+    topology:
+      shape: layered
+      nodes: [crds, database, redis, api, worker, cron, ingress, monitor, synthetic]
+      edges: [[crds, database], [crds, redis], [database, api], [redis, api], [api, worker], [api, cron], [api, ingress], [ingress, monitor], [monitor, synthetic]]
+    build:
+      mode: dockerfile
+      contexts: [services/api, services/worker, services/synthetic]
+      artifacts: [registry.local/api:large, registry.local/worker:large, registry.local/synthetic:large]
+    mcp:
+      calls: [torque.stack.plan, torque.stack.apply, torque.stack.status]
+      remoteGrpc: [StackService.Plan, StackService.Apply, StackService.Status]
+    safety:
+      writeRequires: [enable-write, safety.confirm]
+      redactions: [kubeconfig-path, secret-provider]
+    validation:
+      expect: [progressive-concurrency-events, status-succeeded]
+
+  - id: sealed-review-before-remote-apply
+    title: Local plan review produces a sealed bundle before remote config-based apply.
+    topology:
+      shape: chain
+      nodes: [config, policy, application, smoke]
+      edges: [[config, policy], [policy, application], [application, smoke]]
+    build:
+      mode: dockerfile
+      contexts: [cmd/torque-mcp]
+      artifacts: [registry.local/torque-mcp:sealed-review]
+    mcp:
+      calls: [torque.stack.plan, torque.verify.chart, torque.stack.apply]
+      remoteGrpc: [VerifyService.Verify, StackService.Apply]
+    safety:
+      writeRequires: [enable-write, safety.confirm, signed-plan-policy]
+      redactions: [bundle-private-key, remote-token]
+    validation:
+      expect: [plan-hash, verify-passed, apply-events]
+
+  - id: multi-namespace-delete-threshold
+    title: Delete across namespaces must stop unless confirmation and threshold policy agree.
+    topology:
+      shape: multi-root
+      nodes: [team-a-api, team-a-worker, team-b-api, team-b-worker, shared-monitor]
+      edges: [[team-a-api, shared-monitor], [team-b-api, shared-monitor], [team-a-worker, shared-monitor], [team-b-worker, shared-monitor]]
+    build:
+      mode: dockerfile
+      contexts: [services/team-a, services/team-b]
+      artifacts: [registry.local/team-a:delete, registry.local/team-b:delete]
+    mcp:
+      calls: [torque.stack.plan, torque.stack.delete, torque.session.tail]
+      remoteGrpc: [StackService.Plan, StackService.Delete, MirrorService.Subscribe]
+    safety:
+      writeRequires: [enable-write, safety.confirm, delete-threshold-confirmation]
+      redactions: [namespace-allowlist, remote-token]
+    validation:
+      expect: [confirmation-required-without-confirm, delete-completed-with-confirm]
+
+  - id: secret-provider-build-and-ship
+    title: Build and ship use secret provider references without exposing values to the model.
+    topology:
+      shape: chain
+      nodes: [secret-config, image-build, helm-plan, remote-apply]
+      edges: [[secret-config, image-build], [image-build, helm-plan], [helm-plan, remote-apply]]
+    build:
+      mode: dockerfile
+      contexts: [services/private-api]
+      artifacts: [registry.local/private-api:secret-safe]
+      secrets: [NPM_TOKEN, secret://vault/app/db#password]
+    mcp:
+      calls: [torque.build.run, torque.ship.run, torque.capture.summarize]
+      remoteGrpc: [BuildService.RunBuild, DeployService.Apply]
+    safety:
+      writeRequires: [enable-write, safety.confirm]
+      redactions: [NPM_TOKEN, secret://vault/app/db#password, TORQUE_REMOTE_TOKEN]
+    validation:
+      expect: [secret-mount-only, redacted-session-tail, ship-summary]
+
+  - id: git-range-affected-release-review
+    title: Git range selects affected releases and expands dependents before remote apply.
+    topology:
+      shape: impacted-subgraph
+      nodes: [library, api, worker, dashboard, alerting]
+      edges: [[library, api], [library, worker], [api, dashboard], [worker, alerting]]
+    build:
+      mode: dockerfile
+      contexts: [library, api, worker]
+      artifacts: [registry.local/api:git-range, registry.local/worker:git-range]
+    mcp:
+      calls: [torque.stack.plan, torque.verify.chart, torque.stack.apply]
+      remoteGrpc: [StackService.Plan, VerifyService.Verify, StackService.Apply]
+    safety:
+      writeRequires: [enable-write, safety.confirm]
+      redactions: [git-remote-token]
+    validation:
+      expect: [selected-by-git, include-dependents, deterministic-order]
+
+  - id: canary-stable-log-diagnosis
+    title: Ship canary, tail remote logs, then promote stable after verifier passes.
+    topology:
+      shape: two-phase
+      nodes: [build, canary, log-check, stable, cleanup]
+      edges: [[build, canary], [canary, log-check], [log-check, stable], [stable, cleanup]]
+    build:
+      mode: dockerfile
+      contexts: [services/api]
+      artifacts: [registry.local/api:canary]
+    mcp:
+      calls: [torque.ship.run, torque.logs.query, torque.verify.namespace, torque.apply.run]
+      remoteGrpc: [DeployService.Apply, LogService.StreamLogs, VerifyService.Verify]
+    safety:
+      writeRequires: [enable-write, safety.confirm]
+      redactions: [log-token, kubeconfig]
+    validation:
+      expect: [canary-ready, logs-returned, namespace-verify-passed]
+
+  - id: retry-failed-node-resume
+    title: Stack run fails one node, then reruns the failed subgraph after a new build.
+    topology:
+      shape: failed-subgraph
+      nodes: [db, api, worker, report, rerun]
+      edges: [[db, api], [api, worker], [worker, report], [report, rerun]]
+    build:
+      mode: dockerfile
+      contexts: [services/report]
+      artifacts: [registry.local/report:retry]
+    mcp:
+      calls: [torque.stack.status, torque.build.run, torque.stack.apply]
+      remoteGrpc: [StackService.Status, BuildService.RunBuild, StackService.Apply]
+    safety:
+      writeRequires: [enable-write, safety.confirm]
+      redactions: [previous-run-id-token]
+    validation:
+      expect: [failed-node-detected, replacement-image-built, rerun-completed]
+
+  - id: policy-blocked-build
+    title: MCP build is blocked by policy before any remote apply is attempted.
+    topology:
+      shape: guardrail
+      nodes: [source, policy, build, apply]
+      edges: [[source, policy], [policy, build], [build, apply]]
+    build:
+      mode: dockerfile
+      contexts: [testdata/build/dockerfiles/secrets-negative]
+      artifacts: [registry.local/blocked:policy]
+    mcp:
+      calls: [torque.build.run, torque.capture.summarize]
+      remoteGrpc: [BuildService.RunBuild]
+    safety:
+      writeRequires: [policy-enforced]
+      redactions: [secret-like-build-arg]
+    validation:
+      expect: [build-blocked, apply-not-called, capture-written]
+
+  - id: cross-cluster-readonly-plan
+    title: Read-only plan compares two clusters without enabling writes.
+    topology:
+      shape: parallel
+      nodes: [dev-plan, staging-plan, diff, review]
+      edges: [[dev-plan, diff], [staging-plan, diff], [diff, review]]
+    build:
+      mode: none
+      contexts: []
+      artifacts: []
+    mcp:
+      calls: [torque.stack.plan, torque.apply.plan, torque.verify.chart]
+      remoteGrpc: [StackService.Plan, VerifyService.Verify]
+    safety:
+      writeRequires: []
+      redactions: [kube-context-names]
+    validation:
+      expect: [no-write-tools-needed, plan-json, verify-json]
+
+  - id: mcp-http-origin-remote-stack
+    title: HTTP MCP caller drives remote stack with origin and token checks enabled.
+    topology:
+      shape: ingress
+      nodes: [mcp-http, auth, stack-plan, stack-apply]
+      edges: [[mcp-http, auth], [auth, stack-plan], [stack-plan, stack-apply]]
+    build:
+      mode: dockerfile
+      contexts: [cmd/torque-mcp]
+      artifacts: [registry.local/torque-mcp:http]
+    mcp:
+      calls: [initialize, tools/list, torque.stack.plan, torque.stack.apply]
+      remoteGrpc: [StackService.Plan, StackService.Apply]
+    safety:
+      writeRequires: [http-auth-token, allowed-origin, safety.confirm]
+      redactions: [mcp-auth-token, remote-token]
+    validation:
+      expect: [bad-origin-rejected, authorized-origin-succeeds]
+
+  - id: mirror-session-replay-build-to-apply
+    title: Build, ship, and stack events are replayed from MirrorService for an agent review.
+    topology:
+      shape: event-bus
+      nodes: [build-session, ship-session, stack-session, reviewer]
+      edges: [[build-session, reviewer], [ship-session, reviewer], [stack-session, reviewer]]
+    build:
+      mode: compose
+      contexts: [testdata/build/compose]
+      services: [api, worker, metrics]
+      artifacts: [registry.local/api:mirror, registry.local/worker:mirror]
+    mcp:
+      calls: [torque.build.run, torque.ship.run, torque.stack.apply, torque.session.tail]
+      remoteGrpc: [BuildService.RunBuild, DeployService.Apply, StackService.Apply, MirrorService.Subscribe]
+    safety:
+      writeRequires: [enable-write, safety.confirm]
+      redactions: [remote-token, registry-password]
+    validation:
+      expect: [mirror-sequences-monotonic, replay-complete]
+
+  - id: microvm-mcp-smoke-before-deploy
+    title: MicroVM boots torque-mcp and verifies tools before the remote deploy stage.
+    topology:
+      shape: preflight
+      nodes: [microvm-boot, mcp-list, mcp-info, remote-build, remote-ship]
+      edges: [[microvm-boot, mcp-list], [mcp-list, mcp-info], [mcp-info, remote-build], [remote-build, remote-ship]]
+    build:
+      mode: static-binary
+      contexts: [cmd/torque-mcp]
+      artifacts: [bin/torque-mcp-linux-amd64]
+    mcp:
+      calls: [initialize, tools/list, torque.info, torque.build.run, torque.ship.run]
+      remoteGrpc: [AgentInfoService.GetInfo, BuildService.RunBuild, DeployService.Apply]
+    safety:
+      writeRequires: [microvm-isolation, safety.confirm]
+      redactions: [remote-token]
+    validation:
+      expect: [tools-advertised, info-ok, no-token-in-output]
+
+  - id: fanin-verifier-gate
+    title: Many service builds converge on a verifier gate before one stack rollout.
+    topology:
+      shape: fanin
+      nodes: [api-build, worker-build, frontend-build, verifier, stack-apply]
+      edges: [[api-build, verifier], [worker-build, verifier], [frontend-build, verifier], [verifier, stack-apply]]
+    build:
+      mode: dockerfile
+      contexts: [services/api, services/worker, services/frontend]
+      artifacts: [registry.local/api:fanin, registry.local/worker:fanin, registry.local/frontend:fanin]
+    mcp:
+      calls: [torque.build.run, torque.verify.chart, torque.stack.apply]
+      remoteGrpc: [BuildService.RunBuild, VerifyService.Verify, StackService.Apply]
+    safety:
+      writeRequires: [enable-write, safety.confirm, verify-passed]
+      redactions: [cosign-key, registry-token]
+    validation:
+      expect: [all-digests-present, verify-passed, apply-started-after-verify]
+
+  - id: rollback-delete-after-failed-ship
+    title: Failed ship captures evidence, then stack delete removes only selected releases.
+    topology:
+      shape: rollback
+      nodes: [build, ship, failure-capture, selective-delete, status]
+      edges: [[build, ship], [ship, failure-capture], [failure-capture, selective-delete], [selective-delete, status]]
+    build:
+      mode: dockerfile
+      contexts: [services/api]
+      artifacts: [registry.local/api:rollback]
+    mcp:
+      calls: [torque.ship.run, torque.capture.summarize, torque.stack.delete, torque.stack.status]
+      remoteGrpc: [DeployService.Apply, StackService.Delete, StackService.Status]
+    safety:
+      writeRequires: [enable-write, safety.confirm, delete-threshold-confirmation]
+      redactions: [apply-error-secret, remote-token]
+    validation:
+      expect: [ship-failure-captured, selected-delete-only, final-status-clean]

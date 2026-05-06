@@ -539,6 +539,22 @@ func (s *service) Run(ctx context.Context, opts Options) (res *Result, runErr er
 		return nil, err
 	}
 
+	tags := opts.Tags
+	if opts.Push && len(tags) == 0 {
+		return nil, errors.New("--tag must be provided when using --push")
+	}
+	if len(tags) == 0 {
+		tags = []string{buildkit.DefaultLocalTag(contextDir)}
+		fmt.Fprintf(errOut, "Defaulting to local tag %s\n", tags[0])
+	}
+	if stream != nil {
+		stream.emitInfo(fmt.Sprintf("Target tags: %s", strings.Join(tags, ", ")))
+	}
+
+	opts.CacheFrom, opts.CacheTo, err = ApplyS3Cache(opts.CacheFrom, opts.CacheTo, opts.S3Cache, DefaultS3CacheName(contextDir, tags))
+	if err != nil {
+		return nil, err
+	}
 	cacheFrom, err := parseCacheSpecs(opts.CacheFrom)
 	if err != nil {
 		return nil, err
@@ -553,18 +569,6 @@ func (s *service) Run(ctx context.Context, opts Options) (res *Result, runErr er
 	}
 
 	platforms := buildkit.NormalizePlatforms(expandPlatforms(opts.Platforms))
-
-	tags := opts.Tags
-	if opts.Push && len(tags) == 0 {
-		return nil, errors.New("--tag must be provided when using --push")
-	}
-	if len(tags) == 0 {
-		tags = []string{buildkit.DefaultLocalTag(contextDir)}
-		fmt.Fprintf(errOut, "Defaulting to local tag %s\n", tags[0])
-	}
-	if stream != nil {
-		stream.emitInfo(fmt.Sprintf("Target tags: %s", strings.Join(tags, ", ")))
-	}
 
 	secrets := make([]buildkit.Secret, 0, len(opts.Secrets))
 	for _, id := range opts.Secrets {

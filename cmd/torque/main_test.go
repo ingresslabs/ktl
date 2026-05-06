@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"io"
 	"os"
 	"path/filepath"
 	"slices"
@@ -175,8 +176,10 @@ func TestRootHelpSubcommandOrder(t *testing.T) {
 		"\nSubcommands:\n",
 		"  init",
 		"  build",
+		"  ship",
 		"  apply",
 		"  delete",
+		"  stack",
 		"  revert",
 		"  list",
 		"  lint",
@@ -201,6 +204,86 @@ func TestRootHelpSubcommandOrder(t *testing.T) {
 	}
 	if strings.Contains(errOut.String(), "Error:") {
 		t.Fatalf("unexpected stderr: %q", errOut.String())
+	}
+}
+
+func TestRootHelpUIFlagServesBuiltInHelp(t *testing.T) {
+	oldRunHelpUI := runHelpUI
+	defer func() { runHelpUI = oldRunHelpUI }()
+
+	var calls []struct {
+		addr    string
+		showAll bool
+	}
+	runHelpUI = func(ctx context.Context, root *cobra.Command, errOut io.Writer, addr string, showAll bool) error {
+		if ctx == nil {
+			t.Fatalf("expected context")
+		}
+		if root == nil || root.Name() != "torque" {
+			t.Fatalf("expected torque root command, got %#v", root)
+		}
+		calls = append(calls, struct {
+			addr    string
+			showAll bool
+		}{addr: addr, showAll: showAll})
+		return nil
+	}
+
+	for _, args := range [][]string{
+		{"--help", "--ui"},
+		{"--ui", "--help"},
+	} {
+		root := newRootCommand()
+		var out bytes.Buffer
+		var errOut bytes.Buffer
+		root.SetOut(&out)
+		root.SetErr(&errOut)
+		root.SetArgs(args)
+
+		if err := root.ExecuteContext(context.Background()); err != nil {
+			t.Fatalf("execute %v: %v", args, err)
+		}
+		if got := out.String(); got != "" {
+			t.Fatalf("expected help UI path not to print text help for %v, got: %q", args, got)
+		}
+	}
+
+	if len(calls) != 2 {
+		t.Fatalf("expected 2 help UI calls, got %d", len(calls))
+	}
+	for _, call := range calls {
+		if call.addr != ":8080" {
+			t.Fatalf("expected default help UI addr :8080, got %q", call.addr)
+		}
+		if call.showAll {
+			t.Fatalf("root --help --ui should not include hidden help by default")
+		}
+	}
+}
+
+func TestRootUIFlagServesBuiltInHelp(t *testing.T) {
+	cfgPath := filepath.Join(t.TempDir(), "config.yaml")
+	if err := os.WriteFile(cfgPath, []byte("{}\n"), 0o600); err != nil {
+		t.Fatalf("write config: %v", err)
+	}
+	t.Setenv("TORQUE_CONFIG", cfgPath)
+
+	oldRunHelpUI := runHelpUI
+	defer func() { runHelpUI = oldRunHelpUI }()
+
+	var gotAddr string
+	runHelpUI = func(ctx context.Context, root *cobra.Command, errOut io.Writer, addr string, showAll bool) error {
+		gotAddr = addr
+		return nil
+	}
+
+	root := newRootCommand()
+	root.SetArgs([]string{"--ui=127.0.0.1:18080"})
+	if err := root.ExecuteContext(context.Background()); err != nil {
+		t.Fatalf("execute: %v", err)
+	}
+	if gotAddr != "127.0.0.1:18080" {
+		t.Fatalf("expected root --ui address to be forwarded, got %q", gotAddr)
 	}
 }
 

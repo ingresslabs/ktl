@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"io"
 	"net"
 	"net/url"
 	"strings"
@@ -10,6 +12,10 @@ import (
 	"github.com/ingresslabs/torque/internal/logging"
 	"github.com/spf13/cobra"
 )
+
+type helpUIRunner func(context.Context, *cobra.Command, io.Writer, string, bool) error
+
+var runHelpUI helpUIRunner = runHelpUIServer
 
 func newHelpCommand(root *cobra.Command) *cobra.Command {
 	var uiAddr string
@@ -20,20 +26,7 @@ func newHelpCommand(root *cobra.Command) *cobra.Command {
 		Args:  cobra.ArbitraryArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if strings.TrimSpace(uiAddr) != "" {
-				logLevel, _ := cmd.Root().PersistentFlags().GetString("log-level")
-				if strings.TrimSpace(logLevel) == "" {
-					logLevel = "info"
-				}
-				logger, err := logging.New(logLevel)
-				if err != nil {
-					return err
-				}
-				fmt.Fprintf(cmd.ErrOrStderr(), "Serving help UI at %s\n", formatHelpURL(uiAddr))
-				var opts []helpui.Option
-				if showAll {
-					opts = append(opts, helpui.WithAll())
-				}
-				return helpui.New(uiAddr, root, logger.WithName("help-ui"), opts...).Run(cmd.Context())
+				return runHelpUI(cmd.Context(), root, cmd.ErrOrStderr(), uiAddr, showAll)
 			}
 			target, _, err := cmd.Root().Find(args)
 			if err != nil || target == nil {
@@ -50,6 +43,45 @@ func newHelpCommand(root *cobra.Command) *cobra.Command {
 	cmd.Flags().BoolVar(&showAll, "all", false, "Include hidden/internal flags and env vars")
 	decorateCommandHelp(cmd, "Help Flags")
 	return cmd
+}
+
+func installRootHelpUI(root *cobra.Command, uiAddr *string) {
+	if root == nil || uiAddr == nil {
+		return
+	}
+	defaultHelp := root.HelpFunc()
+	root.SetHelpFunc(func(cmd *cobra.Command, args []string) {
+		if strings.TrimSpace(*uiAddr) == "" {
+			defaultHelp(cmd, args)
+			return
+		}
+		if err := runHelpUI(cmd.Context(), root, cmd.ErrOrStderr(), *uiAddr, false); err != nil {
+			fmt.Fprintf(cmd.ErrOrStderr(), "Error: %v\n", err)
+		}
+	})
+}
+
+func runHelpUIServer(ctx context.Context, root *cobra.Command, errOut io.Writer, uiAddr string, showAll bool) error {
+	if root == nil {
+		return fmt.Errorf("missing root command")
+	}
+	if errOut == nil {
+		errOut = io.Discard
+	}
+	logLevel, _ := root.PersistentFlags().GetString("log-level")
+	if strings.TrimSpace(logLevel) == "" {
+		logLevel = "info"
+	}
+	logger, err := logging.New(logLevel)
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(errOut, "Serving help UI at %s\n", formatHelpURL(uiAddr))
+	var opts []helpui.Option
+	if showAll {
+		opts = append(opts, helpui.WithAll())
+	}
+	return helpui.New(uiAddr, root, logger.WithName("help-ui"), opts...).Run(ctx)
 }
 
 func formatHelpURL(addr string) string {

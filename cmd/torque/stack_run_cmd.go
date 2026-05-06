@@ -88,6 +88,9 @@ func newStackRunCommand(kind stackRunKind, common stackCommandCommon) *cobra.Com
 		Short: short,
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if strings.TrimSpace(derefString(common.remoteAgent)) != "" {
+				return runRemoteStackRunCommand(cmd, kind, common, opts)
+			}
 			var p *stack.Plan
 			var cleanup func()
 

@@ -1037,6 +1037,864 @@ func (x *DeployEvent) GetJson() string {
 	return ""
 }
 
+type StackSelector struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Path to a stack root directory or stack.yaml/release.yaml on the agent host.
+	ConfigPath string `protobuf:"bytes,1,opt,name=config_path,json=configPath,proto3" json:"config_path,omitempty"`
+	// Deprecated compatibility alias for config_path when callers already model `torque stack --root`.
+	Root                 string   `protobuf:"bytes,2,opt,name=root,proto3" json:"root,omitempty"`
+	Profile              string   `protobuf:"bytes,3,opt,name=profile,proto3" json:"profile,omitempty"`
+	Clusters             []string `protobuf:"bytes,4,rep,name=clusters,proto3" json:"clusters,omitempty"`
+	Tags                 []string `protobuf:"bytes,5,rep,name=tags,proto3" json:"tags,omitempty"`
+	FromPaths            []string `protobuf:"bytes,6,rep,name=from_paths,json=fromPaths,proto3" json:"from_paths,omitempty"`
+	Releases             []string `protobuf:"bytes,7,rep,name=releases,proto3" json:"releases,omitempty"`
+	GitRange             string   `protobuf:"bytes,8,opt,name=git_range,json=gitRange,proto3" json:"git_range,omitempty"`
+	GitIncludeDeps       *bool    `protobuf:"varint,9,opt,name=git_include_deps,json=gitIncludeDeps,proto3,oneof" json:"git_include_deps,omitempty"`
+	GitIncludeDependents *bool    `protobuf:"varint,10,opt,name=git_include_dependents,json=gitIncludeDependents,proto3,oneof" json:"git_include_dependents,omitempty"`
+	IncludeDeps          *bool    `protobuf:"varint,11,opt,name=include_deps,json=includeDeps,proto3,oneof" json:"include_deps,omitempty"`
+	IncludeDependents    *bool    `protobuf:"varint,12,opt,name=include_dependents,json=includeDependents,proto3,oneof" json:"include_dependents,omitempty"`
+	AllowMissingDeps     *bool    `protobuf:"varint,13,opt,name=allow_missing_deps,json=allowMissingDeps,proto3,oneof" json:"allow_missing_deps,omitempty"`
+	InferDeps            *bool    `protobuf:"varint,14,opt,name=infer_deps,json=inferDeps,proto3,oneof" json:"infer_deps,omitempty"`
+	InferConfigRefs      *bool    `protobuf:"varint,15,opt,name=infer_config_refs,json=inferConfigRefs,proto3,oneof" json:"infer_config_refs,omitempty"`
+	SecretProvider       string   `protobuf:"bytes,16,opt,name=secret_provider,json=secretProvider,proto3" json:"secret_provider,omitempty"`
+	SecretConfig         string   `protobuf:"bytes,17,opt,name=secret_config,json=secretConfig,proto3" json:"secret_config,omitempty"`
+	KubeContext          string   `protobuf:"bytes,18,opt,name=kube_context,json=kubeContext,proto3" json:"kube_context,omitempty"`
+	KubeconfigPath       string   `protobuf:"bytes,19,opt,name=kubeconfig_path,json=kubeconfigPath,proto3" json:"kubeconfig_path,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *StackSelector) Reset() {
+	*x = StackSelector{}
+	mi := &file_torque_api_v1_agent_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StackSelector) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StackSelector) ProtoMessage() {}
+
+func (x *StackSelector) ProtoReflect() protoreflect.Message {
+	mi := &file_torque_api_v1_agent_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StackSelector.ProtoReflect.Descriptor instead.
+func (*StackSelector) Descriptor() ([]byte, []int) {
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *StackSelector) GetConfigPath() string {
+	if x != nil {
+		return x.ConfigPath
+	}
+	return ""
+}
+
+func (x *StackSelector) GetRoot() string {
+	if x != nil {
+		return x.Root
+	}
+	return ""
+}
+
+func (x *StackSelector) GetProfile() string {
+	if x != nil {
+		return x.Profile
+	}
+	return ""
+}
+
+func (x *StackSelector) GetClusters() []string {
+	if x != nil {
+		return x.Clusters
+	}
+	return nil
+}
+
+func (x *StackSelector) GetTags() []string {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+func (x *StackSelector) GetFromPaths() []string {
+	if x != nil {
+		return x.FromPaths
+	}
+	return nil
+}
+
+func (x *StackSelector) GetReleases() []string {
+	if x != nil {
+		return x.Releases
+	}
+	return nil
+}
+
+func (x *StackSelector) GetGitRange() string {
+	if x != nil {
+		return x.GitRange
+	}
+	return ""
+}
+
+func (x *StackSelector) GetGitIncludeDeps() bool {
+	if x != nil && x.GitIncludeDeps != nil {
+		return *x.GitIncludeDeps
+	}
+	return false
+}
+
+func (x *StackSelector) GetGitIncludeDependents() bool {
+	if x != nil && x.GitIncludeDependents != nil {
+		return *x.GitIncludeDependents
+	}
+	return false
+}
+
+func (x *StackSelector) GetIncludeDeps() bool {
+	if x != nil && x.IncludeDeps != nil {
+		return *x.IncludeDeps
+	}
+	return false
+}
+
+func (x *StackSelector) GetIncludeDependents() bool {
+	if x != nil && x.IncludeDependents != nil {
+		return *x.IncludeDependents
+	}
+	return false
+}
+
+func (x *StackSelector) GetAllowMissingDeps() bool {
+	if x != nil && x.AllowMissingDeps != nil {
+		return *x.AllowMissingDeps
+	}
+	return false
+}
+
+func (x *StackSelector) GetInferDeps() bool {
+	if x != nil && x.InferDeps != nil {
+		return *x.InferDeps
+	}
+	return false
+}
+
+func (x *StackSelector) GetInferConfigRefs() bool {
+	if x != nil && x.InferConfigRefs != nil {
+		return *x.InferConfigRefs
+	}
+	return false
+}
+
+func (x *StackSelector) GetSecretProvider() string {
+	if x != nil {
+		return x.SecretProvider
+	}
+	return ""
+}
+
+func (x *StackSelector) GetSecretConfig() string {
+	if x != nil {
+		return x.SecretConfig
+	}
+	return ""
+}
+
+func (x *StackSelector) GetKubeContext() string {
+	if x != nil {
+		return x.KubeContext
+	}
+	return ""
+}
+
+func (x *StackSelector) GetKubeconfigPath() string {
+	if x != nil {
+		return x.KubeconfigPath
+	}
+	return ""
+}
+
+type StackRunOptions struct {
+	state                      protoimpl.MessageState `protogen:"open.v1"`
+	Concurrency                int32                  `protobuf:"varint,1,opt,name=concurrency,proto3" json:"concurrency,omitempty"`
+	ProgressiveConcurrency     *bool                  `protobuf:"varint,2,opt,name=progressive_concurrency,json=progressiveConcurrency,proto3,oneof" json:"progressive_concurrency,omitempty"`
+	FailFast                   *bool                  `protobuf:"varint,3,opt,name=fail_fast,json=failFast,proto3,oneof" json:"fail_fast,omitempty"`
+	ContinueOnError            *bool                  `protobuf:"varint,4,opt,name=continue_on_error,json=continueOnError,proto3,oneof" json:"continue_on_error,omitempty"`
+	Yes                        *bool                  `protobuf:"varint,5,opt,name=yes,proto3,oneof" json:"yes,omitempty"`
+	DryRun                     *bool                  `protobuf:"varint,6,opt,name=dry_run,json=dryRun,proto3,oneof" json:"dry_run,omitempty"`
+	Diff                       *bool                  `protobuf:"varint,7,opt,name=diff,proto3,oneof" json:"diff,omitempty"`
+	CacheApply                 *bool                  `protobuf:"varint,8,opt,name=cache_apply,json=cacheApply,proto3,oneof" json:"cache_apply,omitempty"`
+	HelmLogs                   *bool                  `protobuf:"varint,9,opt,name=helm_logs,json=helmLogs,proto3,oneof" json:"helm_logs,omitempty"`
+	RunId                      string                 `protobuf:"bytes,10,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
+	Retry                      int32                  `protobuf:"varint,11,opt,name=retry,proto3" json:"retry,omitempty"`
+	KubeQps                    float32                `protobuf:"fixed32,12,opt,name=kube_qps,json=kubeQps,proto3" json:"kube_qps,omitempty"`
+	KubeBurst                  int32                  `protobuf:"varint,13,opt,name=kube_burst,json=kubeBurst,proto3" json:"kube_burst,omitempty"`
+	MaxParallelPerNamespace    int32                  `protobuf:"varint,14,opt,name=max_parallel_per_namespace,json=maxParallelPerNamespace,proto3" json:"max_parallel_per_namespace,omitempty"`
+	MaxParallelKind            map[string]int32       `protobuf:"bytes,15,rep,name=max_parallel_kind,json=maxParallelKind,proto3" json:"max_parallel_kind,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	ParallelismGroupLimit      int32                  `protobuf:"varint,16,opt,name=parallelism_group_limit,json=parallelismGroupLimit,proto3" json:"parallelism_group_limit,omitempty"`
+	Lock                       *bool                  `protobuf:"varint,17,opt,name=lock,proto3,oneof" json:"lock,omitempty"`
+	TakeoverLock               *bool                  `protobuf:"varint,18,opt,name=takeover_lock,json=takeoverLock,proto3,oneof" json:"takeover_lock,omitempty"`
+	LockTtlSeconds             int64                  `protobuf:"varint,19,opt,name=lock_ttl_seconds,json=lockTtlSeconds,proto3" json:"lock_ttl_seconds,omitempty"`
+	LockOwner                  string                 `protobuf:"bytes,20,opt,name=lock_owner,json=lockOwner,proto3" json:"lock_owner,omitempty"`
+	FailMode                   string                 `protobuf:"bytes,21,opt,name=fail_mode,json=failMode,proto3" json:"fail_mode,omitempty"`
+	AdaptiveMin                int32                  `protobuf:"varint,22,opt,name=adaptive_min,json=adaptiveMin,proto3" json:"adaptive_min,omitempty"`
+	AdaptiveWindow             int32                  `protobuf:"varint,23,opt,name=adaptive_window,json=adaptiveWindow,proto3" json:"adaptive_window,omitempty"`
+	AdaptiveRampSuccesses      int32                  `protobuf:"varint,24,opt,name=adaptive_ramp_successes,json=adaptiveRampSuccesses,proto3" json:"adaptive_ramp_successes,omitempty"`
+	AdaptiveRampMaxFailureRate float64                `protobuf:"fixed64,25,opt,name=adaptive_ramp_max_failure_rate,json=adaptiveRampMaxFailureRate,proto3" json:"adaptive_ramp_max_failure_rate,omitempty"`
+	AdaptiveCooldownSevere     int32                  `protobuf:"varint,26,opt,name=adaptive_cooldown_severe,json=adaptiveCooldownSevere,proto3" json:"adaptive_cooldown_severe,omitempty"`
+	unknownFields              protoimpl.UnknownFields
+	sizeCache                  protoimpl.SizeCache
+}
+
+func (x *StackRunOptions) Reset() {
+	*x = StackRunOptions{}
+	mi := &file_torque_api_v1_agent_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StackRunOptions) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StackRunOptions) ProtoMessage() {}
+
+func (x *StackRunOptions) ProtoReflect() protoreflect.Message {
+	mi := &file_torque_api_v1_agent_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StackRunOptions.ProtoReflect.Descriptor instead.
+func (*StackRunOptions) Descriptor() ([]byte, []int) {
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *StackRunOptions) GetConcurrency() int32 {
+	if x != nil {
+		return x.Concurrency
+	}
+	return 0
+}
+
+func (x *StackRunOptions) GetProgressiveConcurrency() bool {
+	if x != nil && x.ProgressiveConcurrency != nil {
+		return *x.ProgressiveConcurrency
+	}
+	return false
+}
+
+func (x *StackRunOptions) GetFailFast() bool {
+	if x != nil && x.FailFast != nil {
+		return *x.FailFast
+	}
+	return false
+}
+
+func (x *StackRunOptions) GetContinueOnError() bool {
+	if x != nil && x.ContinueOnError != nil {
+		return *x.ContinueOnError
+	}
+	return false
+}
+
+func (x *StackRunOptions) GetYes() bool {
+	if x != nil && x.Yes != nil {
+		return *x.Yes
+	}
+	return false
+}
+
+func (x *StackRunOptions) GetDryRun() bool {
+	if x != nil && x.DryRun != nil {
+		return *x.DryRun
+	}
+	return false
+}
+
+func (x *StackRunOptions) GetDiff() bool {
+	if x != nil && x.Diff != nil {
+		return *x.Diff
+	}
+	return false
+}
+
+func (x *StackRunOptions) GetCacheApply() bool {
+	if x != nil && x.CacheApply != nil {
+		return *x.CacheApply
+	}
+	return false
+}
+
+func (x *StackRunOptions) GetHelmLogs() bool {
+	if x != nil && x.HelmLogs != nil {
+		return *x.HelmLogs
+	}
+	return false
+}
+
+func (x *StackRunOptions) GetRunId() string {
+	if x != nil {
+		return x.RunId
+	}
+	return ""
+}
+
+func (x *StackRunOptions) GetRetry() int32 {
+	if x != nil {
+		return x.Retry
+	}
+	return 0
+}
+
+func (x *StackRunOptions) GetKubeQps() float32 {
+	if x != nil {
+		return x.KubeQps
+	}
+	return 0
+}
+
+func (x *StackRunOptions) GetKubeBurst() int32 {
+	if x != nil {
+		return x.KubeBurst
+	}
+	return 0
+}
+
+func (x *StackRunOptions) GetMaxParallelPerNamespace() int32 {
+	if x != nil {
+		return x.MaxParallelPerNamespace
+	}
+	return 0
+}
+
+func (x *StackRunOptions) GetMaxParallelKind() map[string]int32 {
+	if x != nil {
+		return x.MaxParallelKind
+	}
+	return nil
+}
+
+func (x *StackRunOptions) GetParallelismGroupLimit() int32 {
+	if x != nil {
+		return x.ParallelismGroupLimit
+	}
+	return 0
+}
+
+func (x *StackRunOptions) GetLock() bool {
+	if x != nil && x.Lock != nil {
+		return *x.Lock
+	}
+	return false
+}
+
+func (x *StackRunOptions) GetTakeoverLock() bool {
+	if x != nil && x.TakeoverLock != nil {
+		return *x.TakeoverLock
+	}
+	return false
+}
+
+func (x *StackRunOptions) GetLockTtlSeconds() int64 {
+	if x != nil {
+		return x.LockTtlSeconds
+	}
+	return 0
+}
+
+func (x *StackRunOptions) GetLockOwner() string {
+	if x != nil {
+		return x.LockOwner
+	}
+	return ""
+}
+
+func (x *StackRunOptions) GetFailMode() string {
+	if x != nil {
+		return x.FailMode
+	}
+	return ""
+}
+
+func (x *StackRunOptions) GetAdaptiveMin() int32 {
+	if x != nil {
+		return x.AdaptiveMin
+	}
+	return 0
+}
+
+func (x *StackRunOptions) GetAdaptiveWindow() int32 {
+	if x != nil {
+		return x.AdaptiveWindow
+	}
+	return 0
+}
+
+func (x *StackRunOptions) GetAdaptiveRampSuccesses() int32 {
+	if x != nil {
+		return x.AdaptiveRampSuccesses
+	}
+	return 0
+}
+
+func (x *StackRunOptions) GetAdaptiveRampMaxFailureRate() float64 {
+	if x != nil {
+		return x.AdaptiveRampMaxFailureRate
+	}
+	return 0
+}
+
+func (x *StackRunOptions) GetAdaptiveCooldownSevere() int32 {
+	if x != nil {
+		return x.AdaptiveCooldownSevere
+	}
+	return 0
+}
+
+type StackPlanRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Selector      *StackSelector         `protobuf:"bytes,1,opt,name=selector,proto3" json:"selector,omitempty"`
+	SessionId     string                 `protobuf:"bytes,2,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	Requester     string                 `protobuf:"bytes,3,opt,name=requester,proto3" json:"requester,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StackPlanRequest) Reset() {
+	*x = StackPlanRequest{}
+	mi := &file_torque_api_v1_agent_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StackPlanRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StackPlanRequest) ProtoMessage() {}
+
+func (x *StackPlanRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_torque_api_v1_agent_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StackPlanRequest.ProtoReflect.Descriptor instead.
+func (*StackPlanRequest) Descriptor() ([]byte, []int) {
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *StackPlanRequest) GetSelector() *StackSelector {
+	if x != nil {
+		return x.Selector
+	}
+	return nil
+}
+
+func (x *StackPlanRequest) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+func (x *StackPlanRequest) GetRequester() string {
+	if x != nil {
+		return x.Requester
+	}
+	return ""
+}
+
+type StackPlanResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Json          string                 `protobuf:"bytes,1,opt,name=json,proto3" json:"json,omitempty"`
+	NodeCount     int32                  `protobuf:"varint,2,opt,name=node_count,json=nodeCount,proto3" json:"node_count,omitempty"`
+	StackName     string                 `protobuf:"bytes,3,opt,name=stack_name,json=stackName,proto3" json:"stack_name,omitempty"`
+	Profile       string                 `protobuf:"bytes,4,opt,name=profile,proto3" json:"profile,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StackPlanResult) Reset() {
+	*x = StackPlanResult{}
+	mi := &file_torque_api_v1_agent_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StackPlanResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StackPlanResult) ProtoMessage() {}
+
+func (x *StackPlanResult) ProtoReflect() protoreflect.Message {
+	mi := &file_torque_api_v1_agent_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StackPlanResult.ProtoReflect.Descriptor instead.
+func (*StackPlanResult) Descriptor() ([]byte, []int) {
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *StackPlanResult) GetJson() string {
+	if x != nil {
+		return x.Json
+	}
+	return ""
+}
+
+func (x *StackPlanResult) GetNodeCount() int32 {
+	if x != nil {
+		return x.NodeCount
+	}
+	return 0
+}
+
+func (x *StackPlanResult) GetStackName() string {
+	if x != nil {
+		return x.StackName
+	}
+	return ""
+}
+
+func (x *StackPlanResult) GetProfile() string {
+	if x != nil {
+		return x.Profile
+	}
+	return ""
+}
+
+type StackRunRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Command       string                 `protobuf:"bytes,1,opt,name=command,proto3" json:"command,omitempty"` // apply|delete
+	Selector      *StackSelector         `protobuf:"bytes,2,opt,name=selector,proto3" json:"selector,omitempty"`
+	Options       *StackRunOptions       `protobuf:"bytes,3,opt,name=options,proto3" json:"options,omitempty"`
+	SessionId     string                 `protobuf:"bytes,4,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	Requester     string                 `protobuf:"bytes,5,opt,name=requester,proto3" json:"requester,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StackRunRequest) Reset() {
+	*x = StackRunRequest{}
+	mi := &file_torque_api_v1_agent_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StackRunRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StackRunRequest) ProtoMessage() {}
+
+func (x *StackRunRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_torque_api_v1_agent_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StackRunRequest.ProtoReflect.Descriptor instead.
+func (*StackRunRequest) Descriptor() ([]byte, []int) {
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *StackRunRequest) GetCommand() string {
+	if x != nil {
+		return x.Command
+	}
+	return ""
+}
+
+func (x *StackRunRequest) GetSelector() *StackSelector {
+	if x != nil {
+		return x.Selector
+	}
+	return nil
+}
+
+func (x *StackRunRequest) GetOptions() *StackRunOptions {
+	if x != nil {
+		return x.Options
+	}
+	return nil
+}
+
+func (x *StackRunRequest) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+func (x *StackRunRequest) GetRequester() string {
+	if x != nil {
+		return x.Requester
+	}
+	return ""
+}
+
+type StackEvent struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	TimestampUnixNano int64                  `protobuf:"varint,1,opt,name=timestamp_unix_nano,json=timestampUnixNano,proto3" json:"timestamp_unix_nano,omitempty"`
+	Json              string                 `protobuf:"bytes,2,opt,name=json,proto3" json:"json,omitempty"`
+	Terminal          bool                   `protobuf:"varint,3,opt,name=terminal,proto3" json:"terminal,omitempty"`
+	RunId             string                 `protobuf:"bytes,4,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
+	Type              string                 `protobuf:"bytes,5,opt,name=type,proto3" json:"type,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *StackEvent) Reset() {
+	*x = StackEvent{}
+	mi := &file_torque_api_v1_agent_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StackEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StackEvent) ProtoMessage() {}
+
+func (x *StackEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_torque_api_v1_agent_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StackEvent.ProtoReflect.Descriptor instead.
+func (*StackEvent) Descriptor() ([]byte, []int) {
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *StackEvent) GetTimestampUnixNano() int64 {
+	if x != nil {
+		return x.TimestampUnixNano
+	}
+	return 0
+}
+
+func (x *StackEvent) GetJson() string {
+	if x != nil {
+		return x.Json
+	}
+	return ""
+}
+
+func (x *StackEvent) GetTerminal() bool {
+	if x != nil {
+		return x.Terminal
+	}
+	return false
+}
+
+func (x *StackEvent) GetRunId() string {
+	if x != nil {
+		return x.RunId
+	}
+	return ""
+}
+
+func (x *StackEvent) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+type StackStatusRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ConfigPath    string                 `protobuf:"bytes,1,opt,name=config_path,json=configPath,proto3" json:"config_path,omitempty"`
+	Root          string                 `protobuf:"bytes,2,opt,name=root,proto3" json:"root,omitempty"`
+	RunId         string                 `protobuf:"bytes,3,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
+	Follow        bool                   `protobuf:"varint,4,opt,name=follow,proto3" json:"follow,omitempty"`
+	Limit         int32                  `protobuf:"varint,5,opt,name=limit,proto3" json:"limit,omitempty"`
+	Format        string                 `protobuf:"bytes,6,opt,name=format,proto3" json:"format,omitempty"` // json|raw
+	Requester     string                 `protobuf:"bytes,7,opt,name=requester,proto3" json:"requester,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StackStatusRequest) Reset() {
+	*x = StackStatusRequest{}
+	mi := &file_torque_api_v1_agent_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StackStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StackStatusRequest) ProtoMessage() {}
+
+func (x *StackStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_torque_api_v1_agent_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StackStatusRequest.ProtoReflect.Descriptor instead.
+func (*StackStatusRequest) Descriptor() ([]byte, []int) {
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *StackStatusRequest) GetConfigPath() string {
+	if x != nil {
+		return x.ConfigPath
+	}
+	return ""
+}
+
+func (x *StackStatusRequest) GetRoot() string {
+	if x != nil {
+		return x.Root
+	}
+	return ""
+}
+
+func (x *StackStatusRequest) GetRunId() string {
+	if x != nil {
+		return x.RunId
+	}
+	return ""
+}
+
+func (x *StackStatusRequest) GetFollow() bool {
+	if x != nil {
+		return x.Follow
+	}
+	return false
+}
+
+func (x *StackStatusRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *StackStatusRequest) GetFormat() string {
+	if x != nil {
+		return x.Format
+	}
+	return ""
+}
+
+func (x *StackStatusRequest) GetRequester() string {
+	if x != nil {
+		return x.Requester
+	}
+	return ""
+}
+
+type StackStatusResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Json          string                 `protobuf:"bytes,1,opt,name=json,proto3" json:"json,omitempty"`
+	RunId         string                 `protobuf:"bytes,2,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StackStatusResult) Reset() {
+	*x = StackStatusResult{}
+	mi := &file_torque_api_v1_agent_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StackStatusResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StackStatusResult) ProtoMessage() {}
+
+func (x *StackStatusResult) ProtoReflect() protoreflect.Message {
+	mi := &file_torque_api_v1_agent_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StackStatusResult.ProtoReflect.Descriptor instead.
+func (*StackStatusResult) Descriptor() ([]byte, []int) {
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *StackStatusResult) GetJson() string {
+	if x != nil {
+		return x.Json
+	}
+	return ""
+}
+
+func (x *StackStatusResult) GetRunId() string {
+	if x != nil {
+		return x.RunId
+	}
+	return ""
+}
+
 type DeployApplyOptions struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Release         string                 `protobuf:"bytes,1,opt,name=release,proto3" json:"release,omitempty"`
@@ -1062,7 +1920,7 @@ type DeployApplyOptions struct {
 
 func (x *DeployApplyOptions) Reset() {
 	*x = DeployApplyOptions{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[9]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1074,7 +1932,7 @@ func (x *DeployApplyOptions) String() string {
 func (*DeployApplyOptions) ProtoMessage() {}
 
 func (x *DeployApplyOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[9]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1087,7 +1945,7 @@ func (x *DeployApplyOptions) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeployApplyOptions.ProtoReflect.Descriptor instead.
 func (*DeployApplyOptions) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{9}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *DeployApplyOptions) GetRelease() string {
@@ -1220,7 +2078,7 @@ type DeployApplyRequest struct {
 
 func (x *DeployApplyRequest) Reset() {
 	*x = DeployApplyRequest{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[10]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1232,7 +2090,7 @@ func (x *DeployApplyRequest) String() string {
 func (*DeployApplyRequest) ProtoMessage() {}
 
 func (x *DeployApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[10]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1245,7 +2103,7 @@ func (x *DeployApplyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeployApplyRequest.ProtoReflect.Descriptor instead.
 func (*DeployApplyRequest) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{10}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *DeployApplyRequest) GetOptions() *DeployApplyOptions {
@@ -1287,7 +2145,7 @@ type DeployDestroyOptions struct {
 
 func (x *DeployDestroyOptions) Reset() {
 	*x = DeployDestroyOptions{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[11]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1299,7 +2157,7 @@ func (x *DeployDestroyOptions) String() string {
 func (*DeployDestroyOptions) ProtoMessage() {}
 
 func (x *DeployDestroyOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[11]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1312,7 +2170,7 @@ func (x *DeployDestroyOptions) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeployDestroyOptions.ProtoReflect.Descriptor instead.
 func (*DeployDestroyOptions) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{11}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *DeployDestroyOptions) GetRelease() string {
@@ -1396,7 +2254,7 @@ type DeployDestroyRequest struct {
 
 func (x *DeployDestroyRequest) Reset() {
 	*x = DeployDestroyRequest{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[12]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1408,7 +2266,7 @@ func (x *DeployDestroyRequest) String() string {
 func (*DeployDestroyRequest) ProtoMessage() {}
 
 func (x *DeployDestroyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[12]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1421,7 +2279,7 @@ func (x *DeployDestroyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeployDestroyRequest.ProtoReflect.Descriptor instead.
 func (*DeployDestroyRequest) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{12}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *DeployDestroyRequest) GetOptions() *DeployDestroyOptions {
@@ -1457,6 +2315,7 @@ type MirrorFrame struct {
 	//	*MirrorFrame_Build
 	//	*MirrorFrame_Deploy
 	//	*MirrorFrame_Verify
+	//	*MirrorFrame_Stack
 	//	*MirrorFrame_Raw
 	Payload       isMirrorFrame_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
@@ -1465,7 +2324,7 @@ type MirrorFrame struct {
 
 func (x *MirrorFrame) Reset() {
 	*x = MirrorFrame{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[13]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1477,7 +2336,7 @@ func (x *MirrorFrame) String() string {
 func (*MirrorFrame) ProtoMessage() {}
 
 func (x *MirrorFrame) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[13]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1490,7 +2349,7 @@ func (x *MirrorFrame) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MirrorFrame.ProtoReflect.Descriptor instead.
 func (*MirrorFrame) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{13}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *MirrorFrame) GetSessionId() string {
@@ -1564,6 +2423,15 @@ func (x *MirrorFrame) GetVerify() *VerifyEvent {
 	return nil
 }
 
+func (x *MirrorFrame) GetStack() *StackEvent {
+	if x != nil {
+		if x, ok := x.Payload.(*MirrorFrame_Stack); ok {
+			return x.Stack
+		}
+	}
+	return nil
+}
+
 func (x *MirrorFrame) GetRaw() []byte {
 	if x != nil {
 		if x, ok := x.Payload.(*MirrorFrame_Raw); ok {
@@ -1593,6 +2461,10 @@ type MirrorFrame_Verify struct {
 	Verify *VerifyEvent `protobuf:"bytes,14,opt,name=verify,proto3,oneof"`
 }
 
+type MirrorFrame_Stack struct {
+	Stack *StackEvent `protobuf:"bytes,15,opt,name=stack,proto3,oneof"`
+}
+
 type MirrorFrame_Raw struct {
 	Raw []byte `protobuf:"bytes,13,opt,name=raw,proto3,oneof"`
 }
@@ -1604,6 +2476,8 @@ func (*MirrorFrame_Build) isMirrorFrame_Payload() {}
 func (*MirrorFrame_Deploy) isMirrorFrame_Payload() {}
 
 func (*MirrorFrame_Verify) isMirrorFrame_Payload() {}
+
+func (*MirrorFrame_Stack) isMirrorFrame_Payload() {}
 
 func (*MirrorFrame_Raw) isMirrorFrame_Payload() {}
 
@@ -1618,7 +2492,7 @@ type MirrorAck struct {
 
 func (x *MirrorAck) Reset() {
 	*x = MirrorAck{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[14]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1630,7 +2504,7 @@ func (x *MirrorAck) String() string {
 func (*MirrorAck) ProtoMessage() {}
 
 func (x *MirrorAck) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[14]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1643,7 +2517,7 @@ func (x *MirrorAck) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MirrorAck.ProtoReflect.Descriptor instead.
 func (*MirrorAck) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{14}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *MirrorAck) GetSessionId() string {
@@ -1678,7 +2552,7 @@ type MirrorSubscribeRequest struct {
 
 func (x *MirrorSubscribeRequest) Reset() {
 	*x = MirrorSubscribeRequest{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[15]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1690,7 +2564,7 @@ func (x *MirrorSubscribeRequest) String() string {
 func (*MirrorSubscribeRequest) ProtoMessage() {}
 
 func (x *MirrorSubscribeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[15]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1703,7 +2577,7 @@ func (x *MirrorSubscribeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MirrorSubscribeRequest.ProtoReflect.Descriptor instead.
 func (*MirrorSubscribeRequest) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{15}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *MirrorSubscribeRequest) GetSessionId() string {
@@ -1745,7 +2619,7 @@ type MirrorSessionMeta struct {
 
 func (x *MirrorSessionMeta) Reset() {
 	*x = MirrorSessionMeta{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[16]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1757,7 +2631,7 @@ func (x *MirrorSessionMeta) String() string {
 func (*MirrorSessionMeta) ProtoMessage() {}
 
 func (x *MirrorSessionMeta) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[16]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1770,7 +2644,7 @@ func (x *MirrorSessionMeta) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MirrorSessionMeta.ProtoReflect.Descriptor instead.
 func (*MirrorSessionMeta) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{16}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *MirrorSessionMeta) GetCommand() string {
@@ -1844,7 +2718,7 @@ type MirrorSession struct {
 
 func (x *MirrorSession) Reset() {
 	*x = MirrorSession{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[17]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1856,7 +2730,7 @@ func (x *MirrorSession) String() string {
 func (*MirrorSession) ProtoMessage() {}
 
 func (x *MirrorSession) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[17]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1869,7 +2743,7 @@ func (x *MirrorSession) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MirrorSession.ProtoReflect.Descriptor instead.
 func (*MirrorSession) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{17}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *MirrorSession) GetSessionId() string {
@@ -1933,7 +2807,7 @@ type MirrorSessionStatus struct {
 
 func (x *MirrorSessionStatus) Reset() {
 	*x = MirrorSessionStatus{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[18]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1945,7 +2819,7 @@ func (x *MirrorSessionStatus) String() string {
 func (*MirrorSessionStatus) ProtoMessage() {}
 
 func (x *MirrorSessionStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[18]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1958,7 +2832,7 @@ func (x *MirrorSessionStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MirrorSessionStatus.ProtoReflect.Descriptor instead.
 func (*MirrorSessionStatus) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{18}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *MirrorSessionStatus) GetState() MirrorSessionState {
@@ -2007,7 +2881,7 @@ type MirrorListSessionsRequest struct {
 
 func (x *MirrorListSessionsRequest) Reset() {
 	*x = MirrorListSessionsRequest{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[19]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2019,7 +2893,7 @@ func (x *MirrorListSessionsRequest) String() string {
 func (*MirrorListSessionsRequest) ProtoMessage() {}
 
 func (x *MirrorListSessionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[19]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2032,7 +2906,7 @@ func (x *MirrorListSessionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MirrorListSessionsRequest.ProtoReflect.Descriptor instead.
 func (*MirrorListSessionsRequest) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{19}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *MirrorListSessionsRequest) GetLimit() int32 {
@@ -2086,7 +2960,7 @@ type MirrorListSessionsResponse struct {
 
 func (x *MirrorListSessionsResponse) Reset() {
 	*x = MirrorListSessionsResponse{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[20]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2098,7 +2972,7 @@ func (x *MirrorListSessionsResponse) String() string {
 func (*MirrorListSessionsResponse) ProtoMessage() {}
 
 func (x *MirrorListSessionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[20]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2111,7 +2985,7 @@ func (x *MirrorListSessionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MirrorListSessionsResponse.ProtoReflect.Descriptor instead.
 func (*MirrorListSessionsResponse) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{20}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *MirrorListSessionsResponse) GetSessions() []*MirrorSession {
@@ -2130,7 +3004,7 @@ type MirrorGetSessionRequest struct {
 
 func (x *MirrorGetSessionRequest) Reset() {
 	*x = MirrorGetSessionRequest{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[21]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2142,7 +3016,7 @@ func (x *MirrorGetSessionRequest) String() string {
 func (*MirrorGetSessionRequest) ProtoMessage() {}
 
 func (x *MirrorGetSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[21]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2155,7 +3029,7 @@ func (x *MirrorGetSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MirrorGetSessionRequest.ProtoReflect.Descriptor instead.
 func (*MirrorGetSessionRequest) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{21}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *MirrorGetSessionRequest) GetSessionId() string {
@@ -2176,7 +3050,7 @@ type MirrorSetSessionMetaRequest struct {
 
 func (x *MirrorSetSessionMetaRequest) Reset() {
 	*x = MirrorSetSessionMetaRequest{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[22]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2188,7 +3062,7 @@ func (x *MirrorSetSessionMetaRequest) String() string {
 func (*MirrorSetSessionMetaRequest) ProtoMessage() {}
 
 func (x *MirrorSetSessionMetaRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[22]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2201,7 +3075,7 @@ func (x *MirrorSetSessionMetaRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MirrorSetSessionMetaRequest.ProtoReflect.Descriptor instead.
 func (*MirrorSetSessionMetaRequest) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{22}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *MirrorSetSessionMetaRequest) GetSessionId() string {
@@ -2235,7 +3109,7 @@ type MirrorSetSessionStatusRequest struct {
 
 func (x *MirrorSetSessionStatusRequest) Reset() {
 	*x = MirrorSetSessionStatusRequest{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[23]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2247,7 +3121,7 @@ func (x *MirrorSetSessionStatusRequest) String() string {
 func (*MirrorSetSessionStatusRequest) ProtoMessage() {}
 
 func (x *MirrorSetSessionStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[23]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2260,7 +3134,7 @@ func (x *MirrorSetSessionStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MirrorSetSessionStatusRequest.ProtoReflect.Descriptor instead.
 func (*MirrorSetSessionStatusRequest) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{23}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *MirrorSetSessionStatusRequest) GetSessionId() string {
@@ -2286,7 +3160,7 @@ type MirrorDeleteSessionRequest struct {
 
 func (x *MirrorDeleteSessionRequest) Reset() {
 	*x = MirrorDeleteSessionRequest{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[24]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2298,7 +3172,7 @@ func (x *MirrorDeleteSessionRequest) String() string {
 func (*MirrorDeleteSessionRequest) ProtoMessage() {}
 
 func (x *MirrorDeleteSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[24]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2311,7 +3185,7 @@ func (x *MirrorDeleteSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MirrorDeleteSessionRequest.ProtoReflect.Descriptor instead.
 func (*MirrorDeleteSessionRequest) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{24}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *MirrorDeleteSessionRequest) GetSessionId() string {
@@ -2330,7 +3204,7 @@ type MirrorDeleteSessionResponse struct {
 
 func (x *MirrorDeleteSessionResponse) Reset() {
 	*x = MirrorDeleteSessionResponse{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[25]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2342,7 +3216,7 @@ func (x *MirrorDeleteSessionResponse) String() string {
 func (*MirrorDeleteSessionResponse) ProtoMessage() {}
 
 func (x *MirrorDeleteSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[25]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2355,7 +3229,7 @@ func (x *MirrorDeleteSessionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MirrorDeleteSessionResponse.ProtoReflect.Descriptor instead.
 func (*MirrorDeleteSessionResponse) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{25}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *MirrorDeleteSessionResponse) GetDeleted() bool {
@@ -2376,7 +3250,7 @@ type MirrorExportRequest struct {
 
 func (x *MirrorExportRequest) Reset() {
 	*x = MirrorExportRequest{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[26]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2388,7 +3262,7 @@ func (x *MirrorExportRequest) String() string {
 func (*MirrorExportRequest) ProtoMessage() {}
 
 func (x *MirrorExportRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[26]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2401,7 +3275,7 @@ func (x *MirrorExportRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MirrorExportRequest.ProtoReflect.Descriptor instead.
 func (*MirrorExportRequest) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{26}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *MirrorExportRequest) GetSessionId() string {
@@ -2434,7 +3308,7 @@ type MirrorExportChunk struct {
 
 func (x *MirrorExportChunk) Reset() {
 	*x = MirrorExportChunk{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[27]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2446,7 +3320,7 @@ func (x *MirrorExportChunk) String() string {
 func (*MirrorExportChunk) ProtoMessage() {}
 
 func (x *MirrorExportChunk) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[27]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2459,7 +3333,7 @@ func (x *MirrorExportChunk) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MirrorExportChunk.ProtoReflect.Descriptor instead.
 func (*MirrorExportChunk) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{27}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *MirrorExportChunk) GetData() []byte {
@@ -2487,7 +3361,7 @@ type VerifyChartOptions struct {
 
 func (x *VerifyChartOptions) Reset() {
 	*x = VerifyChartOptions{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[28]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2499,7 +3373,7 @@ func (x *VerifyChartOptions) String() string {
 func (*VerifyChartOptions) ProtoMessage() {}
 
 func (x *VerifyChartOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[28]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2512,7 +3386,7 @@ func (x *VerifyChartOptions) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyChartOptions.ProtoReflect.Descriptor instead.
 func (*VerifyChartOptions) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{28}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *VerifyChartOptions) GetChart() string {
@@ -2596,7 +3470,7 @@ type VerifyNamespaceOptions struct {
 
 func (x *VerifyNamespaceOptions) Reset() {
 	*x = VerifyNamespaceOptions{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[29]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2608,7 +3482,7 @@ func (x *VerifyNamespaceOptions) String() string {
 func (*VerifyNamespaceOptions) ProtoMessage() {}
 
 func (x *VerifyNamespaceOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[29]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2621,7 +3495,7 @@ func (x *VerifyNamespaceOptions) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyNamespaceOptions.ProtoReflect.Descriptor instead.
 func (*VerifyNamespaceOptions) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{29}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *VerifyNamespaceOptions) GetNamespace() string {
@@ -2660,7 +3534,7 @@ type VerifyOptions struct {
 
 func (x *VerifyOptions) Reset() {
 	*x = VerifyOptions{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[30]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2672,7 +3546,7 @@ func (x *VerifyOptions) String() string {
 func (*VerifyOptions) ProtoMessage() {}
 
 func (x *VerifyOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[30]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2685,7 +3559,7 @@ func (x *VerifyOptions) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyOptions.ProtoReflect.Descriptor instead.
 func (*VerifyOptions) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{30}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *VerifyOptions) GetMode() string {
@@ -2753,7 +3627,7 @@ type VerifyRequest struct {
 
 func (x *VerifyRequest) Reset() {
 	*x = VerifyRequest{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[31]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2765,7 +3639,7 @@ func (x *VerifyRequest) String() string {
 func (*VerifyRequest) ProtoMessage() {}
 
 func (x *VerifyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[31]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2778,7 +3652,7 @@ func (x *VerifyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyRequest.ProtoReflect.Descriptor instead.
 func (*VerifyRequest) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{31}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *VerifyRequest) GetOptions() *VerifyOptions {
@@ -2861,7 +3735,7 @@ type VerifyEvent struct {
 
 func (x *VerifyEvent) Reset() {
 	*x = VerifyEvent{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[32]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2873,7 +3747,7 @@ func (x *VerifyEvent) String() string {
 func (*VerifyEvent) ProtoMessage() {}
 
 func (x *VerifyEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[32]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2886,7 +3760,7 @@ func (x *VerifyEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyEvent.ProtoReflect.Descriptor instead.
 func (*VerifyEvent) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{32}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *VerifyEvent) GetTimestampUnixNano() int64 {
@@ -3009,7 +3883,7 @@ type VerifyStarted struct {
 
 func (x *VerifyStarted) Reset() {
 	*x = VerifyStarted{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[33]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3021,7 +3895,7 @@ func (x *VerifyStarted) String() string {
 func (*VerifyStarted) ProtoMessage() {}
 
 func (x *VerifyStarted) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[33]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3034,7 +3908,7 @@ func (x *VerifyStarted) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyStarted.ProtoReflect.Descriptor instead.
 func (*VerifyStarted) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{33}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *VerifyStarted) GetTarget() string {
@@ -3075,7 +3949,7 @@ type VerifyProgress struct {
 
 func (x *VerifyProgress) Reset() {
 	*x = VerifyProgress{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[34]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3087,7 +3961,7 @@ func (x *VerifyProgress) String() string {
 func (*VerifyProgress) ProtoMessage() {}
 
 func (x *VerifyProgress) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[34]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3100,7 +3974,7 @@ func (x *VerifyProgress) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyProgress.ProtoReflect.Descriptor instead.
 func (*VerifyProgress) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{34}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *VerifyProgress) GetPhase() string {
@@ -3128,7 +4002,7 @@ type VerifySubject struct {
 
 func (x *VerifySubject) Reset() {
 	*x = VerifySubject{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[35]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3140,7 +4014,7 @@ func (x *VerifySubject) String() string {
 func (*VerifySubject) ProtoMessage() {}
 
 func (x *VerifySubject) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[35]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3153,7 +4027,7 @@ func (x *VerifySubject) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifySubject.ProtoReflect.Descriptor instead.
 func (*VerifySubject) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{35}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *VerifySubject) GetKind() string {
@@ -3192,7 +4066,7 @@ type VerifyFinding struct {
 
 func (x *VerifyFinding) Reset() {
 	*x = VerifyFinding{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[36]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3204,7 +4078,7 @@ func (x *VerifyFinding) String() string {
 func (*VerifyFinding) ProtoMessage() {}
 
 func (x *VerifyFinding) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[36]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3217,7 +4091,7 @@ func (x *VerifyFinding) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyFinding.ProtoReflect.Descriptor instead.
 func (*VerifyFinding) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{36}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *VerifyFinding) GetRuleId() string {
@@ -3280,7 +4154,7 @@ type VerifySummary struct {
 
 func (x *VerifySummary) Reset() {
 	*x = VerifySummary{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[37]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3292,7 +4166,7 @@ func (x *VerifySummary) String() string {
 func (*VerifySummary) ProtoMessage() {}
 
 func (x *VerifySummary) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[37]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3305,7 +4179,7 @@ func (x *VerifySummary) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifySummary.ProtoReflect.Descriptor instead.
 func (*VerifySummary) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{37}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *VerifySummary) GetTotal() int32 {
@@ -3339,7 +4213,7 @@ type VerifyDone struct {
 
 func (x *VerifyDone) Reset() {
 	*x = VerifyDone{}
-	mi := &file_torque_api_v1_agent_proto_msgTypes[38]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3351,7 +4225,7 @@ func (x *VerifyDone) String() string {
 func (*VerifyDone) ProtoMessage() {}
 
 func (x *VerifyDone) ProtoReflect() protoreflect.Message {
-	mi := &file_torque_api_v1_agent_proto_msgTypes[38]
+	mi := &file_torque_api_v1_agent_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3364,7 +4238,7 @@ func (x *VerifyDone) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VerifyDone.ProtoReflect.Descriptor instead.
 func (*VerifyDone) Descriptor() ([]byte, []int) {
-	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{38}
+	return file_torque_api_v1_agent_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *VerifyDone) GetPassed() bool {
@@ -3496,7 +4370,124 @@ const file_torque_api_v1_agent_proto_rawDesc = "" +
 	"\x06result\x18\x03 \x01(\v2\x1a.torque.api.v1.BuildResultH\x00R\x06resultB\x06\n" +
 	"\x04body\"!\n" +
 	"\vDeployEvent\x12\x12\n" +
-	"\x04json\x18\x01 \x01(\tR\x04json\"\xae\x04\n" +
+	"\x04json\x18\x01 \x01(\tR\x04json\"\xe2\x06\n" +
+	"\rStackSelector\x12\x1f\n" +
+	"\vconfig_path\x18\x01 \x01(\tR\n" +
+	"configPath\x12\x12\n" +
+	"\x04root\x18\x02 \x01(\tR\x04root\x12\x18\n" +
+	"\aprofile\x18\x03 \x01(\tR\aprofile\x12\x1a\n" +
+	"\bclusters\x18\x04 \x03(\tR\bclusters\x12\x12\n" +
+	"\x04tags\x18\x05 \x03(\tR\x04tags\x12\x1d\n" +
+	"\n" +
+	"from_paths\x18\x06 \x03(\tR\tfromPaths\x12\x1a\n" +
+	"\breleases\x18\a \x03(\tR\breleases\x12\x1b\n" +
+	"\tgit_range\x18\b \x01(\tR\bgitRange\x12-\n" +
+	"\x10git_include_deps\x18\t \x01(\bH\x00R\x0egitIncludeDeps\x88\x01\x01\x129\n" +
+	"\x16git_include_dependents\x18\n" +
+	" \x01(\bH\x01R\x14gitIncludeDependents\x88\x01\x01\x12&\n" +
+	"\finclude_deps\x18\v \x01(\bH\x02R\vincludeDeps\x88\x01\x01\x122\n" +
+	"\x12include_dependents\x18\f \x01(\bH\x03R\x11includeDependents\x88\x01\x01\x121\n" +
+	"\x12allow_missing_deps\x18\r \x01(\bH\x04R\x10allowMissingDeps\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"infer_deps\x18\x0e \x01(\bH\x05R\tinferDeps\x88\x01\x01\x12/\n" +
+	"\x11infer_config_refs\x18\x0f \x01(\bH\x06R\x0finferConfigRefs\x88\x01\x01\x12'\n" +
+	"\x0fsecret_provider\x18\x10 \x01(\tR\x0esecretProvider\x12#\n" +
+	"\rsecret_config\x18\x11 \x01(\tR\fsecretConfig\x12!\n" +
+	"\fkube_context\x18\x12 \x01(\tR\vkubeContext\x12'\n" +
+	"\x0fkubeconfig_path\x18\x13 \x01(\tR\x0ekubeconfigPathB\x13\n" +
+	"\x11_git_include_depsB\x19\n" +
+	"\x17_git_include_dependentsB\x0f\n" +
+	"\r_include_depsB\x15\n" +
+	"\x13_include_dependentsB\x15\n" +
+	"\x13_allow_missing_depsB\r\n" +
+	"\v_infer_depsB\x14\n" +
+	"\x12_infer_config_refs\"\x9c\n" +
+	"\n" +
+	"\x0fStackRunOptions\x12 \n" +
+	"\vconcurrency\x18\x01 \x01(\x05R\vconcurrency\x12<\n" +
+	"\x17progressive_concurrency\x18\x02 \x01(\bH\x00R\x16progressiveConcurrency\x88\x01\x01\x12 \n" +
+	"\tfail_fast\x18\x03 \x01(\bH\x01R\bfailFast\x88\x01\x01\x12/\n" +
+	"\x11continue_on_error\x18\x04 \x01(\bH\x02R\x0fcontinueOnError\x88\x01\x01\x12\x15\n" +
+	"\x03yes\x18\x05 \x01(\bH\x03R\x03yes\x88\x01\x01\x12\x1c\n" +
+	"\adry_run\x18\x06 \x01(\bH\x04R\x06dryRun\x88\x01\x01\x12\x17\n" +
+	"\x04diff\x18\a \x01(\bH\x05R\x04diff\x88\x01\x01\x12$\n" +
+	"\vcache_apply\x18\b \x01(\bH\x06R\n" +
+	"cacheApply\x88\x01\x01\x12 \n" +
+	"\thelm_logs\x18\t \x01(\bH\aR\bhelmLogs\x88\x01\x01\x12\x15\n" +
+	"\x06run_id\x18\n" +
+	" \x01(\tR\x05runId\x12\x14\n" +
+	"\x05retry\x18\v \x01(\x05R\x05retry\x12\x19\n" +
+	"\bkube_qps\x18\f \x01(\x02R\akubeQps\x12\x1d\n" +
+	"\n" +
+	"kube_burst\x18\r \x01(\x05R\tkubeBurst\x12;\n" +
+	"\x1amax_parallel_per_namespace\x18\x0e \x01(\x05R\x17maxParallelPerNamespace\x12_\n" +
+	"\x11max_parallel_kind\x18\x0f \x03(\v23.torque.api.v1.StackRunOptions.MaxParallelKindEntryR\x0fmaxParallelKind\x126\n" +
+	"\x17parallelism_group_limit\x18\x10 \x01(\x05R\x15parallelismGroupLimit\x12\x17\n" +
+	"\x04lock\x18\x11 \x01(\bH\bR\x04lock\x88\x01\x01\x12(\n" +
+	"\rtakeover_lock\x18\x12 \x01(\bH\tR\ftakeoverLock\x88\x01\x01\x12(\n" +
+	"\x10lock_ttl_seconds\x18\x13 \x01(\x03R\x0elockTtlSeconds\x12\x1d\n" +
+	"\n" +
+	"lock_owner\x18\x14 \x01(\tR\tlockOwner\x12\x1b\n" +
+	"\tfail_mode\x18\x15 \x01(\tR\bfailMode\x12!\n" +
+	"\fadaptive_min\x18\x16 \x01(\x05R\vadaptiveMin\x12'\n" +
+	"\x0fadaptive_window\x18\x17 \x01(\x05R\x0eadaptiveWindow\x126\n" +
+	"\x17adaptive_ramp_successes\x18\x18 \x01(\x05R\x15adaptiveRampSuccesses\x12B\n" +
+	"\x1eadaptive_ramp_max_failure_rate\x18\x19 \x01(\x01R\x1aadaptiveRampMaxFailureRate\x128\n" +
+	"\x18adaptive_cooldown_severe\x18\x1a \x01(\x05R\x16adaptiveCooldownSevere\x1aB\n" +
+	"\x14MaxParallelKindEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\x05R\x05value:\x028\x01B\x1a\n" +
+	"\x18_progressive_concurrencyB\f\n" +
+	"\n" +
+	"_fail_fastB\x14\n" +
+	"\x12_continue_on_errorB\x06\n" +
+	"\x04_yesB\n" +
+	"\n" +
+	"\b_dry_runB\a\n" +
+	"\x05_diffB\x0e\n" +
+	"\f_cache_applyB\f\n" +
+	"\n" +
+	"_helm_logsB\a\n" +
+	"\x05_lockB\x10\n" +
+	"\x0e_takeover_lock\"\x89\x01\n" +
+	"\x10StackPlanRequest\x128\n" +
+	"\bselector\x18\x01 \x01(\v2\x1c.torque.api.v1.StackSelectorR\bselector\x12\x1d\n" +
+	"\n" +
+	"session_id\x18\x02 \x01(\tR\tsessionId\x12\x1c\n" +
+	"\trequester\x18\x03 \x01(\tR\trequester\"}\n" +
+	"\x0fStackPlanResult\x12\x12\n" +
+	"\x04json\x18\x01 \x01(\tR\x04json\x12\x1d\n" +
+	"\n" +
+	"node_count\x18\x02 \x01(\x05R\tnodeCount\x12\x1d\n" +
+	"\n" +
+	"stack_name\x18\x03 \x01(\tR\tstackName\x12\x18\n" +
+	"\aprofile\x18\x04 \x01(\tR\aprofile\"\xdc\x01\n" +
+	"\x0fStackRunRequest\x12\x18\n" +
+	"\acommand\x18\x01 \x01(\tR\acommand\x128\n" +
+	"\bselector\x18\x02 \x01(\v2\x1c.torque.api.v1.StackSelectorR\bselector\x128\n" +
+	"\aoptions\x18\x03 \x01(\v2\x1e.torque.api.v1.StackRunOptionsR\aoptions\x12\x1d\n" +
+	"\n" +
+	"session_id\x18\x04 \x01(\tR\tsessionId\x12\x1c\n" +
+	"\trequester\x18\x05 \x01(\tR\trequester\"\x97\x01\n" +
+	"\n" +
+	"StackEvent\x12.\n" +
+	"\x13timestamp_unix_nano\x18\x01 \x01(\x03R\x11timestampUnixNano\x12\x12\n" +
+	"\x04json\x18\x02 \x01(\tR\x04json\x12\x1a\n" +
+	"\bterminal\x18\x03 \x01(\bR\bterminal\x12\x15\n" +
+	"\x06run_id\x18\x04 \x01(\tR\x05runId\x12\x12\n" +
+	"\x04type\x18\x05 \x01(\tR\x04type\"\xc4\x01\n" +
+	"\x12StackStatusRequest\x12\x1f\n" +
+	"\vconfig_path\x18\x01 \x01(\tR\n" +
+	"configPath\x12\x12\n" +
+	"\x04root\x18\x02 \x01(\tR\x04root\x12\x15\n" +
+	"\x06run_id\x18\x03 \x01(\tR\x05runId\x12\x16\n" +
+	"\x06follow\x18\x04 \x01(\bR\x06follow\x12\x14\n" +
+	"\x05limit\x18\x05 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06format\x18\x06 \x01(\tR\x06format\x12\x1c\n" +
+	"\trequester\x18\a \x01(\tR\trequester\">\n" +
+	"\x11StackStatusResult\x12\x12\n" +
+	"\x04json\x18\x01 \x01(\tR\x04json\x12\x15\n" +
+	"\x06run_id\x18\x02 \x01(\tR\x05runId\"\xae\x04\n" +
 	"\x12DeployApplyOptions\x12\x18\n" +
 	"\arelease\x18\x01 \x01(\tR\arelease\x12\x14\n" +
 	"\x05chart\x18\x02 \x01(\tR\x05chart\x12\x1c\n" +
@@ -3538,7 +4529,7 @@ const file_torque_api_v1_agent_proto_rawDesc = "" +
 	"\aoptions\x18\x01 \x01(\v2#.torque.api.v1.DeployDestroyOptionsR\aoptions\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x02 \x01(\tR\tsessionId\x12\x1c\n" +
-	"\trequester\x18\x03 \x01(\tR\trequester\"\xfc\x02\n" +
+	"\trequester\x18\x03 \x01(\tR\trequester\"\xaf\x03\n" +
 	"\vMirrorFrame\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x1a\n" +
@@ -3549,7 +4540,8 @@ const file_torque_api_v1_agent_proto_rawDesc = "" +
 	" \x01(\v2\x16.torque.api.v1.LogLineH\x00R\x03log\x121\n" +
 	"\x05build\x18\v \x01(\v2\x19.torque.api.v1.BuildEventH\x00R\x05build\x124\n" +
 	"\x06deploy\x18\f \x01(\v2\x1a.torque.api.v1.DeployEventH\x00R\x06deploy\x124\n" +
-	"\x06verify\x18\x0e \x01(\v2\x1a.torque.api.v1.VerifyEventH\x00R\x06verify\x12\x12\n" +
+	"\x06verify\x18\x0e \x01(\v2\x1a.torque.api.v1.VerifyEventH\x00R\x06verify\x121\n" +
+	"\x05stack\x18\x0f \x01(\v2\x19.torque.api.v1.StackEventH\x00R\x05stack\x12\x12\n" +
 	"\x03raw\x18\r \x01(\fH\x00R\x03rawB\t\n" +
 	"\apayload\"`\n" +
 	"\tMirrorAck\x12\x1d\n" +
@@ -3721,7 +4713,12 @@ const file_torque_api_v1_agent_proto_rawDesc = "" +
 	"\bRunBuild\x12\x1e.torque.api.v1.RunBuildRequest\x1a\x19.torque.api.v1.BuildEvent0\x012\xa7\x01\n" +
 	"\rDeployService\x12H\n" +
 	"\x05Apply\x12!.torque.api.v1.DeployApplyRequest\x1a\x1a.torque.api.v1.DeployEvent0\x01\x12L\n" +
-	"\aDestroy\x12#.torque.api.v1.DeployDestroyRequest\x1a\x1a.torque.api.v1.DeployEvent0\x012\xd5\x05\n" +
+	"\aDestroy\x12#.torque.api.v1.DeployDestroyRequest\x1a\x1a.torque.api.v1.DeployEvent0\x012\xb3\x02\n" +
+	"\fStackService\x12G\n" +
+	"\x04Plan\x12\x1f.torque.api.v1.StackPlanRequest\x1a\x1e.torque.api.v1.StackPlanResult\x12D\n" +
+	"\x05Apply\x12\x1e.torque.api.v1.StackRunRequest\x1a\x19.torque.api.v1.StackEvent0\x01\x12E\n" +
+	"\x06Delete\x12\x1e.torque.api.v1.StackRunRequest\x1a\x19.torque.api.v1.StackEvent0\x01\x12M\n" +
+	"\x06Status\x12!.torque.api.v1.StackStatusRequest\x1a .torque.api.v1.StackStatusResult2\xd5\x05\n" +
 	"\rMirrorService\x12C\n" +
 	"\aPublish\x12\x1a.torque.api.v1.MirrorFrame\x1a\x18.torque.api.v1.MirrorAck(\x010\x01\x12P\n" +
 	"\tSubscribe\x12%.torque.api.v1.MirrorSubscribeRequest\x1a\x1a.torque.api.v1.MirrorFrame0\x01\x12c\n" +
@@ -3750,7 +4747,7 @@ func file_torque_api_v1_agent_proto_rawDescGZIP() []byte {
 }
 
 var file_torque_api_v1_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_torque_api_v1_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 44)
+var file_torque_api_v1_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 53)
 var file_torque_api_v1_agent_proto_goTypes = []any{
 	(MirrorSessionState)(0),               // 0: torque.api.v1.MirrorSessionState
 	(*AgentInfoRequest)(nil),              // 1: torque.api.v1.AgentInfoRequest
@@ -3762,107 +4759,129 @@ var file_torque_api_v1_agent_proto_goTypes = []any{
 	(*BuildResult)(nil),                   // 7: torque.api.v1.BuildResult
 	(*BuildEvent)(nil),                    // 8: torque.api.v1.BuildEvent
 	(*DeployEvent)(nil),                   // 9: torque.api.v1.DeployEvent
-	(*DeployApplyOptions)(nil),            // 10: torque.api.v1.DeployApplyOptions
-	(*DeployApplyRequest)(nil),            // 11: torque.api.v1.DeployApplyRequest
-	(*DeployDestroyOptions)(nil),          // 12: torque.api.v1.DeployDestroyOptions
-	(*DeployDestroyRequest)(nil),          // 13: torque.api.v1.DeployDestroyRequest
-	(*MirrorFrame)(nil),                   // 14: torque.api.v1.MirrorFrame
-	(*MirrorAck)(nil),                     // 15: torque.api.v1.MirrorAck
-	(*MirrorSubscribeRequest)(nil),        // 16: torque.api.v1.MirrorSubscribeRequest
-	(*MirrorSessionMeta)(nil),             // 17: torque.api.v1.MirrorSessionMeta
-	(*MirrorSession)(nil),                 // 18: torque.api.v1.MirrorSession
-	(*MirrorSessionStatus)(nil),           // 19: torque.api.v1.MirrorSessionStatus
-	(*MirrorListSessionsRequest)(nil),     // 20: torque.api.v1.MirrorListSessionsRequest
-	(*MirrorListSessionsResponse)(nil),    // 21: torque.api.v1.MirrorListSessionsResponse
-	(*MirrorGetSessionRequest)(nil),       // 22: torque.api.v1.MirrorGetSessionRequest
-	(*MirrorSetSessionMetaRequest)(nil),   // 23: torque.api.v1.MirrorSetSessionMetaRequest
-	(*MirrorSetSessionStatusRequest)(nil), // 24: torque.api.v1.MirrorSetSessionStatusRequest
-	(*MirrorDeleteSessionRequest)(nil),    // 25: torque.api.v1.MirrorDeleteSessionRequest
-	(*MirrorDeleteSessionResponse)(nil),   // 26: torque.api.v1.MirrorDeleteSessionResponse
-	(*MirrorExportRequest)(nil),           // 27: torque.api.v1.MirrorExportRequest
-	(*MirrorExportChunk)(nil),             // 28: torque.api.v1.MirrorExportChunk
-	(*VerifyChartOptions)(nil),            // 29: torque.api.v1.VerifyChartOptions
-	(*VerifyNamespaceOptions)(nil),        // 30: torque.api.v1.VerifyNamespaceOptions
-	(*VerifyOptions)(nil),                 // 31: torque.api.v1.VerifyOptions
-	(*VerifyRequest)(nil),                 // 32: torque.api.v1.VerifyRequest
-	(*VerifyEvent)(nil),                   // 33: torque.api.v1.VerifyEvent
-	(*VerifyStarted)(nil),                 // 34: torque.api.v1.VerifyStarted
-	(*VerifyProgress)(nil),                // 35: torque.api.v1.VerifyProgress
-	(*VerifySubject)(nil),                 // 36: torque.api.v1.VerifySubject
-	(*VerifyFinding)(nil),                 // 37: torque.api.v1.VerifyFinding
-	(*VerifySummary)(nil),                 // 38: torque.api.v1.VerifySummary
-	(*VerifyDone)(nil),                    // 39: torque.api.v1.VerifyDone
-	nil,                                   // 40: torque.api.v1.MirrorSession.TagsEntry
-	nil,                                   // 41: torque.api.v1.MirrorListSessionsRequest.TagsEntry
-	nil,                                   // 42: torque.api.v1.MirrorSetSessionMetaRequest.TagsEntry
-	nil,                                   // 43: torque.api.v1.VerifyProgress.CountsByKindEntry
-	nil,                                   // 44: torque.api.v1.VerifySummary.BySeverityEntry
+	(*StackSelector)(nil),                 // 10: torque.api.v1.StackSelector
+	(*StackRunOptions)(nil),               // 11: torque.api.v1.StackRunOptions
+	(*StackPlanRequest)(nil),              // 12: torque.api.v1.StackPlanRequest
+	(*StackPlanResult)(nil),               // 13: torque.api.v1.StackPlanResult
+	(*StackRunRequest)(nil),               // 14: torque.api.v1.StackRunRequest
+	(*StackEvent)(nil),                    // 15: torque.api.v1.StackEvent
+	(*StackStatusRequest)(nil),            // 16: torque.api.v1.StackStatusRequest
+	(*StackStatusResult)(nil),             // 17: torque.api.v1.StackStatusResult
+	(*DeployApplyOptions)(nil),            // 18: torque.api.v1.DeployApplyOptions
+	(*DeployApplyRequest)(nil),            // 19: torque.api.v1.DeployApplyRequest
+	(*DeployDestroyOptions)(nil),          // 20: torque.api.v1.DeployDestroyOptions
+	(*DeployDestroyRequest)(nil),          // 21: torque.api.v1.DeployDestroyRequest
+	(*MirrorFrame)(nil),                   // 22: torque.api.v1.MirrorFrame
+	(*MirrorAck)(nil),                     // 23: torque.api.v1.MirrorAck
+	(*MirrorSubscribeRequest)(nil),        // 24: torque.api.v1.MirrorSubscribeRequest
+	(*MirrorSessionMeta)(nil),             // 25: torque.api.v1.MirrorSessionMeta
+	(*MirrorSession)(nil),                 // 26: torque.api.v1.MirrorSession
+	(*MirrorSessionStatus)(nil),           // 27: torque.api.v1.MirrorSessionStatus
+	(*MirrorListSessionsRequest)(nil),     // 28: torque.api.v1.MirrorListSessionsRequest
+	(*MirrorListSessionsResponse)(nil),    // 29: torque.api.v1.MirrorListSessionsResponse
+	(*MirrorGetSessionRequest)(nil),       // 30: torque.api.v1.MirrorGetSessionRequest
+	(*MirrorSetSessionMetaRequest)(nil),   // 31: torque.api.v1.MirrorSetSessionMetaRequest
+	(*MirrorSetSessionStatusRequest)(nil), // 32: torque.api.v1.MirrorSetSessionStatusRequest
+	(*MirrorDeleteSessionRequest)(nil),    // 33: torque.api.v1.MirrorDeleteSessionRequest
+	(*MirrorDeleteSessionResponse)(nil),   // 34: torque.api.v1.MirrorDeleteSessionResponse
+	(*MirrorExportRequest)(nil),           // 35: torque.api.v1.MirrorExportRequest
+	(*MirrorExportChunk)(nil),             // 36: torque.api.v1.MirrorExportChunk
+	(*VerifyChartOptions)(nil),            // 37: torque.api.v1.VerifyChartOptions
+	(*VerifyNamespaceOptions)(nil),        // 38: torque.api.v1.VerifyNamespaceOptions
+	(*VerifyOptions)(nil),                 // 39: torque.api.v1.VerifyOptions
+	(*VerifyRequest)(nil),                 // 40: torque.api.v1.VerifyRequest
+	(*VerifyEvent)(nil),                   // 41: torque.api.v1.VerifyEvent
+	(*VerifyStarted)(nil),                 // 42: torque.api.v1.VerifyStarted
+	(*VerifyProgress)(nil),                // 43: torque.api.v1.VerifyProgress
+	(*VerifySubject)(nil),                 // 44: torque.api.v1.VerifySubject
+	(*VerifyFinding)(nil),                 // 45: torque.api.v1.VerifyFinding
+	(*VerifySummary)(nil),                 // 46: torque.api.v1.VerifySummary
+	(*VerifyDone)(nil),                    // 47: torque.api.v1.VerifyDone
+	nil,                                   // 48: torque.api.v1.StackRunOptions.MaxParallelKindEntry
+	nil,                                   // 49: torque.api.v1.MirrorSession.TagsEntry
+	nil,                                   // 50: torque.api.v1.MirrorListSessionsRequest.TagsEntry
+	nil,                                   // 51: torque.api.v1.MirrorSetSessionMetaRequest.TagsEntry
+	nil,                                   // 52: torque.api.v1.VerifyProgress.CountsByKindEntry
+	nil,                                   // 53: torque.api.v1.VerifySummary.BySeverityEntry
 }
 var file_torque_api_v1_agent_proto_depIdxs = []int32{
 	5,  // 0: torque.api.v1.RunBuildRequest.options:type_name -> torque.api.v1.BuildOptions
 	4,  // 1: torque.api.v1.BuildEvent.log:type_name -> torque.api.v1.LogLine
 	7,  // 2: torque.api.v1.BuildEvent.result:type_name -> torque.api.v1.BuildResult
-	10, // 3: torque.api.v1.DeployApplyRequest.options:type_name -> torque.api.v1.DeployApplyOptions
-	12, // 4: torque.api.v1.DeployDestroyRequest.options:type_name -> torque.api.v1.DeployDestroyOptions
-	4,  // 5: torque.api.v1.MirrorFrame.log:type_name -> torque.api.v1.LogLine
-	8,  // 6: torque.api.v1.MirrorFrame.build:type_name -> torque.api.v1.BuildEvent
-	9,  // 7: torque.api.v1.MirrorFrame.deploy:type_name -> torque.api.v1.DeployEvent
-	33, // 8: torque.api.v1.MirrorFrame.verify:type_name -> torque.api.v1.VerifyEvent
-	17, // 9: torque.api.v1.MirrorSession.meta:type_name -> torque.api.v1.MirrorSessionMeta
-	40, // 10: torque.api.v1.MirrorSession.tags:type_name -> torque.api.v1.MirrorSession.TagsEntry
-	19, // 11: torque.api.v1.MirrorSession.status:type_name -> torque.api.v1.MirrorSessionStatus
-	0,  // 12: torque.api.v1.MirrorSessionStatus.state:type_name -> torque.api.v1.MirrorSessionState
-	17, // 13: torque.api.v1.MirrorListSessionsRequest.meta:type_name -> torque.api.v1.MirrorSessionMeta
-	41, // 14: torque.api.v1.MirrorListSessionsRequest.tags:type_name -> torque.api.v1.MirrorListSessionsRequest.TagsEntry
-	0,  // 15: torque.api.v1.MirrorListSessionsRequest.state:type_name -> torque.api.v1.MirrorSessionState
-	18, // 16: torque.api.v1.MirrorListSessionsResponse.sessions:type_name -> torque.api.v1.MirrorSession
-	17, // 17: torque.api.v1.MirrorSetSessionMetaRequest.meta:type_name -> torque.api.v1.MirrorSessionMeta
-	42, // 18: torque.api.v1.MirrorSetSessionMetaRequest.tags:type_name -> torque.api.v1.MirrorSetSessionMetaRequest.TagsEntry
-	19, // 19: torque.api.v1.MirrorSetSessionStatusRequest.status:type_name -> torque.api.v1.MirrorSessionStatus
-	31, // 20: torque.api.v1.VerifyRequest.options:type_name -> torque.api.v1.VerifyOptions
-	29, // 21: torque.api.v1.VerifyRequest.chart:type_name -> torque.api.v1.VerifyChartOptions
-	30, // 22: torque.api.v1.VerifyRequest.namespace:type_name -> torque.api.v1.VerifyNamespaceOptions
-	34, // 23: torque.api.v1.VerifyEvent.started:type_name -> torque.api.v1.VerifyStarted
-	35, // 24: torque.api.v1.VerifyEvent.progress:type_name -> torque.api.v1.VerifyProgress
-	37, // 25: torque.api.v1.VerifyEvent.finding:type_name -> torque.api.v1.VerifyFinding
-	38, // 26: torque.api.v1.VerifyEvent.summary:type_name -> torque.api.v1.VerifySummary
-	39, // 27: torque.api.v1.VerifyEvent.done:type_name -> torque.api.v1.VerifyDone
-	43, // 28: torque.api.v1.VerifyProgress.counts_by_kind:type_name -> torque.api.v1.VerifyProgress.CountsByKindEntry
-	36, // 29: torque.api.v1.VerifyFinding.subject:type_name -> torque.api.v1.VerifySubject
-	44, // 30: torque.api.v1.VerifySummary.by_severity:type_name -> torque.api.v1.VerifySummary.BySeverityEntry
-	3,  // 31: torque.api.v1.LogService.StreamLogs:input_type -> torque.api.v1.LogRequest
-	6,  // 32: torque.api.v1.BuildService.RunBuild:input_type -> torque.api.v1.RunBuildRequest
-	11, // 33: torque.api.v1.DeployService.Apply:input_type -> torque.api.v1.DeployApplyRequest
-	13, // 34: torque.api.v1.DeployService.Destroy:input_type -> torque.api.v1.DeployDestroyRequest
-	14, // 35: torque.api.v1.MirrorService.Publish:input_type -> torque.api.v1.MirrorFrame
-	16, // 36: torque.api.v1.MirrorService.Subscribe:input_type -> torque.api.v1.MirrorSubscribeRequest
-	20, // 37: torque.api.v1.MirrorService.ListSessions:input_type -> torque.api.v1.MirrorListSessionsRequest
-	22, // 38: torque.api.v1.MirrorService.GetSession:input_type -> torque.api.v1.MirrorGetSessionRequest
-	23, // 39: torque.api.v1.MirrorService.SetSessionMeta:input_type -> torque.api.v1.MirrorSetSessionMetaRequest
-	24, // 40: torque.api.v1.MirrorService.SetSessionStatus:input_type -> torque.api.v1.MirrorSetSessionStatusRequest
-	25, // 41: torque.api.v1.MirrorService.DeleteSession:input_type -> torque.api.v1.MirrorDeleteSessionRequest
-	27, // 42: torque.api.v1.MirrorService.Export:input_type -> torque.api.v1.MirrorExportRequest
-	32, // 43: torque.api.v1.VerifyService.Verify:input_type -> torque.api.v1.VerifyRequest
-	1,  // 44: torque.api.v1.AgentInfoService.GetInfo:input_type -> torque.api.v1.AgentInfoRequest
-	4,  // 45: torque.api.v1.LogService.StreamLogs:output_type -> torque.api.v1.LogLine
-	8,  // 46: torque.api.v1.BuildService.RunBuild:output_type -> torque.api.v1.BuildEvent
-	9,  // 47: torque.api.v1.DeployService.Apply:output_type -> torque.api.v1.DeployEvent
-	9,  // 48: torque.api.v1.DeployService.Destroy:output_type -> torque.api.v1.DeployEvent
-	15, // 49: torque.api.v1.MirrorService.Publish:output_type -> torque.api.v1.MirrorAck
-	14, // 50: torque.api.v1.MirrorService.Subscribe:output_type -> torque.api.v1.MirrorFrame
-	21, // 51: torque.api.v1.MirrorService.ListSessions:output_type -> torque.api.v1.MirrorListSessionsResponse
-	18, // 52: torque.api.v1.MirrorService.GetSession:output_type -> torque.api.v1.MirrorSession
-	18, // 53: torque.api.v1.MirrorService.SetSessionMeta:output_type -> torque.api.v1.MirrorSession
-	18, // 54: torque.api.v1.MirrorService.SetSessionStatus:output_type -> torque.api.v1.MirrorSession
-	26, // 55: torque.api.v1.MirrorService.DeleteSession:output_type -> torque.api.v1.MirrorDeleteSessionResponse
-	28, // 56: torque.api.v1.MirrorService.Export:output_type -> torque.api.v1.MirrorExportChunk
-	33, // 57: torque.api.v1.VerifyService.Verify:output_type -> torque.api.v1.VerifyEvent
-	2,  // 58: torque.api.v1.AgentInfoService.GetInfo:output_type -> torque.api.v1.AgentInfo
-	45, // [45:59] is the sub-list for method output_type
-	31, // [31:45] is the sub-list for method input_type
-	31, // [31:31] is the sub-list for extension type_name
-	31, // [31:31] is the sub-list for extension extendee
-	0,  // [0:31] is the sub-list for field type_name
+	48, // 3: torque.api.v1.StackRunOptions.max_parallel_kind:type_name -> torque.api.v1.StackRunOptions.MaxParallelKindEntry
+	10, // 4: torque.api.v1.StackPlanRequest.selector:type_name -> torque.api.v1.StackSelector
+	10, // 5: torque.api.v1.StackRunRequest.selector:type_name -> torque.api.v1.StackSelector
+	11, // 6: torque.api.v1.StackRunRequest.options:type_name -> torque.api.v1.StackRunOptions
+	18, // 7: torque.api.v1.DeployApplyRequest.options:type_name -> torque.api.v1.DeployApplyOptions
+	20, // 8: torque.api.v1.DeployDestroyRequest.options:type_name -> torque.api.v1.DeployDestroyOptions
+	4,  // 9: torque.api.v1.MirrorFrame.log:type_name -> torque.api.v1.LogLine
+	8,  // 10: torque.api.v1.MirrorFrame.build:type_name -> torque.api.v1.BuildEvent
+	9,  // 11: torque.api.v1.MirrorFrame.deploy:type_name -> torque.api.v1.DeployEvent
+	41, // 12: torque.api.v1.MirrorFrame.verify:type_name -> torque.api.v1.VerifyEvent
+	15, // 13: torque.api.v1.MirrorFrame.stack:type_name -> torque.api.v1.StackEvent
+	25, // 14: torque.api.v1.MirrorSession.meta:type_name -> torque.api.v1.MirrorSessionMeta
+	49, // 15: torque.api.v1.MirrorSession.tags:type_name -> torque.api.v1.MirrorSession.TagsEntry
+	27, // 16: torque.api.v1.MirrorSession.status:type_name -> torque.api.v1.MirrorSessionStatus
+	0,  // 17: torque.api.v1.MirrorSessionStatus.state:type_name -> torque.api.v1.MirrorSessionState
+	25, // 18: torque.api.v1.MirrorListSessionsRequest.meta:type_name -> torque.api.v1.MirrorSessionMeta
+	50, // 19: torque.api.v1.MirrorListSessionsRequest.tags:type_name -> torque.api.v1.MirrorListSessionsRequest.TagsEntry
+	0,  // 20: torque.api.v1.MirrorListSessionsRequest.state:type_name -> torque.api.v1.MirrorSessionState
+	26, // 21: torque.api.v1.MirrorListSessionsResponse.sessions:type_name -> torque.api.v1.MirrorSession
+	25, // 22: torque.api.v1.MirrorSetSessionMetaRequest.meta:type_name -> torque.api.v1.MirrorSessionMeta
+	51, // 23: torque.api.v1.MirrorSetSessionMetaRequest.tags:type_name -> torque.api.v1.MirrorSetSessionMetaRequest.TagsEntry
+	27, // 24: torque.api.v1.MirrorSetSessionStatusRequest.status:type_name -> torque.api.v1.MirrorSessionStatus
+	39, // 25: torque.api.v1.VerifyRequest.options:type_name -> torque.api.v1.VerifyOptions
+	37, // 26: torque.api.v1.VerifyRequest.chart:type_name -> torque.api.v1.VerifyChartOptions
+	38, // 27: torque.api.v1.VerifyRequest.namespace:type_name -> torque.api.v1.VerifyNamespaceOptions
+	42, // 28: torque.api.v1.VerifyEvent.started:type_name -> torque.api.v1.VerifyStarted
+	43, // 29: torque.api.v1.VerifyEvent.progress:type_name -> torque.api.v1.VerifyProgress
+	45, // 30: torque.api.v1.VerifyEvent.finding:type_name -> torque.api.v1.VerifyFinding
+	46, // 31: torque.api.v1.VerifyEvent.summary:type_name -> torque.api.v1.VerifySummary
+	47, // 32: torque.api.v1.VerifyEvent.done:type_name -> torque.api.v1.VerifyDone
+	52, // 33: torque.api.v1.VerifyProgress.counts_by_kind:type_name -> torque.api.v1.VerifyProgress.CountsByKindEntry
+	44, // 34: torque.api.v1.VerifyFinding.subject:type_name -> torque.api.v1.VerifySubject
+	53, // 35: torque.api.v1.VerifySummary.by_severity:type_name -> torque.api.v1.VerifySummary.BySeverityEntry
+	3,  // 36: torque.api.v1.LogService.StreamLogs:input_type -> torque.api.v1.LogRequest
+	6,  // 37: torque.api.v1.BuildService.RunBuild:input_type -> torque.api.v1.RunBuildRequest
+	19, // 38: torque.api.v1.DeployService.Apply:input_type -> torque.api.v1.DeployApplyRequest
+	21, // 39: torque.api.v1.DeployService.Destroy:input_type -> torque.api.v1.DeployDestroyRequest
+	12, // 40: torque.api.v1.StackService.Plan:input_type -> torque.api.v1.StackPlanRequest
+	14, // 41: torque.api.v1.StackService.Apply:input_type -> torque.api.v1.StackRunRequest
+	14, // 42: torque.api.v1.StackService.Delete:input_type -> torque.api.v1.StackRunRequest
+	16, // 43: torque.api.v1.StackService.Status:input_type -> torque.api.v1.StackStatusRequest
+	22, // 44: torque.api.v1.MirrorService.Publish:input_type -> torque.api.v1.MirrorFrame
+	24, // 45: torque.api.v1.MirrorService.Subscribe:input_type -> torque.api.v1.MirrorSubscribeRequest
+	28, // 46: torque.api.v1.MirrorService.ListSessions:input_type -> torque.api.v1.MirrorListSessionsRequest
+	30, // 47: torque.api.v1.MirrorService.GetSession:input_type -> torque.api.v1.MirrorGetSessionRequest
+	31, // 48: torque.api.v1.MirrorService.SetSessionMeta:input_type -> torque.api.v1.MirrorSetSessionMetaRequest
+	32, // 49: torque.api.v1.MirrorService.SetSessionStatus:input_type -> torque.api.v1.MirrorSetSessionStatusRequest
+	33, // 50: torque.api.v1.MirrorService.DeleteSession:input_type -> torque.api.v1.MirrorDeleteSessionRequest
+	35, // 51: torque.api.v1.MirrorService.Export:input_type -> torque.api.v1.MirrorExportRequest
+	40, // 52: torque.api.v1.VerifyService.Verify:input_type -> torque.api.v1.VerifyRequest
+	1,  // 53: torque.api.v1.AgentInfoService.GetInfo:input_type -> torque.api.v1.AgentInfoRequest
+	4,  // 54: torque.api.v1.LogService.StreamLogs:output_type -> torque.api.v1.LogLine
+	8,  // 55: torque.api.v1.BuildService.RunBuild:output_type -> torque.api.v1.BuildEvent
+	9,  // 56: torque.api.v1.DeployService.Apply:output_type -> torque.api.v1.DeployEvent
+	9,  // 57: torque.api.v1.DeployService.Destroy:output_type -> torque.api.v1.DeployEvent
+	13, // 58: torque.api.v1.StackService.Plan:output_type -> torque.api.v1.StackPlanResult
+	15, // 59: torque.api.v1.StackService.Apply:output_type -> torque.api.v1.StackEvent
+	15, // 60: torque.api.v1.StackService.Delete:output_type -> torque.api.v1.StackEvent
+	17, // 61: torque.api.v1.StackService.Status:output_type -> torque.api.v1.StackStatusResult
+	23, // 62: torque.api.v1.MirrorService.Publish:output_type -> torque.api.v1.MirrorAck
+	22, // 63: torque.api.v1.MirrorService.Subscribe:output_type -> torque.api.v1.MirrorFrame
+	29, // 64: torque.api.v1.MirrorService.ListSessions:output_type -> torque.api.v1.MirrorListSessionsResponse
+	26, // 65: torque.api.v1.MirrorService.GetSession:output_type -> torque.api.v1.MirrorSession
+	26, // 66: torque.api.v1.MirrorService.SetSessionMeta:output_type -> torque.api.v1.MirrorSession
+	26, // 67: torque.api.v1.MirrorService.SetSessionStatus:output_type -> torque.api.v1.MirrorSession
+	34, // 68: torque.api.v1.MirrorService.DeleteSession:output_type -> torque.api.v1.MirrorDeleteSessionResponse
+	36, // 69: torque.api.v1.MirrorService.Export:output_type -> torque.api.v1.MirrorExportChunk
+	41, // 70: torque.api.v1.VerifyService.Verify:output_type -> torque.api.v1.VerifyEvent
+	2,  // 71: torque.api.v1.AgentInfoService.GetInfo:output_type -> torque.api.v1.AgentInfo
+	54, // [54:72] is the sub-list for method output_type
+	36, // [36:54] is the sub-list for method input_type
+	36, // [36:36] is the sub-list for extension type_name
+	36, // [36:36] is the sub-list for extension extendee
+	0,  // [0:36] is the sub-list for field type_name
 }
 
 func init() { file_torque_api_v1_agent_proto_init() }
@@ -3874,18 +4893,21 @@ func file_torque_api_v1_agent_proto_init() {
 		(*BuildEvent_Log)(nil),
 		(*BuildEvent_Result)(nil),
 	}
-	file_torque_api_v1_agent_proto_msgTypes[13].OneofWrappers = []any{
+	file_torque_api_v1_agent_proto_msgTypes[9].OneofWrappers = []any{}
+	file_torque_api_v1_agent_proto_msgTypes[10].OneofWrappers = []any{}
+	file_torque_api_v1_agent_proto_msgTypes[21].OneofWrappers = []any{
 		(*MirrorFrame_Log)(nil),
 		(*MirrorFrame_Build)(nil),
 		(*MirrorFrame_Deploy)(nil),
 		(*MirrorFrame_Verify)(nil),
+		(*MirrorFrame_Stack)(nil),
 		(*MirrorFrame_Raw)(nil),
 	}
-	file_torque_api_v1_agent_proto_msgTypes[31].OneofWrappers = []any{
+	file_torque_api_v1_agent_proto_msgTypes[39].OneofWrappers = []any{
 		(*VerifyRequest_Chart)(nil),
 		(*VerifyRequest_Namespace)(nil),
 	}
-	file_torque_api_v1_agent_proto_msgTypes[32].OneofWrappers = []any{
+	file_torque_api_v1_agent_proto_msgTypes[40].OneofWrappers = []any{
 		(*VerifyEvent_Started)(nil),
 		(*VerifyEvent_Progress)(nil),
 		(*VerifyEvent_Finding)(nil),
@@ -3899,9 +4921,9 @@ func file_torque_api_v1_agent_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_torque_api_v1_agent_proto_rawDesc), len(file_torque_api_v1_agent_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   44,
+			NumMessages:   53,
 			NumExtensions: 0,
-			NumServices:   6,
+			NumServices:   7,
 		},
 		GoTypes:           file_torque_api_v1_agent_proto_goTypes,
 		DependencyIndexes: file_torque_api_v1_agent_proto_depIdxs,

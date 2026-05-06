@@ -124,6 +124,7 @@ func newRootCommandWithBuildService(buildService buildsvc.Service) *cobra.Comman
 	var remoteTLSServerName string
 	globalProfile := "dev"
 	var showVersion bool
+	var rootHelpUIAddr string
 
 	cmd := &cobra.Command{
 		Use:           "torque <command>",
@@ -181,6 +182,9 @@ func newRootCommandWithBuildService(buildService buildsvc.Service) *cobra.Comman
 				fmt.Fprintf(cmd.OutOrStdout(), "torque %s\n", info.Version)
 				return nil
 			}
+			if strings.TrimSpace(rootHelpUIAddr) != "" {
+				return runHelpUI(cmd.Context(), cmd.Root(), cmd.ErrOrStderr(), rootHelpUIAddr, false)
+			}
 			if len(args) > 0 && looksLikeSubcommandToken(args[0]) {
 				fmt.Fprintf(cmd.ErrOrStderr(), "unknown command %q for %q\n\n", args[0], cmd.Name())
 			}
@@ -203,6 +207,10 @@ func newRootCommandWithBuildService(buildService buildsvc.Service) *cobra.Comman
 	cmd.PersistentFlags().BoolVar(&noColor, "no-color", false, "Disable colored output")
 	cmd.PersistentFlags().Var(newEnumStringValue(&globalProfile, "dev", "ci", "secure", "remote"), "profile", "Execution profile: dev, ci, secure, or remote (sets sensible defaults for supported commands)")
 	cmd.Flags().BoolVar(&showVersion, "version", false, "Print version and exit")
+	cmd.Flags().StringVar(&rootHelpUIAddr, "ui", "", "Serve the interactive help UI at this address (e.g. :8080)")
+	if flag := cmd.Flags().Lookup("ui"); flag != nil {
+		flag.NoOptDefVal = ":8080"
+	}
 	cmd.PersistentFlags().StringSliceVar(&featureFlagValues, "feature", nil, "Enable experimental torque features (repeat or pass comma-separated names)")
 	if err := cmd.PersistentFlags().MarkHidden("feature"); err != nil {
 		cobra.CheckErr(err)
@@ -262,7 +270,7 @@ func newRootCommandWithBuildService(buildService buildsvc.Service) *cobra.Comman
   torque init
 
   # Launch the interactive help UI
-  torque help --ui
+  torque --help --ui
 
   # Preview a Helm upgrade
   torque apply plan --chart ./chart --release foo
@@ -280,6 +288,7 @@ func newRootCommandWithBuildService(buildService buildsvc.Service) *cobra.Comman
 
 	// Keep the root help output stable and grouped for scanability.
 	cmd.SetHelpTemplate(rootHelpTemplate())
+	installRootHelpUI(cmd, &rootHelpUIAddr)
 	return cmd
 }
 
@@ -293,7 +302,7 @@ Usage:
   {{.UseLine}}
 
 Subcommands:
-{{- range $i, $n := (list "init" "build" "apply" "delete" "stack" "revert" "list" "lint" "logs" "env" "secrets" "version") }}
+{{- range $i, $n := (list "init" "build" "ship" "apply" "delete" "stack" "revert" "list" "lint" "logs" "env" "secrets" "version") }}
 {{- with (indexCommand $.Commands $n) }}
   {{rpad .Name .NamePadding }} {{.Short}}
 {{- end }}

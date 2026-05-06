@@ -18,6 +18,18 @@ var (
 	//go:embed recipes.md
 	RecipesMD string
 
+	//go:embed mcp-server-spec.md
+	MCPServerSpecMD string
+
+	//go:embed grpc-agent.md
+	GRPCAgentMD string
+
+	//go:embed enterprise-agent-operations.md
+	EnterpriseAgentOperationsMD string
+
+	//go:embed s3-build-cache.md
+	S3BuildCacheMD string
+
 	//go:embed demos.md
 	DemosMD string
 

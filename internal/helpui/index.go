@@ -236,6 +236,50 @@ func BuildIndex(root *cobra.Command, includeHidden bool) Index {
 		})
 	}
 
+	if md := strings.TrimSpace(torquedocs.MCPServerSpecMD); md != "" {
+		entries = append(entries, Entry{
+			ID:       "doc:mcp-server-spec",
+			Kind:     "doc",
+			Title:    "MCP server spec",
+			Subtitle: "Agent-facing tools, resources, prompts, and remote gRPC bridge",
+			Content:  md,
+			Tags:     []string{"doc", "mcp", "agent", "grpc", "remote", "tools", "prompts"},
+		})
+	}
+
+	if md := strings.TrimSpace(torquedocs.GRPCAgentMD); md != "" {
+		entries = append(entries, Entry{
+			ID:       "doc:grpc-agent",
+			Kind:     "doc",
+			Title:    "gRPC Agent API",
+			Subtitle: "torque-agent services, mTLS, MirrorService, and remote policy boundary",
+			Content:  md,
+			Tags:     []string{"doc", "grpc", "agent", "remote", "tls", "mtls", "mirror"},
+		})
+	}
+
+	if md := strings.TrimSpace(torquedocs.EnterpriseAgentOperationsMD); md != "" {
+		entries = append(entries, Entry{
+			ID:       "doc:enterprise-agent-operations",
+			Kind:     "doc",
+			Title:    "Enterprise Agent Operations",
+			Subtitle: "mTLS-first remote bridge, evidence requirements, and scenario matrix",
+			Content:  md,
+			Tags:     []string{"doc", "enterprise", "agent", "mcp", "grpc", "mtls", "evidence", "scenarios"},
+		})
+	}
+
+	if md := strings.TrimSpace(torquedocs.S3BuildCacheMD); md != "" {
+		entries = append(entries, Entry{
+			ID:       "doc:s3-build-cache",
+			Kind:     "doc",
+			Title:    "S3 Build Cache",
+			Subtitle: "BuildKit S3 cache flags for build and ship",
+			Content:  md,
+			Tags:     []string{"doc", "build", "ship", "cache", "s3", "buildkit", "aws"},
+		})
+	}
+
 	if md := strings.TrimSpace(torquedocs.DemosMD); md != "" {
 		entries = append(entries, Entry{
 			ID:       "doc:demos",

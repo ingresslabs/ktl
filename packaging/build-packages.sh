@@ -24,9 +24,9 @@ work="$(mktemp -d)"
 trap 'rm -rf "${work}"' EXIT
 
 root="${work}/root"
-install -d "${root}/usr/bin"
+install -d "${root}/usr/bin" "${root}/usr/lib/systemd/system" "${root}/etc/torque"
 
-tools=(torque:torque verifier:verifier verify:verify package:torque-package)
+tools=(torque:torque torque-agent:torque-agent verifier:verifier verify:verify package:torque-package torque-mcp:torque-mcp)
 for entry in "${tools[@]}"; do
   cmd="${entry%%:*}"
   tool="${entry##*:}"
@@ -36,6 +36,10 @@ for entry in "${tools[@]}"; do
     go build -trimpath -buildvcs=false -ldflags "${LDFLAGS}" -o "${bin}" "./cmd/${cmd}"
   install -m 0755 "${bin}" "${root}/usr/bin/${tool}"
 done
+
+install -m 0644 packaging/systemd/torque-agent.service "${root}/usr/lib/systemd/system/torque-agent.service"
+install -m 0644 packaging/systemd/torque-mcp.service "${root}/usr/lib/systemd/system/torque-mcp.service"
+install -m 0600 packaging/systemd/agent.env.example "${root}/etc/torque/agent.env.example"
 
 name="torque"
 maintainer="${MAINTAINER:-torque maintainers}"
@@ -62,9 +66,14 @@ fpm -s dir -t deb \
   -C "${root}" \
   --package "${OUT_DIR}/${name}_${VERSION}_${deb_arch}.deb" \
   usr/bin/torque \
+  usr/bin/torque-agent \
   usr/bin/verifier \
   usr/bin/verify \
-  usr/bin/torque-package
+  usr/bin/torque-package \
+  usr/bin/torque-mcp \
+  usr/lib/systemd/system/torque-agent.service \
+  usr/lib/systemd/system/torque-mcp.service \
+  etc/torque/agent.env.example
 
 echo ">> packaging rpm (${rpm_arch})"
 fpm -s dir -t rpm \
@@ -78,9 +87,14 @@ fpm -s dir -t rpm \
   -C "${root}" \
   --package "${OUT_DIR}/${name}-${VERSION}-1.${rpm_arch}.rpm" \
   usr/bin/torque \
+  usr/bin/torque-agent \
   usr/bin/verifier \
   usr/bin/verify \
-  usr/bin/torque-package
+  usr/bin/torque-package \
+  usr/bin/torque-mcp \
+  usr/lib/systemd/system/torque-agent.service \
+  usr/lib/systemd/system/torque-mcp.service \
+  etc/torque/agent.env.example
 
 echo ">> wrote:"
 ls -la "${OUT_DIR}" | sed -n '1,200p'

@@ -55,6 +55,12 @@ func TestBuildCommandFlagPropagation(t *testing.T) {
 		"--cache-dir=" + cacheDir,
 		"--cache-from=type=registry,ref=cache/main,mode=max",
 		"--cache-to=type=registry,ref=cache/export,mode=max",
+		"--s3-cache=s3://torque-cache/builds/api",
+		"--s3-cache-region=us-east-1",
+		"--s3-cache-name=api-main",
+		"--s3-cache-mode=max",
+		"--s3-cache-endpoint-url=https://s3.example.test",
+		"--s3-cache-path-style",
 		"--file=Altfile",
 		"--sbom",
 		"--provenance",
@@ -151,6 +157,15 @@ func TestBuildCommandFlagPropagation(t *testing.T) {
 	}
 	if !containsSubstr(opts.CacheTo, "ref=cache/export") {
 		t.Fatalf("cache-to missing: %#v", opts.CacheTo)
+	}
+	if opts.S3Cache.Ref != "s3://torque-cache/builds/api" {
+		t.Fatalf("s3 cache ref not propagated: %#v", opts.S3Cache)
+	}
+	if opts.S3Cache.Region != "us-east-1" || opts.S3Cache.Name != "api-main" || opts.S3Cache.Mode != "max" {
+		t.Fatalf("s3 cache options not propagated: %#v", opts.S3Cache)
+	}
+	if opts.S3Cache.EndpointURL != "https://s3.example.test" || !opts.S3Cache.UsePathStyle {
+		t.Fatalf("s3 cache endpoint/path-style not propagated: %#v", opts.S3Cache)
 	}
 	if !opts.Interactive || opts.InteractiveShell != "/bin/bash -l" {
 		t.Fatalf("interactive flags missing")
@@ -282,6 +297,12 @@ func TestBuildCommandHelpListsAllFlags(t *testing.T) {
 		"--sandbox-bind-home",
 		"--sandbox",
 		"--sandbox-workdir",
+		"--s3-cache",
+		"--s3-cache-region",
+		"--s3-cache-name",
+		"--s3-cache-mode",
+		"--s3-cache-endpoint-url",
+		"--s3-cache-path-style",
 		"--sbom",
 		"--secret",
 		"--sign-key",

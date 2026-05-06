@@ -28,10 +28,18 @@ bundles, or later debugging sessions.
 curl -fsSL https://ingresslabs.github.io/torque/install.sh | sh
 ```
 
+Install durable Linux services for a remote agent host:
+
+```bash
+curl -fsSL https://ingresslabs.github.io/torque/install.sh | sh -s -- --mode systemd-daemon
+```
+
 From source:
 
 ```bash
 go install github.com/ingresslabs/torque/cmd/torque@latest
+go install github.com/ingresslabs/torque/cmd/torque-agent@latest
+go install github.com/ingresslabs/torque/cmd/torque-mcp@latest
 go install github.com/ingresslabs/torque/cmd/verifier@latest
 ```
 
@@ -64,11 +72,42 @@ fallback, and review-ready outputs without touching a real cluster.
 ## What It Covers
 
 - Docker and BuildKit workflows with optional sandboxed execution through `nsjail`.
+- BuildKit cache import/export, including first-class S3 cache flags for `build` and `ship`.
+- MCP cache advisor tools for structured cache inspect, plan, and warm actions.
 - Helm release plans with Markdown, JSON, and rich HTML plan reports.
 - Verifier gates for charts, rendered manifests, and live namespaces.
 - Dependency-ordered stack planning and apply runs.
 - Portable SQLite evidence for builds, deploys, logs, and stack runs.
 - `torque-agent` workflows for agent-driven automation over gRPC.
+- `torque-mcp` workflows for MCP-capable agents, including remote gRPC bridge mode.
+
+## Agent and Cache Workflows
+
+```bash
+# Let an MCP-capable agent discover Torque tools over stdio.
+torque-mcp --stdio
+
+# Bridge MCP tool calls to another Torque node over authenticated gRPC.
+torque-mcp --stdio --remote-agent 127.0.0.1:7443 --remote-token "$TORQUE_REMOTE_TOKEN"
+
+# On Linux, install a durable gRPC agent plus authenticated HTTP MCP bridge.
+curl -fsSL https://ingresslabs.github.io/torque/install.sh | sh -s -- --mode systemd-daemon
+. /etc/torque/agent.env
+curl -fsS -H "authorization: Bearer $TORQUE_MCP_TOKEN" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' \
+  http://127.0.0.1:7331/mcp
+
+# Share BuildKit cache through S3 for repeatable build and ship runs.
+torque build . --tag ghcr.io/acme/api:dev \
+  --s3-cache s3://acme-build-cache/torque/main --s3-cache-region us-east-1
+torque ship --chart ./chart --release api -n prod --build . \
+  --tag ghcr.io/acme/api:dev \
+  --s3-cache s3://acme-build-cache/torque/main --s3-cache-region us-east-1 --yes
+
+# MCP agents use torque.cache.inspect/plan/warm instead of parsing BuildKit logs.
+printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"torque.cache.plan","arguments":{"contextDir":".","tags":["ghcr.io/acme/api:dev"],"changedPaths":["go.mod"],"s3Cache":"s3://acme-build-cache/torque/main","s3CacheRegion":"us-east-1"}}}\n' |
+  torque-mcp --stdio --remote-agent 127.0.0.1:7443 --remote-token "$TORQUE_REMOTE_TOKEN"
+```
 
 ## Linux Build Benchmark
 

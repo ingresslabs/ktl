@@ -19,7 +19,7 @@ LDFLAGS ?= -s -w \
 	-X github.com/ingresslabs/torque/internal/version.BuildDate=$(BUILD_DATE)
 RELEASE_PLATFORMS ?= linux/amd64 linux/arm64 darwin/amd64 darwin/arm64
 CROSS_PLATFORMS ?= $(RELEASE_PLATFORMS) windows/amd64
-RELEASE_TOOLS ?= $(BINARY) verifier verify
+RELEASE_TOOLS ?= $(BINARY) torque-agent verifier verify torque-mcp
 RELEASE_TOOL_ARTIFACTS := $(foreach platform,$(RELEASE_PLATFORMS),$(foreach tool,$(RELEASE_TOOLS),$(DIST_DIR)/$(tool)-$(subst /,-,$(platform))))
 GH ?= gh
 RELEASE_TAG ?= $(VERSION)
@@ -47,6 +47,10 @@ VERIFIER_BINARY ?= verifier
 VERIFIER_PKG ?= ./cmd/verifier
 PACKAGECLI_BINARY ?= torque-package
 PACKAGECLI_PKG ?= ./cmd/package
+MCP_BINARY ?= torque-mcp
+MCP_PKG ?= ./cmd/torque-mcp
+AGENT_BINARY ?= torque-agent
+AGENT_PKG ?= ./cmd/torque-agent
 RELEASE_PACKAGECLI_ARTIFACTS := $(foreach platform,$(RELEASE_PLATFORMS),$(DIST_DIR)/$(PACKAGECLI_BINARY)-$(subst /,-,$(platform)))
 RELEASE_ARTIFACTS := $(RELEASE_TOOL_ARTIFACTS) $(RELEASE_PACKAGECLI_ARTIFACTS)
 LOGS_BINARY ?= torque-logs
@@ -57,8 +61,8 @@ LOGS_LDFLAGS ?= $(LDFLAGS) -X github.com/ingresslabs/torque/cmd/torque.buildMode
 .DEFAULT_GOAL := help
 
 .PHONY: help print-%
-.PHONY: build build-% build-cross build-verifier build-verify build-packagecli build-logs build-all
-.PHONY: install install-verifier install-verify install-packagecli install-all
+.PHONY: build build-% build-cross build-verifier build-verify build-packagecli build-agent build-mcp build-logs build-all
+.PHONY: install install-verifier install-verify install-packagecli install-agent install-mcp install-all
 .PHONY: release dist-checksums dist-checksums-all gh-release gh-release-all tag-release push-release changelog package
 .PHONY: test test-short test-integration test-ci smoke-package-verify verify-charts-e2e
 .PHONY: testpoint testpoint-ci testpoint-unit testpoint-integration testpoint-charts-e2e testpoint-e2e-real testpoint-all
@@ -91,6 +95,16 @@ build-packagecli: ## Build chart archive CLI for the current platform into ./bin
 	@mkdir -p $(BIN_DIR)
 	GOOS=$(HOST_GOOS) GOARCH=$(HOST_GOARCH) $(GO) build $(GOFLAGS) -ldflags '$(LDFLAGS)' -o $(BIN_DIR)/$(PACKAGECLI_BINARY) $(PACKAGECLI_PKG)
 
+build-agent: ## Build gRPC agent for the current platform into ./bin/torque-agent
+	@echo ">> building $(AGENT_BINARY) for $(HOST_GOOS)/$(HOST_GOARCH)"
+	@mkdir -p $(BIN_DIR)
+	GOOS=$(HOST_GOOS) GOARCH=$(HOST_GOARCH) $(GO) build $(GOFLAGS) -ldflags '$(LDFLAGS)' -o $(BIN_DIR)/$(AGENT_BINARY) $(AGENT_PKG)
+
+build-mcp: ## Build MCP server for the current platform into ./bin/torque-mcp
+	@echo ">> building $(MCP_BINARY) for $(HOST_GOOS)/$(HOST_GOARCH)"
+	@mkdir -p $(BIN_DIR)
+	GOOS=$(HOST_GOOS) GOARCH=$(HOST_GOARCH) $(GO) build $(GOFLAGS) -ldflags '$(LDFLAGS)' -o $(BIN_DIR)/$(MCP_BINARY) $(MCP_PKG)
+
 build-logs: ## Build logs-only torque CLI for the current platform into ./bin/torque-logs
 	@echo ">> building $(LOGS_BINARY) (logs-only) for $(HOST_GOOS)/$(HOST_GOARCH)"
 	@mkdir -p $(BIN_DIR)
@@ -116,7 +130,7 @@ build-%: ## Build torque for <os>-<arch> into ./bin/torque-<os>-<arch>[.exe]
 	echo ">> building $(BINARY) for $$os/$$arch -> $$out"; \
 	GOOS=$$os GOARCH=$$arch CGO_ENABLED=0 $(GO) build $(GOFLAGS) -ldflags '$(LDFLAGS)' -o $$out $(PKG)
 
-build-all: build build-verifier build-verify build-packagecli ## Build torque and standalone toolkit binaries
+build-all: build build-agent build-verifier build-verify build-packagecli build-mcp ## Build torque and standalone toolkit binaries
 
 install: ## Install torque into GOPATH/bin or GOBIN
 	@echo ">> installing $(BINARY) ($(VERSION))"
@@ -137,11 +151,21 @@ install-packagecli: ## Install torque-package into GOPATH/bin or GOBIN
 	mkdir -p "$$dest"; \
 	$(GO) build $(GOFLAGS) -ldflags '$(LDFLAGS)' -o "$$dest/$(PACKAGECLI_BINARY)" $(PACKAGECLI_PKG)
 
+install-agent: ## Install torque-agent into GOPATH/bin or GOBIN
+	@echo ">> installing $(AGENT_BINARY) ($(VERSION))"
+	$(GO) install $(GOFLAGS) -ldflags '$(LDFLAGS)' $(AGENT_PKG)
+
+install-mcp: ## Install torque-mcp into GOPATH/bin or GOBIN
+	@echo ">> installing $(MCP_BINARY) ($(VERSION))"
+	$(GO) install $(GOFLAGS) -ldflags '$(LDFLAGS)' $(MCP_PKG)
+
 install-all: ## Install torque and standalone toolkit binaries
 	$(MAKE) install
+	$(MAKE) install-agent
 	$(MAKE) install-verifier
 	$(MAKE) install-verify
 	$(MAKE) install-packagecli
+	$(MAKE) install-mcp
 
 release: ## Cross-build release artifacts into ./dist
 	@echo ">> building release artifacts for: $(RELEASE_PLATFORMS)"

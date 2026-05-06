@@ -18,6 +18,7 @@ If you changed user-facing behavior (flags/output/config parsing), also do a loc
 ```bash
 make build
 ./bin/torque --help
+./bin/torque --help --ui
 ```
 
 ## Repo Map
@@ -36,7 +37,22 @@ make build
 1. Add Cobra flag wiring under `cmd/torque/*`.
 2. Thread into an options struct under `internal/*`.
 3. Add/extend a unit test near the behavior.
-4. If user-facing: update help-ui search/examples under `internal/helpui/`.
+4. If user-facing: update `README.md`, relevant `docs/`, `site/` when applicable, and help-ui search/examples under `internal/helpui/`.
+
+### Touch MCP or remote gRPC
+
+1. Read `docs/mcp-server-spec.md` and `docs/grpc-agent.md`.
+2. Keep MCP handlers thin: validate MCP input, enforce MCP roots/policy, then call local Torque workflows or the remote `torque-agent` gRPC services.
+3. Validate both local MCP stdio and remote gRPC bridge behavior when the change affects agent workflows.
+4. Update `docs/enterprise-agent-operations.md` when the change affects auth, TLS/mTLS, policy, evidence, or scenario coverage.
+5. Update built-in help examples and the site/blog entry so agent-facing workflows stay discoverable.
+
+### Touch S3 Build Cache
+
+1. Read `docs/s3-build-cache.md`.
+2. Validate `torque build --s3-cache ...` and `torque ship --s3-cache ...` when Docker/BuildKit and AWS credentials are available.
+3. Update built-in help examples plus `README.md`/recipes for new cache flags or behavior.
+4. Clean up disposable S3 buckets, IAM keys/users, and Docker Buildx builders after live validation.
 
 ### Add a subcommand
 
@@ -74,6 +90,9 @@ git diff --exit-code
 ## References
 
 - gRPC agent API (torque-agent): `docs/grpc-agent.md`
+- MCP server spec (agent-facing tools/resources/prompts): `docs/mcp-server-spec.md`
+- Enterprise agent operations: `docs/enterprise-agent-operations.md`
+- S3 BuildKit cache: `docs/s3-build-cache.md`
 - Dependency map (generated): `docs/deps.md` (refresh via `make deps`)
 - Troubleshooting: `docs/troubleshooting.md`
 - Sandbox policy: `sandbox/*.cfg`

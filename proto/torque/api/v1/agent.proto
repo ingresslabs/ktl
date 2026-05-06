@@ -110,6 +110,103 @@ message DeployEvent {
   string json = 1;
 }
 
+message StackSelector {
+  // Path to a stack root directory or stack.yaml/release.yaml on the agent host.
+  string config_path = 1;
+  // Deprecated compatibility alias for config_path when callers already model `torque stack --root`.
+  string root = 2;
+  string profile = 3;
+  repeated string clusters = 4;
+  repeated string tags = 5;
+  repeated string from_paths = 6;
+  repeated string releases = 7;
+  string git_range = 8;
+  optional bool git_include_deps = 9;
+  optional bool git_include_dependents = 10;
+  optional bool include_deps = 11;
+  optional bool include_dependents = 12;
+  optional bool allow_missing_deps = 13;
+  optional bool infer_deps = 14;
+  optional bool infer_config_refs = 15;
+  string secret_provider = 16;
+  string secret_config = 17;
+  string kube_context = 18;
+  string kubeconfig_path = 19;
+}
+
+message StackRunOptions {
+  int32 concurrency = 1;
+  optional bool progressive_concurrency = 2;
+  optional bool fail_fast = 3;
+  optional bool continue_on_error = 4;
+  optional bool yes = 5;
+  optional bool dry_run = 6;
+  optional bool diff = 7;
+  optional bool cache_apply = 8;
+  optional bool helm_logs = 9;
+  string run_id = 10;
+  int32 retry = 11;
+  float kube_qps = 12;
+  int32 kube_burst = 13;
+  int32 max_parallel_per_namespace = 14;
+  map<string,int32> max_parallel_kind = 15;
+  int32 parallelism_group_limit = 16;
+  optional bool lock = 17;
+  optional bool takeover_lock = 18;
+  int64 lock_ttl_seconds = 19;
+  string lock_owner = 20;
+  string fail_mode = 21;
+  int32 adaptive_min = 22;
+  int32 adaptive_window = 23;
+  int32 adaptive_ramp_successes = 24;
+  double adaptive_ramp_max_failure_rate = 25;
+  int32 adaptive_cooldown_severe = 26;
+}
+
+message StackPlanRequest {
+  StackSelector selector = 1;
+  string session_id = 2;
+  string requester = 3;
+}
+
+message StackPlanResult {
+  string json = 1;
+  int32 node_count = 2;
+  string stack_name = 3;
+  string profile = 4;
+}
+
+message StackRunRequest {
+  string command = 1; // apply|delete
+  StackSelector selector = 2;
+  StackRunOptions options = 3;
+  string session_id = 4;
+  string requester = 5;
+}
+
+message StackEvent {
+  int64 timestamp_unix_nano = 1;
+  string json = 2;
+  bool terminal = 3;
+  string run_id = 4;
+  string type = 5;
+}
+
+message StackStatusRequest {
+  string config_path = 1;
+  string root = 2;
+  string run_id = 3;
+  bool follow = 4;
+  int32 limit = 5;
+  string format = 6; // json|raw
+  string requester = 7;
+}
+
+message StackStatusResult {
+  string json = 1;
+  string run_id = 2;
+}
+
 message DeployApplyOptions {
   string release = 1;
   string chart = 2;
@@ -165,6 +262,7 @@ message MirrorFrame {
     BuildEvent build = 11;
     DeployEvent deploy = 12;
     VerifyEvent verify = 14;
+    StackEvent stack = 15;
     bytes raw = 13;
   }
 }
@@ -369,6 +467,13 @@ service BuildService {
 service DeployService {
   rpc Apply(DeployApplyRequest) returns (stream DeployEvent);
   rpc Destroy(DeployDestroyRequest) returns (stream DeployEvent);
+}
+
+service StackService {
+  rpc Plan(StackPlanRequest) returns (StackPlanResult);
+  rpc Apply(StackRunRequest) returns (stream StackEvent);
+  rpc Delete(StackRunRequest) returns (stream StackEvent);
+  rpc Status(StackStatusRequest) returns (StackStatusResult);
 }
 
 service MirrorService {

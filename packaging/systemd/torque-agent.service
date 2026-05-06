@@ -1,0 +1,27 @@
+[Unit]
+Description=Torque durable gRPC agent
+Documentation=https://github.com/ingresslabs/torque/blob/main/docs/grpc-agent.md
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+Environment=TORQUE_AGENT_LISTEN=:7443
+Environment=TORQUE_AGENT_HTTP_LISTEN=127.0.0.1:8081
+Environment=TORQUE_AGENT_MIRROR_STORE=/var/lib/torque/agent/mirror.sqlite
+Environment=TORQUE_AGENT_SANDBOX_BIN=nsjail
+Environment=TORQUE_AGENT_SANDBOX_CONFIG=
+EnvironmentFile=-/etc/torque/agent.env
+StateDirectory=torque
+CacheDirectory=torque
+RuntimeDirectory=torque
+WorkingDirectory=/var/lib/torque
+ExecStart=/usr/bin/torque-agent -mode=durable -listen=${TORQUE_AGENT_LISTEN} -http-listen=${TORQUE_AGENT_HTTP_LISTEN} -kubeconfig=${KUBECONFIG} -context=${TORQUE_KUBE_CONTEXT} -mirror-store=${TORQUE_AGENT_MIRROR_STORE} -build-sandbox -build-sandbox-bin=${TORQUE_AGENT_SANDBOX_BIN} -build-sandbox-config=${TORQUE_AGENT_SANDBOX_CONFIG} -build-sandbox-logs
+Restart=on-failure
+RestartSec=2s
+KillSignal=SIGTERM
+TimeoutStopSec=30s
+LimitNOFILE=1048576
+
+[Install]
+WantedBy=multi-user.target

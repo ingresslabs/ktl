@@ -130,17 +130,25 @@ This section is intentionally short and repetitive: AI agents do best with a sta
 - Purpose: BuildKit-based image build workflow orchestration (including sandbox support and progress observers).
 - Key types: `service.Run(ctx, opts) (*Result, error)`, `Result`, `Dependencies`, `Streams`, `BuildMode`.
 - Invariants: build is streaming + cancellable; sandbox policy is selected/configured centrally (don’t fork policy logic in commands).
-- Notes: progress observers emit cache diagnostics and a post-build “cache intelligence” report (input diffs, cache key/graph diffs, slow steps, and OCI layer size rollups when an OCI layout is produced).
+- Notes: progress observers emit cache diagnostics and a post-build “cache intelligence” report (input diffs, cache key/graph diffs, slow steps, and OCI layer size rollups when an OCI layout is produced). First-class S3 cache options are normalized here before they become BuildKit `cache-from`/`cache-to` entries.
 
 ### `internal/agent`
 
 - Purpose: gRPC server implementation for the remote agent.
-- Key types: `Server` (`Run`), per-service handlers (`LogServer`, `BuildServer`, `DeployServer`, `MirrorServer`).
+- Key types: `Server` (`Run`), per-service handlers (`LogServer`, `BuildServer`, `DeployServer`, `MirrorServer`, `StackServer`).
 - Invariants: agent handlers forward events via existing observer interfaces (don’t duplicate deploy/build logic inside the agent).
+
+### `internal/mcpserver`
+
+- Purpose: MCP adapter for agent-facing Torque workflows over stdio/HTTP, with optional remote gRPC bridge mode.
+- Key entrypoints: `Server` tool/resource/prompt handlers, session store, root/path policy checks.
+- Invariants: MCP handlers validate schemas and enforce MCP roots, then delegate to local Torque commands or existing `torque-agent` gRPC services; never log or return remote tokens.
 
 ## Agent-Facing Docs
 
 - Golden paths + validation commands: `docs/agent-playbook.md`
 - UI design system (HTML/CSS surfaces): `DESIGN.md`
 - gRPC agent API: `docs/grpc-agent.md`
+- MCP server design: `docs/mcp-server-spec.md`
+- S3 BuildKit cache: `docs/s3-build-cache.md`
 - Generated package dependency map: `docs/deps.md` (refresh with `make deps`)

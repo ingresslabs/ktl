@@ -316,6 +316,67 @@
         gap: clamp(40px, 6vw, 84px);
       }
 
+      .blog-entry {
+        display: grid;
+        grid-template-columns: minmax(0, 0.8fr) minmax(280px, 1.2fr);
+        gap: clamp(22px, 4vw, 54px);
+        align-items: center;
+        margin-top: clamp(58px, 8vw, 102px);
+        max-width: 1080px;
+        padding: clamp(22px, 4vw, 46px);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background:
+          linear-gradient(180deg, rgba(237, 241, 245, 0.09), rgba(184, 189, 196, 0.025)),
+          rgba(10, 10, 12, 0.82);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.08),
+          0 22px 58px rgba(0, 0, 0, 0.26);
+      }
+
+      .blog-label {
+        color: var(--muted-strong);
+        font: 0.72rem/1 var(--font-mono);
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .blog-entry h2 {
+        margin: 12px 0 0;
+        color: #ffffff;
+        font-size: clamp(2rem, 4.8vw, 4.3rem);
+        line-height: 0.96;
+        font-weight: 820;
+        letter-spacing: 0;
+      }
+
+      .blog-entry p {
+        margin: 0;
+        color: var(--muted);
+        font-size: clamp(1rem, 1.45vw, 1.18rem);
+        line-height: 1.62;
+      }
+
+      .blog-entry a {
+        justify-self: start;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 22px;
+        padding: 12px 14px;
+        border: 1px solid rgba(237, 241, 245, 0.28);
+        border-radius: 8px;
+        background:
+          linear-gradient(180deg, rgba(237, 241, 245, 0.14), rgba(184, 189, 196, 0.04)),
+          rgba(16, 16, 20, 0.78);
+        color: var(--text);
+        font: 0.76rem/1 var(--font-mono);
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
       .demo {
         --demo-offset-x: 0;
         --demo-tilt: 0deg;
@@ -796,6 +857,9 @@
           align-items: flex-start;
           margin-top: 34px;
         }
+        .blog-entry {
+          grid-template-columns: minmax(0, 1fr);
+        }
         footer span:last-child {
           max-width: none;
           text-align: left;
@@ -842,6 +906,7 @@
         </a>
         <nav aria-label="Primary">
           <a class="docs-link" href="./docs.html">Docs</a>
+          <a href="./blog-mcp-s3-cache.html">Blog</a>
           <a href="https://github.com/ingresslabs/torque">GitHub</a>
           <a href="https://github.com/ingresslabs/torque/releases">Releases</a>
         </nav>
@@ -955,6 +1020,22 @@
               </details>
             </div>
           </div>
+
+          <article class="blog-entry" aria-labelledby="blog-mcp-title">
+            <div>
+              <div class="blog-label">Engineering note</div>
+              <h2 id="blog-mcp-title">One Torque talking to another.</h2>
+            </div>
+            <div>
+              <p>
+                The MCP and S3 cache showcase moved into a dedicated blog entry:
+                the full Medium-style writeup, remote gRPC bridge diagrams,
+                stack command center, and S3 BuildKit cache advisor demo boxes live
+                together for agents and operators to review.
+              </p>
+              <a href="./blog-mcp-s3-cache.html">Read the showcase</a>
+            </div>
+          </article>
 
           <div class="demos architecture-diagrams" aria-label="Architecture diagrams">
             <div class="demo-grid">

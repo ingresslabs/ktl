@@ -37,6 +37,10 @@ type Config struct {
 	MirrorMaxFramesPerSession uint64
 	MirrorMaxBytes            int64
 	MirrorPruneInterval       time.Duration
+	BuildRequireSandbox       bool
+	BuildSandboxConfig        string
+	BuildSandboxBin           string
+	BuildSandboxLogs          bool
 }
 
 // Server wraps the gRPC agent server state.
@@ -68,7 +72,15 @@ func New(cfg Config, svc buildsvc.Service) (*Server, error) {
 	}
 	mirror := NewMirrorServer(WithMirrorStore(store))
 	logSrv := &LogServer{Config: cfg, Logger: logger.WithName("logs"), Mirror: mirror}
-	buildSrv := &BuildServer{Service: svc, Mirror: mirror, Logger: logger.WithName("build")}
+	buildSrv := &BuildServer{
+		Service:        svc,
+		Mirror:         mirror,
+		Logger:         logger.WithName("build"),
+		RequireSandbox: cfg.BuildRequireSandbox,
+		SandboxConfig:  cfg.BuildSandboxConfig,
+		SandboxBin:     cfg.BuildSandboxBin,
+		SandboxLogs:    cfg.BuildSandboxLogs,
+	}
 	deploySrv := &DeployServer{Logger: logger.WithName("deploy"), Mirror: mirror}
 	creds, err := serverCreds(cfg)
 	if err != nil {
@@ -83,6 +95,7 @@ func New(cfg Config, svc buildsvc.Service) (*Server, error) {
 	apiv1.RegisterLogServiceServer(grpcSrv, logSrv)
 	apiv1.RegisterBuildServiceServer(grpcSrv, buildSrv)
 	apiv1.RegisterDeployServiceServer(grpcSrv, deploySrv)
+	apiv1.RegisterStackServiceServer(grpcSrv, &StackServer{Mirror: mirror})
 	apiv1.RegisterMirrorServiceServer(grpcSrv, mirror)
 	apiv1.RegisterVerifyServiceServer(grpcSrv, newVerifyService(cfg, mirror))
 	apiv1.RegisterAgentInfoServiceServer(grpcSrv, &infoService{})

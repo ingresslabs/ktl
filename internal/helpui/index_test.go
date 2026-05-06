@@ -136,6 +136,33 @@ func TestBuildIndex_IncludesDemosDoc(t *testing.T) {
 	t.Fatalf("expected demos doc in help index")
 }
 
+func TestBuildIndex_IncludesAgentAndCacheDocs(t *testing.T) {
+	root := &cobra.Command{Use: "torque"}
+
+	index := BuildIndex(root, false)
+	want := map[string]string{
+		"doc:mcp-server-spec":             "torque.ship.run",
+		"doc:grpc-agent":                  "-tls-client-ca",
+		"doc:enterprise-agent-operations": "mTLS-First Remote Bridge",
+		"doc:s3-build-cache":              "--s3-cache",
+	}
+	for id, content := range want {
+		found := false
+		for _, entry := range index.Entries {
+			if entry.ID != id {
+				continue
+			}
+			found = true
+			if !strings.Contains(entry.Content, content) {
+				t.Fatalf("expected %s content to include %q", id, content)
+			}
+		}
+		if !found {
+			t.Fatalf("expected %s in help index", id)
+		}
+	}
+}
+
 func TestBuildIndex_IncludesArchitectureDiagramsDoc(t *testing.T) {
 	root := &cobra.Command{Use: "torque"}
 

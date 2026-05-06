@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newStackStatusCommand(rootDir *string) *cobra.Command {
+func newStackStatusCommand(rootDir *string, remoteAgent *string) *cobra.Command {
 	var runID string
 	var follow bool
 	var limit int
@@ -21,6 +21,9 @@ func newStackStatusCommand(rootDir *string) *cobra.Command {
 		Short: "Show status of the most recent (or selected) stack run",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if strings.TrimSpace(derefString(remoteAgent)) != "" {
+				return runRemoteStackStatusCommand(cmd, rootDir, remoteAgent, runID, follow, limit, format)
+			}
 			return stack.RunStatus(cmd.Context(), stack.StatusOptions{
 				RootDir:  *rootDir,
 				RunID:    runID,

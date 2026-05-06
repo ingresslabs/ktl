@@ -46,6 +46,12 @@ type buildCLIOptions struct {
 	secrets          []string
 	cacheFrom        []string
 	cacheTo          []string
+	s3Cache          string
+	s3CacheRegion    string
+	s3CacheName      string
+	s3CacheMode      string
+	s3CacheEndpoint  string
+	s3CachePathStyle bool
 	sbom             bool
 	provenance       bool
 	hermetic         bool
@@ -239,6 +245,12 @@ func newBuildCommandWithService(service buildsvc.Service, globalProfile *string,
 	cmd.Flags().BoolVar(&opts.push, "push", false, "Push all tags to their registries after a successful build")
 	cmd.Flags().BoolVar(&opts.load, "load", false, "Load the resulting image into the local container runtime (docker build --load)")
 	cmd.Flags().BoolVar(&opts.noCache, "no-cache", false, "Disable BuildKit cache usage")
+	cmd.Flags().Var(&validatedStringValue{dest: &opts.s3Cache, name: "--s3-cache", allowEmpty: true, validator: nil}, "s3-cache", "Enable BuildKit S3 cache import/export at s3://BUCKET[/PREFIX]")
+	cmd.Flags().Var(&validatedStringValue{dest: &opts.s3CacheRegion, name: "--s3-cache-region", allowEmpty: true, validator: nil}, "s3-cache-region", "AWS region for --s3-cache (defaults to AWS_REGION/AWS_DEFAULT_REGION when set)")
+	cmd.Flags().Var(&validatedStringValue{dest: &opts.s3CacheName, name: "--s3-cache-name", allowEmpty: true, validator: nil}, "s3-cache-name", "S3 cache manifest name (defaults to first tag or context name)")
+	cmd.Flags().Var(newEnumStringValue(&opts.s3CacheMode, "max", "min", "max"), "s3-cache-mode", "S3 cache export mode: min or max")
+	cmd.Flags().Var(&validatedStringValue{dest: &opts.s3CacheEndpoint, name: "--s3-cache-endpoint-url", allowEmpty: true, validator: nil}, "s3-cache-endpoint-url", "Custom S3-compatible endpoint URL for --s3-cache")
+	cmd.Flags().BoolVar(&opts.s3CachePathStyle, "s3-cache-path-style", false, "Use path-style addressing for --s3-cache")
 	cmd.Flags().BoolVar(&opts.cacheIntel, "cache-intel", true, "Print a post-build cache summary (cache misses, slow steps, changed inputs)")
 	cmd.Flags().Var(&nonNegativeIntValue{dest: &opts.cacheIntelTop}, "cache-intel-top", "Max entries to show in the cache intelligence summary")
 	cmd.Flags().Var(newEnumStringValue(&opts.cacheIntelFormat, "human", "human", "json"), "cache-intel-format", "Cache intelligence output format: human or json")
@@ -513,6 +525,10 @@ func runRemoteBuild(cmd *cobra.Command, opts buildCLIOptions, remoteAddr string)
 
 	client := apiv1.NewBuildServiceClient(conn)
 	buildOpts := cliOptionsToServiceOptions(opts)
+	buildOpts.CacheFrom, buildOpts.CacheTo, err = buildsvc.ApplyS3Cache(buildOpts.CacheFrom, buildOpts.CacheTo, buildOpts.S3Cache, buildsvc.DefaultS3CacheName(buildOpts.ContextDir, buildOpts.Tags))
+	if err != nil {
+		return err
+	}
 	sessionID := newSessionID("remote-build")
 	trySetRemoteMirrorSessionMeta(ctx, conn, sessionID, &apiv1.MirrorSessionMeta{
 		Command:   cmd.CommandPath(),
@@ -573,14 +589,22 @@ func runRemoteBuild(cmd *cobra.Command, opts buildCLIOptions, remoteAddr string)
 
 func cliOptionsToServiceOptions(opts buildCLIOptions) buildsvc.Options {
 	return buildsvc.Options{
-		ContextDir:         opts.contextDir,
-		Dockerfile:         opts.dockerfile,
-		Tags:               append([]string(nil), opts.tags...),
-		Platforms:          append([]string(nil), opts.platforms...),
-		BuildArgs:          append([]string(nil), opts.buildArgs...),
-		Secrets:            append([]string(nil), opts.secrets...),
-		CacheFrom:          append([]string(nil), opts.cacheFrom...),
-		CacheTo:            append([]string(nil), opts.cacheTo...),
+		ContextDir: opts.contextDir,
+		Dockerfile: opts.dockerfile,
+		Tags:       append([]string(nil), opts.tags...),
+		Platforms:  append([]string(nil), opts.platforms...),
+		BuildArgs:  append([]string(nil), opts.buildArgs...),
+		Secrets:    append([]string(nil), opts.secrets...),
+		CacheFrom:  append([]string(nil), opts.cacheFrom...),
+		CacheTo:    append([]string(nil), opts.cacheTo...),
+		S3Cache: buildsvc.S3CacheOptions{
+			Ref:          opts.s3Cache,
+			Region:       opts.s3CacheRegion,
+			Name:         opts.s3CacheName,
+			Mode:         opts.s3CacheMode,
+			EndpointURL:  opts.s3CacheEndpoint,
+			UsePathStyle: opts.s3CachePathStyle,
+		},
 		Hermetic:           opts.hermetic,
 		AllowNetwork:       opts.allowNetwork,
 		AllowUnpinnedBases: opts.allowUnpinned,

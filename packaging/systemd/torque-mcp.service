@@ -1,0 +1,20 @@
+[Unit]
+Description=Torque MCP HTTP bridge
+Documentation=https://github.com/ingresslabs/torque/blob/main/docs/mcp-server-spec.md
+Wants=network-online.target torque-agent.service
+After=network-online.target torque-agent.service
+
+[Service]
+Type=simple
+Environment=TORQUE_MCP_LISTEN=127.0.0.1:7331
+Environment=TORQUE_MCP_REMOTE_AGENT=127.0.0.1:7443
+EnvironmentFile=-/etc/torque/agent.env
+ExecStart=/usr/bin/torque-mcp --listen=${TORQUE_MCP_LISTEN} --remote-agent=${TORQUE_MCP_REMOTE_AGENT}
+Restart=on-failure
+RestartSec=2s
+KillSignal=SIGTERM
+TimeoutStopSec=30s
+LimitNOFILE=1048576
+
+[Install]
+WantedBy=multi-user.target

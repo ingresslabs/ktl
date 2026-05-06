@@ -375,6 +375,229 @@ var DeployService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
+	StackService_Plan_FullMethodName   = "/torque.api.v1.StackService/Plan"
+	StackService_Apply_FullMethodName  = "/torque.api.v1.StackService/Apply"
+	StackService_Delete_FullMethodName = "/torque.api.v1.StackService/Delete"
+	StackService_Status_FullMethodName = "/torque.api.v1.StackService/Status"
+)
+
+// StackServiceClient is the client API for StackService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type StackServiceClient interface {
+	Plan(ctx context.Context, in *StackPlanRequest, opts ...grpc.CallOption) (*StackPlanResult, error)
+	Apply(ctx context.Context, in *StackRunRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StackEvent], error)
+	Delete(ctx context.Context, in *StackRunRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StackEvent], error)
+	Status(ctx context.Context, in *StackStatusRequest, opts ...grpc.CallOption) (*StackStatusResult, error)
+}
+
+type stackServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewStackServiceClient(cc grpc.ClientConnInterface) StackServiceClient {
+	return &stackServiceClient{cc}
+}
+
+func (c *stackServiceClient) Plan(ctx context.Context, in *StackPlanRequest, opts ...grpc.CallOption) (*StackPlanResult, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StackPlanResult)
+	err := c.cc.Invoke(ctx, StackService_Plan_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *stackServiceClient) Apply(ctx context.Context, in *StackRunRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StackEvent], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &StackService_ServiceDesc.Streams[0], StackService_Apply_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[StackRunRequest, StackEvent]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type StackService_ApplyClient = grpc.ServerStreamingClient[StackEvent]
+
+func (c *stackServiceClient) Delete(ctx context.Context, in *StackRunRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StackEvent], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &StackService_ServiceDesc.Streams[1], StackService_Delete_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[StackRunRequest, StackEvent]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type StackService_DeleteClient = grpc.ServerStreamingClient[StackEvent]
+
+func (c *stackServiceClient) Status(ctx context.Context, in *StackStatusRequest, opts ...grpc.CallOption) (*StackStatusResult, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StackStatusResult)
+	err := c.cc.Invoke(ctx, StackService_Status_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// StackServiceServer is the server API for StackService service.
+// All implementations must embed UnimplementedStackServiceServer
+// for forward compatibility.
+type StackServiceServer interface {
+	Plan(context.Context, *StackPlanRequest) (*StackPlanResult, error)
+	Apply(*StackRunRequest, grpc.ServerStreamingServer[StackEvent]) error
+	Delete(*StackRunRequest, grpc.ServerStreamingServer[StackEvent]) error
+	Status(context.Context, *StackStatusRequest) (*StackStatusResult, error)
+	mustEmbedUnimplementedStackServiceServer()
+}
+
+// UnimplementedStackServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedStackServiceServer struct{}
+
+func (UnimplementedStackServiceServer) Plan(context.Context, *StackPlanRequest) (*StackPlanResult, error) {
+	return nil, status.Error(codes.Unimplemented, "method Plan not implemented")
+}
+func (UnimplementedStackServiceServer) Apply(*StackRunRequest, grpc.ServerStreamingServer[StackEvent]) error {
+	return status.Error(codes.Unimplemented, "method Apply not implemented")
+}
+func (UnimplementedStackServiceServer) Delete(*StackRunRequest, grpc.ServerStreamingServer[StackEvent]) error {
+	return status.Error(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedStackServiceServer) Status(context.Context, *StackStatusRequest) (*StackStatusResult, error) {
+	return nil, status.Error(codes.Unimplemented, "method Status not implemented")
+}
+func (UnimplementedStackServiceServer) mustEmbedUnimplementedStackServiceServer() {}
+func (UnimplementedStackServiceServer) testEmbeddedByValue()                      {}
+
+// UnsafeStackServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to StackServiceServer will
+// result in compilation errors.
+type UnsafeStackServiceServer interface {
+	mustEmbedUnimplementedStackServiceServer()
+}
+
+func RegisterStackServiceServer(s grpc.ServiceRegistrar, srv StackServiceServer) {
+	// If the following call panics, it indicates UnimplementedStackServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&StackService_ServiceDesc, srv)
+}
+
+func _StackService_Plan_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StackPlanRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StackServiceServer).Plan(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StackService_Plan_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StackServiceServer).Plan(ctx, req.(*StackPlanRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StackService_Apply_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StackRunRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(StackServiceServer).Apply(m, &grpc.GenericServerStream[StackRunRequest, StackEvent]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type StackService_ApplyServer = grpc.ServerStreamingServer[StackEvent]
+
+func _StackService_Delete_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StackRunRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(StackServiceServer).Delete(m, &grpc.GenericServerStream[StackRunRequest, StackEvent]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type StackService_DeleteServer = grpc.ServerStreamingServer[StackEvent]
+
+func _StackService_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StackStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StackServiceServer).Status(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StackService_Status_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StackServiceServer).Status(ctx, req.(*StackStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// StackService_ServiceDesc is the grpc.ServiceDesc for StackService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var StackService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "torque.api.v1.StackService",
+	HandlerType: (*StackServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Plan",
+			Handler:    _StackService_Plan_Handler,
+		},
+		{
+			MethodName: "Status",
+			Handler:    _StackService_Status_Handler,
+		},
+	},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Apply",
+			Handler:       _StackService_Apply_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "Delete",
+			Handler:       _StackService_Delete_Handler,
+			ServerStreams: true,
+		},
+	},
+	Metadata: "torque/api/v1/agent.proto",
+}
+
+const (
 	MirrorService_Publish_FullMethodName          = "/torque.api.v1.MirrorService/Publish"
 	MirrorService_Subscribe_FullMethodName        = "/torque.api.v1.MirrorService/Subscribe"
 	MirrorService_ListSessions_FullMethodName     = "/torque.api.v1.MirrorService/ListSessions"

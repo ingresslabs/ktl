@@ -3,6 +3,14 @@ package helpui
 // curatedExamples supplements Cobra's .Example fields with task-based golden paths.
 // Keys are Cobra command paths (CommandPath()).
 var curatedExamples = map[string][]string{
+	"torque": {
+		"# Launch the built-in interactive help UI\ntorque --help --ui",
+		"# Run the MCP bridge over stdio for an agent host\ntorque-mcp --stdio",
+		"# Bridge MCP calls to a remote torque-agent over gRPC\ntorque-mcp --stdio --remote-agent 127.0.0.1:7443 --remote-token \"$TORQUE_REMOTE_TOKEN\"",
+		"# Bridge MCP calls to an mTLS-protected torque-agent\ntorque-mcp --stdio --remote-agent torque-agent.prod.internal:7443 --remote-tls --remote-tls-ca /etc/torque/tls/ca.crt --remote-tls-client-cert /etc/torque/tls/client.crt --remote-tls-client-key /etc/torque/tls/client.key --remote-tls-server-name torque-agent.prod.internal --enable-write",
+		"# Ask MCP for a structured S3 cache plan instead of scraping BuildKit logs\nprintf '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/call\",\"params\":{\"name\":\"torque.cache.plan\",\"arguments\":{\"contextDir\":\".\",\"tags\":[\"ghcr.io/acme/app:dev\"],\"changedPaths\":[\"go.mod\"],\"s3Cache\":\"s3://acme-build-cache/torque/main\",\"s3CacheRegion\":\"us-east-1\"}}}\\n' | torque-mcp --stdio",
+		"# Install durable gRPC and MCP services on a Linux systemd host\ncurl -fsSL https://ingresslabs.github.io/torque/install.sh | sh -s -- --mode systemd-daemon",
+	},
 	"torque logs": {
 		"# Tail pods matching a regex in a namespace\ntorque logs 'checkout-.*' -n prod-payments",
 		"# Highlight errors\ntorque logs 'checkout-.*' -n prod-payments --highlight ERROR",
@@ -31,6 +39,7 @@ var curatedExamples = map[string][]string{
 	},
 	"torque build": {
 		"# Build an image from a directory\ntorque build . --tag ghcr.io/acme/app:dev",
+		"# Build with a shared S3 cache\ntorque build . --tag ghcr.io/acme/app:dev --s3-cache s3://acme-build-cache/torque/main --s3-cache-region us-east-1",
 		"# Capture build provenance for apply plan\ntorque build . --tag ghcr.io/acme/app:dev --capture ./build.sqlite",
 		"# Share the build stream over WebSocket\ntorque build . --ws-listen :9085",
 	},
@@ -41,8 +50,15 @@ var curatedExamples = map[string][]string{
 		"# Explain a specific captured session\ntorque explain ./apply.sqlite --session <session-id>",
 	},
 	"torque help": {
-		"# Launch the interactive help UI\ntorque help --ui",
+		"# Launch the interactive help UI\ntorque --help --ui",
+		"# Launch the help subcommand UI directly\ntorque help --ui",
 		"# Show help for a specific command\ntorque help apply",
+	},
+	"torque ship": {
+		"# Build, verify, plan, apply, capture, and explain one release\ntorque ship --chart ./chart --release api -n prod --build . --tag ghcr.io/acme/api:dev --yes",
+		"# Ship with a shared S3 BuildKit cache\ntorque ship --chart ./chart --release api -n prod --build . --tag ghcr.io/acme/api:dev --s3-cache s3://acme-build-cache/torque/main --s3-cache-region us-east-1 --yes",
+		"# Ship through a remote torque-agent gRPC endpoint\ntorque --remote-agent 127.0.0.1:7443 --remote-token \"$TORQUE_REMOTE_TOKEN\" ship --chart ./chart --release api -n prod --build . --tag ghcr.io/acme/api:dev --yes",
+		"# Ship through an mTLS-protected torque-agent\ntorque --remote-agent torque-agent.prod.internal:7443 --remote-token \"$TORQUE_REMOTE_TOKEN\" --remote-tls --remote-tls-ca /etc/torque/tls/ca.crt --remote-tls-client-cert /etc/torque/tls/client.crt --remote-tls-client-key /etc/torque/tls/client.key ship --chart ./chart --release api -n prod --build . --tag ghcr.io/acme/api:dev --yes",
 	},
 	"torque apply plan": {
 		"# Preview a Helm upgrade\ntorque apply plan --chart ./chart --release foo -n default",
