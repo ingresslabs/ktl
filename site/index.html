@@ -83,10 +83,16 @@
 
       header {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
         gap: 28px;
         padding: 28px 0 36px;
+      }
+
+      .brand-stack {
+        display: inline-grid;
+        justify-items: center;
+        gap: 14px;
       }
 
       .brand {
@@ -108,9 +114,10 @@
 
       .header-actions {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: flex-end;
         gap: 18px;
+        padding-top: 12px;
       }
 
       nav {
@@ -155,8 +162,8 @@
       .ingress-logo {
         display: grid;
         justify-items: center;
-        gap: 10px;
-        min-width: 112px;
+        gap: 7px;
+        min-width: 76px;
         color: var(--text);
       }
 
@@ -167,10 +174,10 @@
       .ingress-logo-mark {
         display: grid;
         place-items: center;
-        width: 88px;
-        height: 88px;
+        width: 52px;
+        height: 52px;
         border: 1px solid rgba(237, 241, 245, 0.20);
-        border-radius: 24px;
+        border-radius: 15px;
         background:
           radial-gradient(circle at 50% 50%, rgba(237, 241, 245, 0.12), rgba(16, 16, 20, 0.92) 58%, #050505),
           #050505;
@@ -180,14 +187,14 @@
       }
 
       .ingress-logo-mark svg {
-        width: 58px;
-        height: 58px;
-        stroke-width: 1.35;
+        width: 34px;
+        height: 34px;
+        stroke-width: 1.55;
       }
 
       .ingress-logo-text {
         color: var(--muted-strong);
-        font: 0.78rem/1 var(--font-mono);
+        font: 0.62rem/1 var(--font-mono);
         font-weight: 800;
         letter-spacing: 0.08em;
       }
@@ -927,6 +934,7 @@
           align-items: flex-start;
           flex-direction: column;
           gap: 16px;
+          padding-top: 0;
         }
         .ingress-logo {
           justify-items: center;
@@ -975,21 +983,15 @@
   <body>
     <div class="page">
       <header>
-        <a class="brand" href="./" aria-label="torque home">
-          <svg class="brand-mark" viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false">
-            <path d="M24 5.5 42.5 24 24 42.5 5.5 24Z" stroke="currentColor" stroke-width="2.8" stroke-linejoin="round"></path>
-            <path d="M18 19h12" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"></path>
-            <path d="M24 19v12" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"></path>
-          </svg>
-          <span>torque</span>
-        </a>
-        <div class="header-actions">
-          <nav aria-label="Primary">
-            <a class="docs-link" href="./docs.html">Docs</a>
-            <a href="./blog-mcp-s3-cache.html">Blog</a>
-            <a href="https://github.com/ingresslabs/torque">GitHub</a>
-            <a href="https://github.com/ingresslabs/torque/releases">Releases</a>
-          </nav>
+        <div class="brand-stack">
+          <a class="brand" href="./" aria-label="torque home">
+            <svg class="brand-mark" viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false">
+              <path d="M24 5.5 42.5 24 24 42.5 5.5 24Z" stroke="currentColor" stroke-width="2.8" stroke-linejoin="round"></path>
+              <path d="M18 19h12" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"></path>
+              <path d="M24 19v12" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"></path>
+            </svg>
+            <span>torque</span>
+          </a>
           <a class="ingress-logo" href="https://ingresslabs.net/blog/" aria-label="ingresslabs blog">
             <span class="ingress-logo-mark" aria-hidden="true">
               <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" focusable="false">
@@ -1001,6 +1003,14 @@
             </span>
             <span class="ingress-logo-text">ingresslabs</span>
           </a>
+        </div>
+        <div class="header-actions">
+          <nav aria-label="Primary">
+            <a class="docs-link" href="./docs.html">Docs</a>
+            <a href="./blog-mcp-s3-cache.html">Blog</a>
+            <a href="https://github.com/ingresslabs/torque">GitHub</a>
+            <a href="https://github.com/ingresslabs/torque/releases">Releases</a>
+          </nav>
         </div>
       </header>
 
