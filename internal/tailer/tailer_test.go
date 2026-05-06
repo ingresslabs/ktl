@@ -110,7 +110,7 @@ func TestColorAlwaysOverridesNoColorEnv(t *testing.T) {
 
 	opts := config.NewOptions()
 	opts.ColorMode = "always"
-	tailer, err := New(fake.NewSimpleClientset(), opts, logr.Discard())
+	tailer, err := New(fake.NewClientset(), opts, logr.Discard())
 	if err != nil {
 		t.Fatalf("New returned error: %v", err)
 	}
