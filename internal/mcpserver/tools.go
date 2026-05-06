@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -1641,12 +1640,6 @@ func looksSensitive(key string) bool {
 		}
 	}
 	return false
-}
-
-func decodeReaderJSON(r io.Reader, out any) error {
-	dec := json.NewDecoder(r)
-	dec.UseNumber()
-	return dec.Decode(out)
 }
 
 func parseJSONString(raw string) any {

@@ -3,7 +3,6 @@ package mcpserver
 import (
 	"context"
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/ingresslabs/torque/internal/version"
@@ -14,7 +13,6 @@ type Server struct {
 	version  version.Info
 	tools    map[string]toolSpec
 	sessions *sessionStore
-	mu       sync.Mutex
 }
 
 func New(cfg Config) *Server {
@@ -65,10 +63,6 @@ func requireConfirmed(enableWrite bool, confirm bool, action string) error {
 	return nil
 }
 
-func noAdditionalProperties() map[string]any {
-	return map[string]any{"type": "object", "additionalProperties": false}
-}
-
 func objectSchema(props map[string]any, required ...string) map[string]any {
 	schema := map[string]any{
 		"type":                 "object",
@@ -87,10 +81,6 @@ func anyObjectSchema() map[string]any {
 
 func stringSchema(desc string) map[string]any {
 	return map[string]any{"type": "string", "description": desc}
-}
-
-func boolSchema(desc string) map[string]any {
-	return map[string]any{"type": "boolean", "description": desc}
 }
 
 func intSchema(desc string) map[string]any {
