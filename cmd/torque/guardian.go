@@ -705,10 +705,6 @@ func guardianComparableYAMLPair(desired, live *unstructured.Unstructured) (strin
 	return guardianMarshalComparableObject(expected), guardianMarshalComparableObject(actual)
 }
 
-func guardianComparableYAML(obj *unstructured.Unstructured) string {
-	return guardianMarshalComparableObject(guardianComparableObject(obj))
-}
-
 func guardianComparableObject(obj *unstructured.Unstructured) *unstructured.Unstructured {
 	if obj == nil {
 		return nil

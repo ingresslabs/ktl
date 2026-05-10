@@ -820,9 +820,8 @@ func newDeployApplyCommand(namespace *string, kubeconfig *string, kubeContext *s
 			}
 
 			if autoRollback && rollbackSLO != nil {
-				rows := rollbackResources.Snapshot()
 				snapCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
-				rows = deploy.NewResourceTracker(kubeClient, resolvedNamespace, releaseName, trackerManifest, nil).Snapshot(snapCtx)
+				rows := deploy.NewResourceTracker(kubeClient, resolvedNamespace, releaseName, trackerManifest, nil).Snapshot(snapCtx)
 				cancel()
 				if len(rows) == 0 {
 					rows = rollbackResources.Snapshot()

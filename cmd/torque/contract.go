@@ -707,10 +707,6 @@ func writeRuntimeContract(path string, contract runtimeContract) error {
 	return writeBytesEnsured(path, raw)
 }
 
-func writeRuntimeContractProof(path string, proof runtimeContractProof) error {
-	return writeJSONFileEnsured(path, proof)
-}
-
 func writeJSONFileEnsured(path string, v any) error {
 	if dir := filepath.Dir(path); dir != "." && dir != "" {
 		if err := os.MkdirAll(dir, 0o755); err != nil {
