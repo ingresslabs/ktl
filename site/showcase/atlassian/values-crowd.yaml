@@ -1,0 +1,59 @@
+image:
+  repository: torque.local/atlassian/crowd
+  tag: 7.1.5-custom-20260510
+  pullPolicy: IfNotPresent
+
+database:
+  type: postgresql
+  url: jdbc:postgresql://crowd-db:5432/crowd
+  credentials:
+    secretName: crowd-db-credentials
+
+volumes:
+  localHome:
+    persistentVolumeClaim:
+      create: true
+      storageClassName: local-path
+      resources:
+        requests:
+          storage: 10Gi
+  sharedHome:
+    nfsPermissionFixer:
+      enabled: false
+    persistentVolumeClaim:
+      create: true
+      storageClassName: nfs-client
+      resources:
+        requests:
+          storage: 10Gi
+
+crowd:
+  securityContext:
+    fsGroup: 2004
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    runAsUser: 2004
+    runAsGroup: 2004
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+  service:
+    type: NodePort
+    nodePort: 31084
+    contextPath: /crowd
+  readinessProbe:
+    enabled: false
+
+gateway:
+  create: false
+  hostnames:
+    - 91.206.14.44
+  https: false
+  externalPort: 31084
+  path: /crowd

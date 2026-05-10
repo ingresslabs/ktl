@@ -1,0 +1,63 @@
+image:
+  repository: torque.local/atlassian/bamboo
+  tag: 12.1.6-custom-20260510
+  pullPolicy: IfNotPresent
+
+database:
+  type: postgresql
+  url: jdbc:postgresql://bamboo-db:5432/bamboo
+  credentials:
+    secretName: bamboo-db-credentials
+
+volumes:
+  localHome:
+    persistentVolumeClaim:
+      create: true
+      storageClassName: local-path
+      resources:
+        requests:
+          storage: 10Gi
+  sharedHome:
+    nfsPermissionFixer:
+      enabled: false
+    persistentVolumeClaim:
+      create: true
+      storageClassName: nfs-client
+      resources:
+        requests:
+          storage: 10Gi
+
+bamboo:
+  securityContext:
+    fsGroup: 2005
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    runAsUser: 2005
+    runAsGroup: 2005
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+  unattendedSetup: false
+  service:
+    type: NodePort
+    nodePort: 31083
+    contextPath: /bamboo
+  securityToken:
+    secretName: bamboo-agent-token
+  disableAgentAuth: true
+  readinessProbe:
+    enabled: false
+
+gateway:
+  create: false
+  hostnames:
+    - 91.206.14.44
+  https: false
+  externalPort: 31083
+  path: /bamboo

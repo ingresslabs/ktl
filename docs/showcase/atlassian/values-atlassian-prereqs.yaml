@@ -1,0 +1,35 @@
+postgres:
+  image: torque.local/atlassian/postgres:16-alpine-custom-20260510
+  storageClassName: local-path
+  storage: 10Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 1Gi
+
+bamboo:
+  securityToken: secret://local/atlassian/bamboo/securityToken
+
+databases:
+  jira:
+    database: jira
+    username: jira
+    password: secret://local/atlassian/databases/jira/password
+  confluence:
+    database: confluence
+    username: confluence
+    password: secret://local/atlassian/databases/confluence/password
+  bitbucket:
+    database: bitbucket
+    username: bitbucket
+    password: secret://local/atlassian/databases/bitbucket/password
+  bamboo:
+    database: bamboo
+    username: bamboo
+    password: secret://local/atlassian/databases/bamboo/password
+  crowd:
+    database: crowd
+    username: crowd
+    password: secret://local/atlassian/databases/crowd/password
