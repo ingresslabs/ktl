@@ -58,6 +58,7 @@ torque apply plan --chart ./chart --release api -n prod \
 torque apply simulate --chart ./chart --release api -n prod \
   --security-evidence ./torque-security-evidence \
   --out ./torque-sim-proof
+torque guardian diff --source ./torque-sim-proof --live --out drift-proof.json
 torque apply --chart ./chart --release api -n prod \
   --predict --proof-bundle ./apply-proof.json \
   --capture ./apply.sqlite --yes
@@ -88,6 +89,18 @@ torque replay ./torque-sim-proof --lab k3s
 
 See [`docs/apply-simulate.md`](docs/apply-simulate.md) for the proof bundle
 contract.
+
+Runtime-sensitive releases can connect the simulation proof to live objects and
+turn drift into PR-ready evidence:
+
+```bash
+torque guardian install --namespace torque-system --mode observe
+torque guardian report --since 24h --out runtime-proof.json
+torque guardian diff --source ./torque-sim-proof --live --out drift-proof.json
+torque guardian pr --from drift-proof.json --branch fix/runtime-drift
+```
+
+See [`docs/guardian.md`](docs/guardian.md) for Guardian runtime proof details.
 
 Rollback-sensitive releases can ask Torque to keep proof when Helm fails or a
 post-apply SLO gate is violated:
@@ -143,6 +156,7 @@ fallback, and review-ready outputs without touching a real cluster.
 - MCP cache advisor tools for structured cache inspect, plan, and warm actions.
 - Helm release plans with Markdown, JSON, and rich HTML plan reports.
 - Live Apply Twin simulation with server-side dry-run proof, replay validation, and repair artifacts.
+- Observe-only Guardian runtime proof for drift, events, managed fields, and PR-ready repair evidence.
 - Verifier gates for charts, rendered manifests, and live namespaces.
 - Evidence-first secrets reports, source-to-live secret flow graphs, benchmark
   corpus metrics, and verifier security evidence bundles.

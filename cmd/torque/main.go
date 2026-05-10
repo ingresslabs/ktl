@@ -236,6 +236,7 @@ func newRootCommandWithBuildService(buildService buildsvc.Service) *cobra.Comman
 	lintCmd := newLintCommand(&kubeconfigPath, &kubeContext)
 	envCmd := newEnvCommand()
 	versionCmd := newVersionCommand()
+	guardianCmd := newGuardianCommand(&kubeconfigPath, &kubeContext)
 	secretsCmd := newSecretsCommand(&kubeconfigPath, &kubeContext)
 	securityCmd := newSecurityCommand(&kubeconfigPath, &kubeContext)
 	waitCmd := newWaitCommand(&kubeconfigPath, &kubeContext)
@@ -262,6 +263,7 @@ func newRootCommandWithBuildService(buildService buildsvc.Service) *cobra.Comman
 		lintCmd,
 		logsCmd,
 		envCmd,
+		guardianCmd,
 		secretsCmd,
 		securityCmd,
 		versionCmd,
@@ -293,6 +295,9 @@ func newRootCommandWithBuildService(buildService buildsvc.Service) *cobra.Comman
   # Benchmark security detection with evidence
   torque security benchmark --corpus ./testdata/security --report benchmark.json
 
+  # Prove runtime drift from a simulation proof
+  torque guardian diff --source ./torque-sim-proof --live --out drift-proof.json
+
   # Apply chart changes
 	torque apply --chart ./chart --release foo --namespace prod`
 	decorateCommandHelp(cmd, "Global Flags")
@@ -317,7 +322,7 @@ Usage:
   {{.UseLine}}
 
 Subcommands:
-{{- range $i, $n := (list "init" "build" "ship" "apply" "delete" "stack" "revert" "repair" "replay" "list" "lint" "logs" "env" "secrets" "security" "version") }}
+{{- range $i, $n := (list "init" "build" "ship" "apply" "delete" "stack" "revert" "repair" "replay" "list" "lint" "logs" "env" "guardian" "secrets" "security" "version") }}
 {{- with (indexCommand $.Commands $n) }}
   {{rpad .Name .NamePadding }} {{.Short}}
 {{- end }}

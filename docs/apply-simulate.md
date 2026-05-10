@@ -63,6 +63,13 @@ torque replay ./torque-sim-proof --lab k3s --format json
 torque replay ./torque-sim-proof --lab k3s --fail-on-blocked
 ```
 
+Use Guardian after simulation when you need to prove what happened in the live
+cluster:
+
+```bash
+torque guardian diff --source ./torque-sim-proof --live --out drift-proof.json
+```
+
 ## Repair
 
 `torque fix` is an alias for `torque repair`, so simulation bundles can feed the

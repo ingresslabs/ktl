@@ -21,6 +21,7 @@ This repo is a single-module Go CLI with an optional companion agent.
 - `lint`
 - `logs`
 - `env`
+- `guardian`
 - `secrets`
 - `version`
 
@@ -101,6 +102,12 @@ This section is intentionally short and repetitive: AI agents do best with a sta
 - Purpose: write security evidence bundles that connect verifier findings, secret-flow scan reports, and redaction proof artifacts.
 - Key types: `BundleManifest`, `BundleOptions`.
 - Invariants: bundle artifacts contain redacted previews and counts only; raw secret values must not be stored.
+
+### Guardian Runtime Proof
+
+- Purpose: top-level `torque guardian` command for observe-only runtime proof.
+- Key surfaces: `guardian install`, `guardian report`, `guardian diff`, `guardian pr`.
+- Invariants: Guardian is observe-only; installed RBAC grants only `get`, `list`, and `watch`; drift, event, and secret-boundary evidence must redact secret-like strings.
 
 ### `internal/ui`
 

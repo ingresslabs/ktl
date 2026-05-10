@@ -45,6 +45,9 @@ var (
 	//go:embed apply-simulate.md
 	ApplySimulateMD string
 
+	//go:embed guardian.md
+	GuardianMD string
+
 	//go:embed secrets-verifier-evidence-spec.md
 	SecretsVerifierEvidenceSpecMD string
 

@@ -60,6 +60,12 @@ go install github.com/ingresslabs/torque/cmd/torque@latest
     torque replay ./torque-sim-proof --lab k3s
     ```
 
+4.  **Prove runtime drift**:
+    ```bash
+    torque guardian diff --source ./torque-sim-proof --live --out drift-proof.json
+    torque guardian pr --from drift-proof.json --branch fix/runtime-drift
+    ```
+
 ---
 
 # Core Concepts

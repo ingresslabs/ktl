@@ -146,6 +146,7 @@ func TestBuildIndex_IncludesAgentAndCacheDocs(t *testing.T) {
 		"doc:enterprise-agent-operations": "mTLS-First Remote Bridge",
 		"doc:s3-build-cache":              "--s3-cache",
 		"doc:apply-simulate":              "Live Apply Twin",
+		"doc:guardian":                    "observe-only runtime proof",
 	}
 	for id, content := range want {
 		found := false

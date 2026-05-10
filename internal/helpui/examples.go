@@ -100,6 +100,27 @@ var curatedExamples = map[string][]string{
 		"# Emit replay validation as JSON\ntorque replay ./torque-sim-proof --lab k3s --format json",
 		"# Fail CI when the replayed proof is blocked\ntorque replay ./torque-sim-proof --lab k3s --fail-on-blocked",
 	},
+	"torque guardian": {
+		"# Install observe-only Guardian RBAC and config\ntorque guardian install --namespace torque-system --mode observe",
+		"# Compare a simulation proof against live runtime state\ntorque guardian diff --source ./torque-sim-proof --live --out drift-proof.json",
+		"# Generate PR artifacts from a drift proof\ntorque guardian pr --from drift-proof.json --branch fix/runtime-drift",
+	},
+	"torque guardian install": {
+		"# Install observe-only Guardian RBAC\ntorque guardian install --namespace torque-system --mode observe",
+		"# Review the manifest without applying it\ntorque guardian install --namespace torque-system --mode observe --dry-run",
+	},
+	"torque guardian report": {
+		"# Write a 24-hour runtime event proof\ntorque guardian report --since 24h --out runtime-proof.json",
+		"# Inspect all namespaces and print JSON\ntorque guardian report --since 30m --all-namespaces --format json",
+	},
+	"torque guardian diff": {
+		"# Prove drift from simulation proof to live objects\ntorque guardian diff --source ./torque-sim-proof --live --out drift-proof.json",
+		"# Write the full runtime proof bundle directory\ntorque guardian diff --source ./torque-sim-proof --live --out ./torque-runtime-proof",
+	},
+	"torque guardian pr": {
+		"# Generate patch and PR body from a drift proof\ntorque guardian pr --from drift-proof.json --branch fix/runtime-drift",
+		"# Generate fix artifacts beside a runtime proof bundle\ntorque guardian pr --from ./torque-runtime-proof",
+	},
 	"torque env": {
 		"# Show env var reference (machine-readable)\ntorque env --format json",
 	},

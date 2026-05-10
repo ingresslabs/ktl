@@ -67,6 +67,12 @@ torque apply simulate --chart ./chart --release foo -n default \
   --out ./torque-sim-proof
 torque replay ./torque-sim-proof --lab k3s
 
+# Prove runtime drift after simulation
+torque guardian install --namespace torque-system --mode observe
+torque guardian report --since 24h --out runtime-proof.json
+torque guardian diff --source ./torque-sim-proof --live --out drift-proof.json
+torque guardian pr --from drift-proof.json --branch fix/runtime-drift
+
 # Deploy
 torque apply --chart ./chart --release foo -n default
 
