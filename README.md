@@ -51,8 +51,20 @@ verifier --chart ./chart --release api -n prod --format json --report verify.jso
 torque apply plan --chart ./chart --release api -n prod \
   --verify-report verify.json --build-capture ./build.sqlite \
   --github-comment --output plan.md
-torque apply --chart ./chart --release api -n prod --capture ./apply.sqlite --yes
+torque apply --chart ./chart --release api -n prod \
+  --predict --proof-bundle ./apply-proof.json \
+  --capture ./apply.sqlite --yes
 torque logs 'api-.*' -n prod --capture ./logs.sqlite --tail 100
+```
+
+Prediction-sensitive releases can ask Torque to score rollout risk before Helm
+touches the cluster and write one JSON proof bundle with the plan, rendered
+manifest hash, rollback confidence, resource timeline, and final outcome:
+
+```bash
+torque apply --chart ./chart --release api -n prod \
+  --predict --proof-bundle ./apply-proof.json \
+  --capture ./apply.sqlite --yes
 ```
 
 Rollback-sensitive releases can ask Torque to keep proof when Helm fails or a
@@ -62,6 +74,7 @@ post-apply SLO gate is violated:
 torque apply --chart ./chart --release api -n prod \
   --require-verified verify.json \
   --auto-rollback --slo ./slo.yaml \
+  --predict --proof-bundle ./apply-proof.json \
   --capture ./apply.sqlite --yes
 ```
 
@@ -86,6 +99,7 @@ fallback, and review-ready outputs without touching a real cluster.
 - MCP cache advisor tools for structured cache inspect, plan, and warm actions.
 - Helm release plans with Markdown, JSON, and rich HTML plan reports.
 - Verifier gates for charts, rendered manifests, and live namespaces.
+- Predictive apply risk scoring and proof bundles for plan-to-rollout evidence.
 - Auto rollback proof for failed applies and rollout SLO gates.
 - Dependency-ordered stack planning and apply runs.
 - Portable SQLite evidence for builds, deploys, logs, and stack runs.

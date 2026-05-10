@@ -127,10 +127,12 @@ A release fails and you need to understand what changed, which resources became 
 **With torque**:
 ```bash
 torque apply plan --chart ./chart --release api -n prod --visualize
-torque apply --chart ./chart --release api -n prod --capture ./apply.sqlite --ui
-tar -czf torque-evidence.tgz ./apply.sqlite
+torque apply --chart ./chart --release api -n prod \
+  --predict --proof-bundle ./apply-proof.json \
+  --capture ./apply.sqlite --ui
+tar -czf torque-evidence.tgz ./apply.sqlite ./apply-proof.json
 ```
-The workflow keeps the plan artifact, rollout timeline, resource readiness updates, logs, Helm release summary, rendered manifest, and command inputs together as durable evidence.
+The workflow keeps the plan artifact, predictive risk score, rollback confidence, rollout timeline, resource readiness updates, logs, Helm release summary, rendered manifest, and command inputs together as durable evidence.
 
 # Advanced Features
 
@@ -155,6 +157,7 @@ Apply a manifest or helm chart with instant log streaming.
 **Usage**: `torque apply [flags]`
 - `--chart`: Path to helm chart.
 - `--watch`: Stream logs after apply.
+- `--predict --proof-bundle ./apply-proof.json`: Score rollout risk before apply and write a JSON bundle with plan, prediction, history, resource status, and final outcome.
 - `--auto-rollback --slo ./slo.yaml`: Roll back failed applies or violated rollout SLO gates and write rollback proof.
 
 ## torque stack

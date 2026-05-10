@@ -65,6 +65,11 @@ torque apply --chart ./chart --release foo -n default
 # Deploy with the viewer UI
 torque apply --chart ./chart --release foo -n default --ui
 
+# Predict rollout risk and write a portable proof bundle
+torque apply --chart ./chart --release foo -n default \
+  --predict --proof-bundle ./apply-proof.json \
+  --capture ./apply.sqlite --yes
+
 # Deploy with auto rollback proof and rollout SLO gates
 cat > slo.yaml <<'YAML'
 apiVersion: torque.ingresslabs.dev/v1alpha1
@@ -75,7 +80,9 @@ spec:
   maxPendingResources: 0
 YAML
 torque apply --chart ./chart --release foo -n default \
-  --auto-rollback --slo ./slo.yaml --capture ./apply.sqlite --yes
+  --auto-rollback --slo ./slo.yaml \
+  --predict --proof-bundle ./apply-proof.json \
+  --capture ./apply.sqlite --yes
 ```
 
 ## Build → verify → plan → apply
@@ -94,7 +101,9 @@ torque apply plan --chart ./chart --release foo -n default \
 
 # Apply with the verify report enforced, capture the rollout, and explain it.
 torque apply --chart ./chart --release foo -n default \
-  --require-verified verify.json --capture ./apply.sqlite --yes
+  --require-verified verify.json \
+  --predict --proof-bundle ./apply-proof.json \
+  --capture ./apply.sqlite --yes
 torque explain ./apply.sqlite --format markdown
 ```
 

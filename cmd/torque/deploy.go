@@ -76,6 +76,8 @@ func newDeployApplyCommand(namespace *string, kubeconfig *string, kubeContext *s
 	var autoRollback bool
 	var sloPath string
 	var rollbackProofPath string
+	var predict bool
+	var proofBundlePath string
 	timeout := 5 * time.Minute
 
 	cmd := &cobra.Command{
@@ -99,6 +101,9 @@ func newDeployApplyCommand(namespace *string, kubeconfig *string, kubeContext *s
 				if autoRollback || strings.TrimSpace(sloPath) != "" || strings.TrimSpace(rollbackProofPath) != "" {
 					return fmt.Errorf("--auto-rollback/--slo/--rollback-proof are not supported with --remote-agent")
 				}
+				if predict || strings.TrimSpace(proofBundlePath) != "" {
+					return fmt.Errorf("--predict/--proof-bundle are not supported with --remote-agent")
+				}
 				if strings.TrimSpace(secretProvider) != "" || strings.TrimSpace(secretConfig) != "" {
 					return fmt.Errorf("--secret-provider/--secret-config are not supported with --remote-agent")
 				}
@@ -117,6 +122,9 @@ func newDeployApplyCommand(namespace *string, kubeconfig *string, kubeContext *s
 			}
 			if strings.TrimSpace(rollbackProofPath) != "" && !autoRollback {
 				return fmt.Errorf("--rollback-proof requires --auto-rollback")
+			}
+			if strings.TrimSpace(proofBundlePath) != "" && dryRun && autoRollback {
+				return fmt.Errorf("--proof-bundle with --dry-run cannot be combined with --auto-rollback")
 			}
 			if autoRollback {
 				if dryRun {
@@ -140,13 +148,19 @@ func newDeployApplyCommand(namespace *string, kubeconfig *string, kubeContext *s
 			var report reportLine
 			var reportReady bool
 			var (
-				historyBreadcrumbs []deploy.HistoryBreadcrumb
-				lastSuccessful     *deploy.HistoryBreadcrumb
-				actionHeadline     string
-				console            *ui.DeployConsole
-				rollbackSLO        *applyRollbackSLO
+				historyBreadcrumbs     []deploy.HistoryBreadcrumb
+				lastSuccessful         *deploy.HistoryBreadcrumb
+				actionHeadline         string
+				console                *ui.DeployConsole
+				rollbackSLO            *applyRollbackSLO
+				prediction             *applyPrediction
+				predictionPlan         *deployPlanResult
+				proofBundleOutPath     string
+				captureResolvedPath    string
+				rollbackProofForBundle *applyRollbackProof
 			)
 			ctx := cmd.Context()
+			proofBundleOutPath = resolveApplyProofBundlePath(proofBundlePath, releaseName, startedAt)
 			if autoRollback {
 				var sloErr error
 				rollbackSLO, sloErr = loadApplyRollbackSLO(sloPath)
@@ -378,6 +392,7 @@ func newDeployApplyCommand(namespace *string, kubeconfig *string, kubeContext *s
 				if err != nil {
 					return err
 				}
+				captureResolvedPath = path
 				host, _ := os.Hostname()
 				tagMap, err := parseCaptureTags(captureTags)
 				if err != nil {
@@ -480,10 +495,89 @@ func newDeployApplyCommand(namespace *string, kubeconfig *string, kubeContext *s
 				DryRun:    dryRun,
 				Diff:      false,
 			})
+			rollbackResources := &statusSnapshotRecorder{}
+
+			if predict || proofBundleOutPath != "" {
+				predictionTimer := telemetry.NewPhaseTimer()
+				predictionCfg := new(action.Configuration)
+				if err := predictionCfg.Init(settings.RESTClientGetter(), resolvedNamespace, os.Getenv("HELM_DRIVER"), logFunc); err != nil {
+					return fmt.Errorf("init prediction helm config: %w", err)
+				}
+				predictionPlan, err = executeDeployPlan(ctx, predictionCfg, settings, kubeClient, deployPlanOptions{
+					Chart:           chart,
+					Release:         releaseName,
+					Version:         version,
+					Namespace:       resolvedNamespace,
+					ValuesFiles:     valuesFiles,
+					SetValues:       setValues,
+					SetStringValues: setStringValues,
+					SetFileValues:   setFileValues,
+					Secrets:         secretOptions,
+				}, predictionTimer)
+				if err != nil {
+					return fmt.Errorf("predict apply: %w", err)
+				}
+				if predictionTimer != nil {
+					summary := telemetry.Summary{
+						Total:  predictionTimer.Total(),
+						Phases: predictionTimer.Snapshot(),
+					}
+					if kubeClient != nil && kubeClient.APIStats != nil {
+						metrics := kubeClient.APIStats.Snapshot()
+						summary.KubeRequests = metrics.Count
+						summary.KubeAvg = metrics.Avg()
+						summary.KubeMax = metrics.Max
+					}
+					predictionPlan.Telemetry = buildPlanTelemetry(summary)
+				}
+				prediction = buildApplyPrediction(predictionPlan, historyBreadcrumbs, lastSuccessful)
+				if captureRecorder != nil && prediction != nil {
+					_ = captureRecorder.RecordArtifact(ctx, applyPredictionArtifactName, captureJSON(prediction))
+				}
+				if predict {
+					renderApplyPrediction(errOut, prediction)
+				}
+			}
 
 			trackerManifest, err := renderManifestForTracking(ctx, settings, resolvedNamespace, chart, version, releaseName, valuesFiles, setValues, setStringValues, setFileValues, secretOptions)
 			if err != nil && shouldLogAtLevel(currentLogLevel, zapcore.InfoLevel) {
 				fmt.Fprintf(errOut, "Warning: failed to pre-render manifest for deploy tracker: %v\n", err)
+			}
+			if proofBundleOutPath != "" {
+				defer func() {
+					rows := rollbackResources.Snapshot()
+					if len(rows) == 0 && !dryRun && strings.TrimSpace(trackerManifest) != "" {
+						snapCtx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+						rows = deploy.NewResourceTracker(kubeClient, resolvedNamespace, releaseName, trackerManifest, nil).Snapshot(snapCtx)
+						cancel()
+					}
+					historyAfter, lastSuccessfulAfter, _ := deploy.ReleaseHistoryBreadcrumbs(actionCfg, releaseName, historyBreadcrumbLimit)
+					bundle := buildApplyProofBundle(applyProofBundleInput{
+						StartedAt:            startedAt,
+						Command:              append([]string(nil), os.Args...),
+						Release:              releaseName,
+						Namespace:            resolvedNamespace,
+						Chart:                chart,
+						ChartVersion:         version,
+						DryRun:               dryRun,
+						Err:                  runErr,
+						Prediction:           prediction,
+						Plan:                 predictionPlan,
+						HistoryBefore:        historyBreadcrumbs,
+						LastSuccessfulBefore: lastSuccessful,
+						HistoryAfter:         historyAfter,
+						LastSuccessfulAfter:  lastSuccessfulAfter,
+						ResourceSnapshot:     rows,
+						RollbackProof:        rollbackProofForBundle,
+						CapturePath:          captureResolvedPath,
+						PhaseDurations:       formatPhaseDurations(timerObserver.snapshot()),
+					})
+					if proofPath, proofErr := writeApplyProofBundle(context.Background(), captureRecorder, proofBundleOutPath, bundle); proofErr != nil {
+						fmt.Fprintf(errOut, "Warning: unable to write proof bundle: %v\n", proofErr)
+					} else if proofPath != "" {
+						fmt.Fprintf(errOut, "Proof bundle written to %s\n", proofPath)
+					}
+				}()
 			}
 			if strings.TrimSpace(requireVerified) != "" && strings.TrimSpace(trackerManifest) != "" {
 				if verr := enforceVerifiedDigest(requireVerified, trackerManifest, releaseName, resolvedNamespace); verr != nil {
@@ -509,7 +603,6 @@ func newDeployApplyCommand(namespace *string, kubeconfig *string, kubeContext *s
 					_ = captureRecorder.RecordArtifact(ctx, "apply.rollback_slo.json", captureJSON(rollbackSLO))
 				}
 			}
-
 			if stream != nil && (strings.TrimSpace(uiAddr) != "" || strings.TrimSpace(wsListenAddr) != "") {
 				logger, logErr := buildLogger(currentLogLevel)
 				if logErr != nil {
@@ -584,7 +677,6 @@ func newDeployApplyCommand(namespace *string, kubeconfig *string, kubeContext *s
 				}
 			}()
 			var statusUpdaters []deploy.StatusUpdateFunc
-			rollbackResources := &statusSnapshotRecorder{}
 			updateConsoleMetadata := func() {}
 			if console != nil {
 				updateConsoleMetadata = func() {
@@ -605,7 +697,7 @@ func newDeployApplyCommand(namespace *string, kubeconfig *string, kubeContext *s
 			} else if shouldLogAtLevel(currentLogLevel, zapcore.WarnLevel) {
 				fmt.Fprintf(errOut, "Applying release %s\n", releaseName)
 			}
-			if autoRollback {
+			if autoRollback || proofBundleOutPath != "" {
 				statusUpdaters = append(statusUpdaters, rollbackResources.Update)
 			}
 			// When rendering a plan (dry-run), don't start Kubernetes watchers or resource tracking:
@@ -717,6 +809,7 @@ func newDeployApplyCommand(namespace *string, kubeconfig *string, kubeContext *s
 						Resources:            rows,
 						PhaseDurations:       formatPhaseDurations(timerObserver.snapshot()),
 					})
+					rollbackProofForBundle = &proof
 					if proofPath, proofErr := writeApplyRollbackProof(ctx, captureRecorder, rollbackProofPath, proof); proofErr != nil {
 						fmt.Fprintf(errOut, "Warning: unable to write rollback proof: %v\n", proofErr)
 					} else if proofPath != "" {
@@ -774,6 +867,7 @@ func newDeployApplyCommand(namespace *string, kubeconfig *string, kubeContext *s
 						Resources:            rows,
 						PhaseDurations:       formatPhaseDurations(timerObserver.snapshot()),
 					})
+					rollbackProofForBundle = &proof
 					proofPath, proofErr := writeApplyRollbackProof(ctx, captureRecorder, rollbackProofPath, proof)
 					if proofErr != nil {
 						fmt.Fprintf(errOut, "Warning: unable to write rollback proof: %v\n", proofErr)
@@ -877,6 +971,11 @@ func newDeployApplyCommand(namespace *string, kubeconfig *string, kubeContext *s
 	cmd.Flags().BoolVar(&createNamespace, "create-namespace", false, "Create the release namespace if it does not exist")
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "Render the chart without applying it")
 	cmd.Flags().StringVar(&requireVerified, "require-verified", "", "Require a matching verify report (JSON) for this exact render before applying")
+	cmd.Flags().BoolVar(&predict, "predict", false, "Predict rollout risk, restarts, missing dependencies, quota pressure, and rollback confidence before applying")
+	cmd.Flags().StringVar(&proofBundlePath, "proof-bundle", "", "Write a predictive apply proof bundle JSON to this path (default: torque-proof-bundle-<release>-<timestamp>.json)")
+	if flag := cmd.Flags().Lookup("proof-bundle"); flag != nil {
+		flag.NoOptDefVal = "__auto__"
+	}
 	cmd.Flags().BoolVar(&autoRollback, "auto-rollback", false, "Rollback and write proof when apply fails or a rollout SLO gate fails")
 	cmd.Flags().StringVar(&sloPath, "slo", "", "Rollout SLO YAML for --auto-rollback gates")
 	cmd.Flags().StringVar(&rollbackProofPath, "rollback-proof", "", "Write auto-rollback proof JSON to this path (default: torque-rollback-proof-<release>-<timestamp>.json)")
