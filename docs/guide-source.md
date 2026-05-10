@@ -146,6 +146,8 @@ Command-level `torque ... --capture` flags record deploy, destroy, build, and lo
 - **RBAC**: Ensure no ClusterRoles use wildcards.
 - **PSS**: Enforce Pod Security Standards (Restricted/Baseline).
 - **Custom Rules**: Write your own Rego policies.
+- **Secret flow evidence**: block secret-like values rendered into non-Secret
+  resources and write a redaction proof.
 
 ---
 
@@ -167,6 +169,23 @@ Turn a failed apply proof bundle into a repair plan, optional chart patch, and P
 - `--apply`: Write safe generated repair templates into the chart.
 - `--branch fix/api-rollout`: Create/switch to a repair branch before writing files when the chart is in a clean git worktree.
 - `--pr-body ./repair-pr.md`: Write a Markdown PR body with root cause, evidence, patch plan, and validation commands.
+
+## torque secrets scan
+Scan source files, rendered manifests, build inputs, or text artifacts for
+secret-like values without writing raw values to reports.
+
+**Usage**: `torque secrets scan --scope repo|render|build|artifact [flags]`
+- `--report secrets.json`: Write the JSON secret scan report.
+- `--mode block --fail-on high`: Fail when high-confidence findings are present.
+- `--scope render --manifest ./rendered.yaml`: Scan rendered Kubernetes objects and allow Secret boundaries.
+
+## verifier security evidence
+Merge secret-flow findings into verifier output and write a review bundle.
+
+**Usage**: `verifier --chart ./chart --release api -n prod --security-profile enterprise --secrets-report secrets.json --security-evidence ./torque-security-evidence`
+- `--security-profile enterprise`: Enable blocking evidence-first secret checks.
+- `--secrets-report secrets.json`: Write the redacted secret scan report.
+- `--security-evidence ./dir`: Export manifest, verifier report, secrets report, redaction proof, and Markdown summary.
 
 ## torque stack
 Manage complex multi-component releases.

@@ -98,6 +98,13 @@ torque build . --tag ghcr.io/acme/foo:dev --capture ./build.sqlite
 # Verify the rendered chart.
 verifier --chart ./chart --release foo -n default --format json --report verify.json
 
+# Verify with evidence-first secret flow checks and a redaction proof bundle.
+verifier --chart ./chart --release foo -n default \
+  --security-profile enterprise \
+  --secrets-report secrets.json \
+  --security-evidence ./torque-security-evidence \
+  --format json --report verify.json
+
 # Write a PR-ready plan with verifier and build evidence attached.
 torque apply plan --chart ./chart --release foo -n default \
   --verify-report verify.json --build-capture ./build.sqlite \
@@ -289,6 +296,8 @@ Minimal CLI workflow (sanity check before apply):
 ```bash
 torque secrets test --secret-provider vault --ref secret://vault/app/db#password
 torque secrets list --secret-provider vault --path app
+torque secrets scan --scope repo --report secrets.json --mode block
+torque secrets scan --scope render --manifest ./rendered.yaml --report render-secrets.json --mode block
 ```
 
 ## Regression-proof plans

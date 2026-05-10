@@ -73,6 +73,16 @@ type Rules struct {
 		Output  string `yaml:"output,omitempty"`
 	} `yaml:"exposure,omitempty"`
 
+	Secrets struct {
+		Enabled bool   `yaml:"enabled,omitempty"`
+		Report  string `yaml:"report,omitempty"`
+		Mode    string `yaml:"mode,omitempty"`
+		FailOn  string `yaml:"failOn,omitempty"`
+	} `yaml:"secrets,omitempty"`
+
+	SecurityProfile  string `yaml:"securityProfile,omitempty"`
+	SecurityEvidence string `yaml:"securityEvidence,omitempty"`
+
 	FixPlan bool `yaml:"fixPlan,omitempty"`
 }
 
@@ -134,6 +144,8 @@ func (c *Config) ResolvePaths(baseDir string) {
 	c.Verify.Baseline.Read = resolveRelPath(baseDir, c.Verify.Baseline.Read)
 	c.Verify.Baseline.Write = resolveRelPath(baseDir, c.Verify.Baseline.Write)
 	c.Verify.Exposure.Output = resolveRelPath(baseDir, c.Verify.Exposure.Output)
+	c.Verify.Secrets.Report = resolveRelPath(baseDir, c.Verify.Secrets.Report)
+	c.Verify.SecurityEvidence = resolveRelPath(baseDir, c.Verify.SecurityEvidence)
 	c.Output.Report = resolveRelPath(baseDir, c.Output.Report)
 	c.Kube.Kubeconfig = resolveRelPath(baseDir, c.Kube.Kubeconfig)
 }
@@ -179,6 +191,25 @@ func (c *Config) Validate(baseDir string) error {
 	}
 	if strings.TrimSpace(c.Verify.Policy.Mode) == "" {
 		c.Verify.Policy.Mode = "warn"
+	}
+	if strings.TrimSpace(c.Verify.SecurityProfile) != "" {
+		c.Verify.Secrets.Enabled = true
+	}
+	if strings.TrimSpace(c.Verify.Secrets.Report) != "" {
+		c.Verify.Secrets.Enabled = true
+	}
+	if strings.TrimSpace(c.Verify.SecurityEvidence) != "" {
+		c.Verify.Secrets.Enabled = true
+	}
+	if strings.TrimSpace(c.Verify.Secrets.Mode) == "" {
+		if strings.EqualFold(strings.TrimSpace(c.Verify.SecurityProfile), "enterprise") {
+			c.Verify.Secrets.Mode = "block"
+		} else {
+			c.Verify.Secrets.Mode = "warn"
+		}
+	}
+	if strings.TrimSpace(c.Verify.Secrets.FailOn) == "" {
+		c.Verify.Secrets.FailOn = "high"
 	}
 	_ = baseDir
 	return nil

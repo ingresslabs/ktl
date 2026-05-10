@@ -96,6 +96,12 @@ This section is intentionally short and repetitive: AI agents do best with a sta
 - Key types: `Resolver`, `Config`, `Provider`.
 - Invariants: never log secret values; audit references only.
 
+### `internal/securityevidence`
+
+- Purpose: write security evidence bundles that connect verifier findings, secret-flow scan reports, and redaction proof artifacts.
+- Key types: `BundleManifest`, `BundleOptions`.
+- Invariants: bundle artifacts contain redacted previews and counts only; raw secret values must not be stored.
+
 ### `internal/ui`
 
 - Purpose: terminal UX primitives (deploy console, spinner).

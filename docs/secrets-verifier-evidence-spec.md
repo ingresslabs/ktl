@@ -4,6 +4,15 @@ Status: draft
 
 Last reviewed: 2026-05-10
 
+Implemented slice:
+
+- `torque secrets scan --scope repo|render|build|artifact` writes redacted
+  JSON secret scan reports.
+- `verifier --security-profile enterprise --secrets-report ...` merges
+  rendered secret-flow findings into verifier output and blocks high-risk leaks.
+- `--security-evidence ./dir` exports a bundle with verifier report, secrets
+  report, redaction proof, manifest, and Markdown summary.
+
 Related docs:
 
 - [verifier.md](verifier.md)

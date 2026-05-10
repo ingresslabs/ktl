@@ -84,6 +84,9 @@ func newVerifyCommand(kubeconfigPath *string, kubeContext *string, logLevel *str
 	var policyMode string
 	var exposure bool
 	var evaluatedAt string
+	var securityProfile string
+	var secretsReport string
+	var securityEvidence string
 
 	cmd := &cobra.Command{
 		Use:   "verify [config.yaml]",
@@ -176,6 +179,9 @@ Shortcut flags (no YAML):
 				cfg.Verify.Policy.Ref = strings.TrimSpace(policyRef)
 				cfg.Verify.Policy.Mode = strings.TrimSpace(policyMode)
 				cfg.Verify.Exposure.Enabled = exposure
+				cfg.Verify.SecurityProfile = strings.TrimSpace(securityProfile)
+				cfg.Verify.Secrets.Report = strings.TrimSpace(secretsReport)
+				cfg.Verify.SecurityEvidence = strings.TrimSpace(securityEvidence)
 				cfg.ResolvePaths(baseDir)
 			}
 
@@ -184,6 +190,18 @@ Shortcut flags (no YAML):
 			}
 			if fixPlan {
 				cfg.Verify.FixPlan = true
+			}
+			if cmd.Flags().Changed("security-profile") {
+				cfg.Verify.SecurityProfile = strings.TrimSpace(securityProfile)
+			}
+			if cmd.Flags().Changed("secrets-report") {
+				cfg.Verify.Secrets.Report = cfgpkg.ResolveRelPath(baseDir, secretsReport)
+			}
+			if cmd.Flags().Changed("security-evidence") {
+				cfg.Verify.SecurityEvidence = cfgpkg.ResolveRelPath(baseDir, securityEvidence)
+			}
+			if err := cfg.Validate(baseDir); err != nil {
+				return err
 			}
 
 			if strings.TrimSpace(baselineWrite) != "" {
@@ -302,6 +320,9 @@ Shortcut flags (no YAML):
 	cmd.Flags().StringVar(&policyRef, "policy-ref", "", "Policy bundle ref (path or URL) (shortcut mode)")
 	cmd.Flags().StringVar(&policyMode, "policy-mode", "warn", "Policy mode: warn|enforce (shortcut mode)")
 	cmd.Flags().BoolVar(&exposure, "exposure", false, "Enable exposure analysis (shortcut mode)")
+	cmd.Flags().StringVar(&securityProfile, "security-profile", "", "Security profile to enable evidence-first checks (default or enterprise)")
+	cmd.Flags().StringVar(&secretsReport, "secrets-report", "", "Write evidence-first secrets scan report JSON to this path")
+	cmd.Flags().StringVar(&securityEvidence, "security-evidence", "", "Write a security evidence bundle directory")
 	cmd.Flags().BoolVar(&openReport, "open", false, "Open the report after success (HTML file reports only)")
 	cmd.Flags().StringVar(&evaluatedAt, "evaluated-at", "", "Override evaluation time (RFC3339) for deterministic reports/tests")
 

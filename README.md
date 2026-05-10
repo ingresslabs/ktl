@@ -47,7 +47,10 @@ go install github.com/ingresslabs/torque/cmd/verifier@latest
 
 ```bash
 torque build . --tag ghcr.io/acme/api:dev --capture ./build.sqlite
-verifier --chart ./chart --release api -n prod --format json --report verify.json
+verifier --chart ./chart --release api -n prod \
+  --security-profile enterprise --secrets-report secrets.json \
+  --security-evidence ./torque-security-evidence \
+  --format json --report verify.json
 torque apply plan --chart ./chart --release api -n prod \
   --verify-report verify.json --build-capture ./build.sqlite \
   --github-comment --output plan.md
@@ -85,6 +88,15 @@ torque repair --from ./apply-proof.json --chart ./chart \
   --branch fix/api-rollout --apply --pr-body ./repair-pr.md --yes
 ```
 
+Security-sensitive releases can scan source or rendered manifests before review:
+
+```bash
+torque secrets scan --scope repo --report secrets.json --mode block
+verifier --manifest ./rendered.yaml --security-profile enterprise \
+  --secrets-report secrets.json --security-evidence ./torque-security-evidence \
+  --format json --report verify.json
+```
+
 ## Showcase Reports
 
 Generated from the intentionally incomplete `testdata/charts/verify-findings`
@@ -106,6 +118,7 @@ fallback, and review-ready outputs without touching a real cluster.
 - MCP cache advisor tools for structured cache inspect, plan, and warm actions.
 - Helm release plans with Markdown, JSON, and rich HTML plan reports.
 - Verifier gates for charts, rendered manifests, and live namespaces.
+- Evidence-first secrets reports and verifier security evidence bundles.
 - Predictive apply risk scoring and proof bundles for plan-to-rollout evidence.
 - Failure-to-fix repair plans that turn proof bundles into chart patches and PR bodies.
 - Auto rollback proof for failed applies and rollout SLO gates.
