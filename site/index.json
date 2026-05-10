@@ -17,6 +17,7 @@
         "# Turn failed apply proof into a repair plan\n  torque repair --from ./apply-proof.json --chart ./chart",
         "# Benchmark security detection with evidence\n  torque security benchmark --corpus ./testdata/security --report benchmark.json",
         "# Prove runtime drift from a simulation proof\n  torque guardian diff --source ./torque-sim-proof --live --out drift-proof.json",
+        "# Synthesize and test runtime recurrence contracts\n  torque contract synthesize --from incident-replay-proof --guardian drift-proof.json --out torque-contract.yaml",
         "# Capture and replay incident evidence\n  torque incident capture --release foo --namespace prod --since 1h --out incident.torque",
         "# Apply chart changes\n\ttorque apply --chart ./chart --release foo --namespace prod",
         "# Launch the built-in interactive help UI\ntorque --help --ui",
@@ -189,6 +190,99 @@
       "tags": [
         "command",
         "internal/workflows/buildsvc"
+      ]
+    },
+    {
+      "id": "cmd:torque contract",
+      "kind": "command",
+      "title": "torque contract",
+      "subtitle": "Synthesize and test runtime contracts from proof",
+      "sources": [
+        "cmd/torque",
+        "internal/deploy"
+      ],
+      "content": "Runtime Contract turns Guardian drift proof and Incident replay proof into observe-only recurrence rules, machine-checkable test proof, and PR-ready artifacts.\n\nUsage:\n  torque contract",
+      "examples": [
+        "# Synthesize recurrence rules from Incident and Guardian proof\ntorque contract synthesize --from incident-replay-proof --guardian drift-proof.json --out torque-contract.yaml",
+        "# Test fresh proof against the RuntimeContract\ntorque contract test --contract torque-contract.yaml --from incident-replay-proof --guardian drift-proof.json --out contract-proof.json",
+        "# Generate PR artifacts from contract proof\ntorque contract pr --contract torque-contract.yaml --proof contract-proof.json --branch add/api-runtime-contract"
+      ],
+      "tags": [
+        "command",
+        "cmd/torque",
+        "internal/deploy",
+        "contract",
+        "runtime",
+        "guardian",
+        "incident",
+        "proof"
+      ]
+    },
+    {
+      "id": "cmd:torque contract pr",
+      "kind": "command",
+      "title": "torque contract pr",
+      "subtitle": "Generate PR-ready artifacts from a RuntimeContract proof",
+      "sources": [
+        "cmd/torque",
+        "internal/deploy"
+      ],
+      "content": "Generate PR-ready artifacts from a RuntimeContract proof\n\nUsage:\n  torque contract pr [flags]\n\nFlags:\n      --branch string     Suggested contract branch name\n      --contract string   RuntimeContract YAML/JSON file\n      --format string     Output format: text or json (default \"text\")\n      --out string        Directory for PR artifacts (default: ./fix beside --proof)\n      --proof string      RuntimeContract proof JSON from torque contract test",
+      "examples": [
+        "# Generate patch and PR body from contract proof\ntorque contract pr --contract torque-contract.yaml --proof contract-proof.json --branch add/api-runtime-contract"
+      ],
+      "tags": [
+        "command",
+        "cmd/torque",
+        "internal/deploy"
+      ]
+    },
+    {
+      "id": "cmd:torque contract synthesize",
+      "kind": "command",
+      "title": "torque contract synthesize",
+      "subtitle": "Synthesize a RuntimeContract from proof evidence",
+      "sources": [
+        "cmd/torque",
+        "internal/deploy"
+      ],
+      "content": "Synthesize a RuntimeContract from proof evidence\n\nUsage:\n  torque contract synthesize [flags]\n\nFlags:\n      --format string     Output format: text, json, or yaml (default \"text\")\n      --from string       Incident bundle, root cause JSON, or incident replay proof\n                          directory\n      --guardian string   Guardian drift proof JSON or runtime proof directory\n      --out string        Write RuntimeContract YAML/JSON to this path",
+      "examples": [
+        "# Write a RuntimeContract from combined proof\ntorque contract synthesize --from incident-replay-proof --guardian drift-proof.json --out torque-contract.yaml",
+        "# Print the synthesized contract as YAML\ntorque contract synthesize --from incident-replay-proof --guardian drift-proof.json --format yaml"
+      ],
+      "tags": [
+        "command",
+        "cmd/torque",
+        "internal/deploy",
+        "contract",
+        "runtime",
+        "recurrence",
+        "proof"
+      ]
+    },
+    {
+      "id": "cmd:torque contract test",
+      "kind": "command",
+      "title": "torque contract test",
+      "subtitle": "Test a RuntimeContract against proof evidence",
+      "sources": [
+        "cmd/torque",
+        "internal/deploy"
+      ],
+      "content": "Test a RuntimeContract against proof evidence\n\nUsage:\n  torque contract test [flags]\n\nFlags:\n      --contract string   RuntimeContract YAML/JSON file\n      --fail-on-blocked   Exit non-zero when the contract test fails\n      --format string     Output format: text or json (default \"text\")\n      --from string       Incident bundle, root cause JSON, or incident replay proof\n                          directory\n      --guardian string   Guardian drift proof JSON or runtime proof directory\n      --out string        Write contract test proof JSON to this path",
+      "examples": [
+        "# Write machine-checkable contract test proof\ntorque contract test --contract torque-contract.yaml --from incident-replay-proof --guardian drift-proof.json --out contract-proof.json",
+        "# Fail CI when recurrence rules are violated\ntorque contract test --contract torque-contract.yaml --from incident-replay-proof --guardian drift-proof.json --fail-on-blocked"
+      ],
+      "tags": [
+        "command",
+        "cmd/torque",
+        "internal/deploy",
+        "contract",
+        "runtime",
+        "gate",
+        "proof"
       ]
     },
     {
@@ -1255,6 +1349,22 @@
       ]
     },
     {
+      "id": "doc:contract",
+      "kind": "doc",
+      "title": "Torque Runtime Contract",
+      "subtitle": "Observe-only contract synthesis, test proof, and PR artifacts",
+      "content": "# Torque Runtime Contract\n\nRuntime Contract turns proof from Guardian and Incident into observe-only\nrecurrence rules. It lets a team say \"this failure must not happen again\" in a\nmachine-checkable file, then prove future evidence satisfies that contract.\n\n```bash\ntorque contract synthesize \\\n  --from incident-replay-proof/ \\\n  --guardian drift-proof.json \\\n  --out torque-contract.yaml\n\ntorque contract test \\\n  --contract torque-contract.yaml \\\n  --from incident-replay-proof/ \\\n  --guardian drift-proof.json \\\n  --out contract-proof.json\n\ntorque contract pr \\\n  --contract torque-contract.yaml \\\n  --proof contract-proof.json \\\n  --branch add/api-runtime-contract\n```\n\nThe first implementation is strictly observe-only. It reads proof files and\nwrites contract/proof/PR artifacts. It does not install an admission webhook,\npatch Kubernetes objects, or mutate source files.\n\n## Contract Synthesis\n\n`contract synthesize` reads one or both evidence sources:\n\n- Incident bundle, root-cause JSON, or incident replay proof directory;\n- Guardian drift proof JSON or full runtime proof directory.\n\nIt writes a `RuntimeContract` YAML file with deterministic invariants derived\nfrom the evidence. Current invariant families include:\n\n- incident replay proof must be complete;\n- blocked incident root cause must be absent;\n- image pull failures must not recur;\n- runtime secret-boundary findings must be zero;\n- rollout aftercare must pass;\n- specific unhealthy resources must be available;\n- predicted live state must match Guardian simulation proof;\n- Warning event reasons must be absent;\n- suspicious managed-field owners must be absent;\n- captured log failure signals must be absent.\n\nIf the source proof contains no concrete failure signal, Torque writes a\nfallback `runtime.proof.clean` invariant that requires clean runtime proof.\n\n## Contract Test Proof\n\n`contract test` evaluates the contract against fresh proof artifacts and writes\nJSON:\n\n```json\n{\n  \"tool\": \"torque-contract\",\n  \"passed\": false,\n  \"blocked\": true,\n  \"summary\": {\n    \"invariants\": 8,\n    \"passed\": 1,\n    \"failed\": 7,\n    \"missingEvidence\": 0,\n    \"criticalFailures\": 2\n  }\n}\n```\n\nMissing evidence is a failure. For example, a contract that requires Guardian\ndrift proof fails if `--guardian` is omitted. Use `--fail-on-blocked` in CI when\nthe contract should gate a release.\n\nAll evidence messages are redacted before they are copied into the contract\nproof or PR body.\n\n## PR Artifacts\n\n`contract pr` turns a contract test proof into review-ready artifacts:\n\n```text\nfix/\n  runtime-contract.patch\n  pr.md\n```\n\nThe patch records a `.torque/contracts/*` evidence note. The PR body includes\ncontract status, failed invariants, missing evidence count, and a copy/paste\nvalidation command.\n\n## Recommended Flow\n\nUse Runtime Contract after a real incident has already been captured:\n\n```bash\ntorque guardian diff --source ./torque-sim-proof --live --out drift-proof.json\ntorque incident capture --release api -n prod --since 1h --out incident.torque\ntorque incident replay incident.torque --lab k3s --out incident-replay-proof/\n\ntorque contract synthesize \\\n  --from incident-replay-proof/ \\\n  --guardian drift-proof.json \\\n  --out torque-contract.yaml\n\ntorque contract test \\\n  --contract torque-contract.yaml \\\n  --from incident-replay-proof/ \\\n  --guardian drift-proof.json \\\n  --out contract-proof.json\n```\n\nThe first test against the original broken proof should usually fail; that is\nthe point. The same contract should pass only after fresh Guardian/Incident\nproof shows the root cause, drift, warning events, secret-boundary findings, and\naftercare issues are gone.",
+      "tags": [
+        "doc",
+        "contract",
+        "runtime",
+        "guardian",
+        "incident",
+        "recurrence",
+        "proof"
+      ]
+    },
+    {
       "id": "doc:troubleshooting",
       "kind": "doc",
       "title": "Troubleshooting",
@@ -2020,7 +2130,7 @@
       "id": "flag:branch",
       "kind": "flag",
       "title": "--branch",
-      "content": "Repair branch name to create when --apply is used in a clean git worktree\n\nAvailable on: 3 commands",
+      "content": "Repair branch name to create when --apply is used in a clean git worktree\n\nAvailable on: 4 commands",
       "tags": [
         "flag"
       ]
@@ -2377,6 +2487,15 @@
       ]
     },
     {
+      "id": "flag:contract",
+      "kind": "flag",
+      "title": "--contract",
+      "content": "RuntimeContract YAML/JSON file\n\nAvailable on: 2 commands",
+      "tags": [
+        "flag"
+      ]
+    },
+    {
       "id": "flag:corpus",
       "kind": "flag",
       "title": "--corpus",
@@ -2569,7 +2688,7 @@
       "id": "flag:fail-on-blocked",
       "kind": "flag",
       "title": "--fail-on-blocked",
-      "content": "Exit non-zero when the replayed proof is blocked\n\nAvailable on: 3 commands",
+      "content": "Exit non-zero when the replayed proof is blocked\n\nAvailable on: 4 commands",
       "tags": [
         "flag"
       ]
@@ -2614,7 +2733,7 @@
       "id": "flag:format",
       "kind": "flag",
       "title": "--format",
-      "content": "Output format: table, json, yaml\n\nDefault: table\n\nAvailable on: 19 commands",
+      "content": "Output format: table, json, yaml\n\nDefault: table\n\nAvailable on: 22 commands",
       "tags": [
         "flag"
       ]
@@ -2623,7 +2742,7 @@
       "id": "flag:from",
       "kind": "flag",
       "title": "--from",
-      "content": "Apply proof bundle JSON to diagnose\n\nAvailable on: 4 commands",
+      "content": "Apply proof bundle JSON to diagnose\n\nAvailable on: 6 commands",
       "tags": [
         "flag"
       ]
@@ -2678,6 +2797,15 @@
       "kind": "flag",
       "title": "--gitops",
       "content": "Discover Argo CD and Flux resources\n\nDefault: true",
+      "tags": [
+        "flag"
+      ]
+    },
+    {
+      "id": "flag:guardian",
+      "kind": "flag",
+      "title": "--guardian",
+      "content": "Guardian drift proof JSON or runtime proof directory\n\nAvailable on: 2 commands",
       "tags": [
         "flag"
       ]
@@ -3127,7 +3255,7 @@
       "id": "flag:out",
       "kind": "flag",
       "title": "--out",
-      "content": "Proof bundle directory (default: ./torque-sim-proof-<release>-<timestamp>)\n\nAvailable on: 11 commands",
+      "content": "Proof bundle directory (default: ./torque-sim-proof-<release>-<timestamp>)\n\nAvailable on: 14 commands",
       "tags": [
         "flag"
       ]
@@ -3299,6 +3427,15 @@
       "kind": "flag",
       "title": "--progressive-concurrency",
       "content": "Start at 1 worker, then ramp up/down based on successes/failures",
+      "tags": [
+        "flag"
+      ]
+    },
+    {
+      "id": "flag:proof",
+      "kind": "flag",
+      "title": "--proof",
+      "content": "RuntimeContract proof JSON from torque contract test",
       "tags": [
         "flag"
       ]

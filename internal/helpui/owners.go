@@ -7,6 +7,7 @@ var commandOwners = map[string][]string{
 	"torque apply plan":     {"internal/deploy", "internal/ui"},
 	"torque apply simulate": {"internal/deploy", "internal/deployplan"},
 	"torque build":          {"internal/workflows/buildsvc"},
+	"torque contract":       {"cmd/torque", "internal/deploy"},
 	"torque delete":         {"internal/deploy", "internal/ui"},
 	"torque init":           {"internal/appconfig"},
 	"torque guardian":       {"cmd/torque", "internal/deployplan"},

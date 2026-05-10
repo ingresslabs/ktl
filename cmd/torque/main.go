@@ -236,6 +236,7 @@ func newRootCommandWithBuildService(buildService buildsvc.Service) *cobra.Comman
 	lintCmd := newLintCommand(&kubeconfigPath, &kubeContext)
 	envCmd := newEnvCommand()
 	versionCmd := newVersionCommand()
+	contractCmd := newContractCommand()
 	guardianCmd := newGuardianCommand(&kubeconfigPath, &kubeContext)
 	incidentCmd := newIncidentCommand(&kubeconfigPath, &kubeContext)
 	secretsCmd := newSecretsCommand(&kubeconfigPath, &kubeContext)
@@ -264,6 +265,7 @@ func newRootCommandWithBuildService(buildService buildsvc.Service) *cobra.Comman
 		lintCmd,
 		logsCmd,
 		envCmd,
+		contractCmd,
 		guardianCmd,
 		incidentCmd,
 		secretsCmd,
@@ -300,6 +302,9 @@ func newRootCommandWithBuildService(buildService buildsvc.Service) *cobra.Comman
   # Prove runtime drift from a simulation proof
   torque guardian diff --source ./torque-sim-proof --live --out drift-proof.json
 
+  # Synthesize and test runtime recurrence contracts
+  torque contract synthesize --from incident-replay-proof --guardian drift-proof.json --out torque-contract.yaml
+
   # Capture and replay incident evidence
   torque incident capture --release foo --namespace prod --since 1h --out incident.torque
 
@@ -327,7 +332,7 @@ Usage:
   {{.UseLine}}
 
 Subcommands:
-{{- range $i, $n := (list "init" "build" "ship" "apply" "delete" "stack" "revert" "repair" "replay" "list" "lint" "logs" "env" "guardian" "incident" "secrets" "security" "version") }}
+{{- range $i, $n := (list "init" "build" "ship" "apply" "delete" "stack" "revert" "repair" "replay" "list" "lint" "logs" "env" "contract" "guardian" "incident" "secrets" "security" "version") }}
 {{- with (indexCommand $.Commands $n) }}
   {{rpad .Name .NamePadding }} {{.Short}}
 {{- end }}

@@ -121,6 +121,22 @@ var curatedExamples = map[string][]string{
 		"# Generate patch and PR body from a drift proof\ntorque guardian pr --from drift-proof.json --branch fix/runtime-drift",
 		"# Generate fix artifacts beside a runtime proof bundle\ntorque guardian pr --from ./torque-runtime-proof",
 	},
+	"torque contract": {
+		"# Synthesize recurrence rules from Incident and Guardian proof\ntorque contract synthesize --from incident-replay-proof --guardian drift-proof.json --out torque-contract.yaml",
+		"# Test fresh proof against the RuntimeContract\ntorque contract test --contract torque-contract.yaml --from incident-replay-proof --guardian drift-proof.json --out contract-proof.json",
+		"# Generate PR artifacts from contract proof\ntorque contract pr --contract torque-contract.yaml --proof contract-proof.json --branch add/api-runtime-contract",
+	},
+	"torque contract synthesize": {
+		"# Write a RuntimeContract from combined proof\ntorque contract synthesize --from incident-replay-proof --guardian drift-proof.json --out torque-contract.yaml",
+		"# Print the synthesized contract as YAML\ntorque contract synthesize --from incident-replay-proof --guardian drift-proof.json --format yaml",
+	},
+	"torque contract test": {
+		"# Write machine-checkable contract test proof\ntorque contract test --contract torque-contract.yaml --from incident-replay-proof --guardian drift-proof.json --out contract-proof.json",
+		"# Fail CI when recurrence rules are violated\ntorque contract test --contract torque-contract.yaml --from incident-replay-proof --guardian drift-proof.json --fail-on-blocked",
+	},
+	"torque contract pr": {
+		"# Generate patch and PR body from contract proof\ntorque contract pr --contract torque-contract.yaml --proof contract-proof.json --branch add/api-runtime-contract",
+	},
 	"torque incident": {
 		"# Capture observe-only incident evidence\ntorque incident capture --release api -n prod --since 1h --out incident.torque",
 		"# Replay the capture as a lab proof\ntorque incident replay incident.torque --lab k3s --out incident-replay-proof",

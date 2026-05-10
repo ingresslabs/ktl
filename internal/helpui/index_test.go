@@ -148,6 +148,7 @@ func TestBuildIndex_IncludesAgentAndCacheDocs(t *testing.T) {
 		"doc:apply-simulate":              "Live Apply Twin",
 		"doc:guardian":                    "observe-only runtime proof",
 		"doc:incident":                    "incident time machine",
+		"doc:contract":                    "recurrence rules",
 	}
 	for id, content := range want {
 		found := false

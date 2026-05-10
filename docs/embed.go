@@ -51,6 +51,9 @@ var (
 	//go:embed incident.md
 	IncidentMD string
 
+	//go:embed contract.md
+	ContractMD string
+
 	//go:embed secrets-verifier-evidence-spec.md
 	SecretsVerifierEvidenceSpecMD string
 

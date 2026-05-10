@@ -64,6 +64,11 @@ torque apply --chart ./chart --release api -n prod \
   --capture ./apply.sqlite --yes
 torque incident capture --release api -n prod --since 1h --out incident.torque
 torque incident replay incident.torque --lab k3s --out incident-replay-proof/
+torque contract synthesize --from incident-replay-proof/ \
+  --guardian drift-proof.json --out torque-contract.yaml
+torque contract test --contract torque-contract.yaml \
+  --from incident-replay-proof/ --guardian drift-proof.json \
+  --out contract-proof.json
 torque logs 'api-.*' -n prod --capture ./logs.sqlite --tail 100
 ```
 
@@ -115,6 +120,28 @@ torque incident pr --from root-cause.json --branch fix/api-incident
 ```
 
 See [`docs/incident.md`](docs/incident.md) for observe-only incident replay.
+
+Runtime Contract can turn Guardian and Incident proof into recurrence rules that
+future proof must satisfy:
+
+```bash
+torque contract synthesize \
+  --from incident-replay-proof/ \
+  --guardian drift-proof.json \
+  --out torque-contract.yaml
+torque contract test \
+  --contract torque-contract.yaml \
+  --from incident-replay-proof/ \
+  --guardian drift-proof.json \
+  --out contract-proof.json
+torque contract pr \
+  --contract torque-contract.yaml \
+  --proof contract-proof.json \
+  --branch add/api-runtime-contract
+```
+
+See [`docs/contract.md`](docs/contract.md) for Runtime Contract synthesis and
+test proof details.
 
 Rollback-sensitive releases can ask Torque to keep proof when Helm fails or a
 post-apply SLO gate is violated:
@@ -172,6 +199,7 @@ fallback, and review-ready outputs without touching a real cluster.
 - Live Apply Twin simulation with server-side dry-run proof, replay validation, and repair artifacts.
 - Observe-only Guardian runtime proof for drift, events, managed fields, and PR-ready repair evidence.
 - Observe-only Incident capture and replay for causal timelines, root-cause proof, and PR-ready repair evidence.
+- Runtime Contract synthesis and test proof for incident recurrence rules.
 - Verifier gates for charts, rendered manifests, and live namespaces.
 - Evidence-first secrets reports, source-to-live secret flow graphs, benchmark
   corpus metrics, and verifier security evidence bundles.

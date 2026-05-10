@@ -68,9 +68,20 @@ kubectl --kubeconfig "${KUBECONFIG_PATH}" -n "${NAMESPACE}" describe deploy "${F
 "${BIN}" incident explain --from "${OUT_DIR}/incident-replay-proof" --out "${OUT_DIR}/root-cause.json" --format json > "${OUT_DIR}/incident-explain.stdout.json"
 "${BIN}" incident pr --from "${OUT_DIR}/root-cause.json" --branch "fix/${RELEASE}-incident" --out "${OUT_DIR}/incident-fix" --format json > "${OUT_DIR}/incident-pr.stdout.json"
 
+"${BIN}" contract synthesize --from "${OUT_DIR}/incident-replay-proof" --guardian "${OUT_DIR}/drift-proof.json" --out "${OUT_DIR}/torque-contract.yaml" --format json > "${OUT_DIR}/contract-synthesize.stdout.json"
+"${BIN}" contract test --contract "${OUT_DIR}/torque-contract.yaml" --from "${OUT_DIR}/incident-replay-proof" --guardian "${OUT_DIR}/drift-proof.json" --out "${OUT_DIR}/contract-proof.json" --format json > "${OUT_DIR}/contract-test.stdout.json"
+if "${BIN}" contract test --contract "${OUT_DIR}/torque-contract.yaml" --from "${OUT_DIR}/incident-replay-proof" --guardian "${OUT_DIR}/drift-proof.json" --fail-on-blocked > "${OUT_DIR}/contract-test-fail.stdout" 2> "${OUT_DIR}/contract-test-fail.stderr"; then
+  echo "contract test --fail-on-blocked unexpectedly passed broken evidence" >&2
+  exit 1
+fi
+"${BIN}" contract pr --contract "${OUT_DIR}/torque-contract.yaml" --proof "${OUT_DIR}/contract-proof.json" --branch "add/${RELEASE}-runtime-contract" --out "${OUT_DIR}/contract-fix" --format json > "${OUT_DIR}/contract-pr.stdout.json"
+
 jq -e '.status == "drifted" and .blocked == true and .summary.changed == 1 and .summary.runtimeBoundaryFindings >= 1' "${OUT_DIR}/drift-proof.json" >/dev/null
 jq -e '.blocked == true and .primaryCause == "image_pull_failure"' "${OUT_DIR}/root-cause.json" >/dev/null
 jq -e '.observeOnly == true and .summary.resources >= 3 and .summary.boundaryFindings >= 1' "${OUT_DIR}/incident.torque" >/dev/null
+jq -e '.kind == "RuntimeContract" and (.spec.invariants | length) >= 5' "${OUT_DIR}/contract-synthesize.stdout.json" >/dev/null
+jq -e '.blocked == true and .summary.failed >= 5 and .summary.criticalFailures >= 1' "${OUT_DIR}/contract-proof.json" >/dev/null
+rg 'kind: RuntimeContract' "${OUT_DIR}/torque-contract.yaml" >/dev/null
 
 test -s "${OUT_DIR}/torque-runtime-proof/manifest.json"
 test -s "${OUT_DIR}/torque-runtime-proof/fix/pr.md"
@@ -79,8 +90,12 @@ test -s "${OUT_DIR}/incident-replay-proof/root-cause.json"
 test -s "${OUT_DIR}/incident-replay-proof/fix/pr.md"
 test -s "${OUT_DIR}/incident-fix/incident-fix.patch"
 test -s "${OUT_DIR}/incident-fix/pr.md"
+test -s "${OUT_DIR}/torque-contract.yaml"
+test -s "${OUT_DIR}/contract-proof.json"
+test -s "${OUT_DIR}/contract-fix/runtime-contract.patch"
+test -s "${OUT_DIR}/contract-fix/pr.md"
 
-if rg "${PLACEHOLDER_SECRET}" "${OUT_DIR}/drift-proof.json" "${OUT_DIR}/torque-runtime-proof" "${OUT_DIR}/incident.torque" "${OUT_DIR}/incident-replay-proof" "${OUT_DIR}/incident-fix" >/dev/null; then
+if rg "${PLACEHOLDER_SECRET}" "${OUT_DIR}/drift-proof.json" "${OUT_DIR}/torque-runtime-proof" "${OUT_DIR}/incident.torque" "${OUT_DIR}/incident-replay-proof" "${OUT_DIR}/incident-fix" "${OUT_DIR}/torque-contract.yaml" "${OUT_DIR}/contract-proof.json" "${OUT_DIR}/contract-fix" >/dev/null; then
   echo "E2E output leaked placeholder secret" >&2
   exit 1
 fi
@@ -90,4 +105,5 @@ echo "release=${RELEASE}"
 echo "guardian_status=$(jq -r '.status' "${OUT_DIR}/drift-proof.json")"
 echo "guardian_changed=$(jq -r '.summary.changed' "${OUT_DIR}/drift-proof.json") guardian_boundary=$(jq -r '.summary.runtimeBoundaryFindings' "${OUT_DIR}/drift-proof.json")"
 echo "incident_cause=$(jq -r '.primaryCause' "${OUT_DIR}/root-cause.json") incident_blocked=$(jq -r '.blocked' "${OUT_DIR}/root-cause.json")"
+echo "contract_failed=$(jq -r '.summary.failed' "${OUT_DIR}/contract-proof.json") contract_critical=$(jq -r '.summary.criticalFailures' "${OUT_DIR}/contract-proof.json")"
 echo "guardian_can_watch=$(cat "${OUT_DIR}/guardian-can-watch-pods.txt") guardian_can_patch=$(cat "${OUT_DIR}/guardian-can-patch-configmaps.txt")"
