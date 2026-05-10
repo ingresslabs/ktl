@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Blog | torque</title>
+    <meta
+      name="description"
+      content="Torque blog index with engineering notes and deployment case studies."
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #050505;
+        --surface: #0a0a0c;
+        --text: #ffffff;
+        --muted: #a0a0aa;
+        --muted-strong: #b8bdc4;
+        --accent: #edf1f5;
+        --line: rgba(255, 255, 255, 0.10);
+        --radius: 10px;
+        --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        --font-mono: "SF Mono", "Monaco", "Inconsolata", "Fira Code", ui-monospace, monospace;
+      }
+
+      * { box-sizing: border-box; }
+
+      html {
+        min-height: 100%;
+        background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      body {
+        min-height: 100%;
+        margin: 0;
+        color: var(--text);
+        background:
+          linear-gradient(rgba(255,255,255,0.034) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.034) 1px, transparent 1px),
+          linear-gradient(180deg, rgba(237,241,245,0.09), rgba(5,5,5,0.76) 36%, rgba(5,5,5,0.98)),
+          var(--bg);
+        background-size: 80px 80px, 80px 80px, auto, auto;
+        font: 16px/1.6 var(--font);
+        letter-spacing: 0;
+        overflow-x: hidden;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      a:hover { color: var(--accent); }
+
+      .page {
+        width: min(1180px, calc(100% - 48px));
+        margin: 0 auto;
+        min-height: 100svh;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 28px;
+        padding: 28px 0 36px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--text);
+        font-weight: 740;
+        font-size: 1.55rem;
+        line-height: 1;
+      }
+
+      .brand-mark {
+        width: 52px;
+        height: 52px;
+        color: currentColor;
+        flex: 0 0 auto;
+      }
+
+      nav {
+        display: flex;
+        gap: 28px;
+        align-items: center;
+        color: var(--muted);
+        font: 0.78rem/1 var(--font-mono);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 13px 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background:
+          linear-gradient(180deg, rgba(237, 241, 245, 0.08), rgba(184, 189, 196, 0.02)),
+          rgba(10, 10, 12, 0.70);
+      }
+
+      nav a.docs-link {
+        color: var(--text);
+        padding: 9px 12px;
+        margin: -9px -2px;
+        border: 1px solid rgba(237, 241, 245, 0.28);
+        border-radius: 8px;
+        background:
+          linear-gradient(180deg, rgba(237, 241, 245, 0.14), rgba(184, 189, 196, 0.04)),
+          rgba(16, 16, 20, 0.78);
+      }
+
+      main {
+        display: grid;
+        gap: clamp(42px, 7vw, 72px);
+        padding: 8px 0 66px;
+      }
+
+      .hero {
+        display: grid;
+        gap: 18px;
+        max-width: 900px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(3.25rem, 8vw, 7.1rem);
+        line-height: 0.91;
+        font-weight: 780;
+        letter-spacing: 0;
+      }
+
+      .lede {
+        margin: 0;
+        max-width: 760px;
+        color: var(--muted);
+        font-size: clamp(1.06rem, 1.55vw, 1.28rem);
+        line-height: 1.55;
+      }
+
+      .posts {
+        display: grid;
+        gap: 18px;
+        width: min(840px, 100%);
+      }
+
+      .post {
+        display: grid;
+        grid-template-columns: minmax(0, 0.45fr) minmax(0, 1fr);
+        gap: 18px;
+        padding: 20px 0;
+        border-top: 1px solid rgba(237, 241, 245, 0.12);
+      }
+
+      .post:last-child {
+        border-bottom: 1px solid rgba(237, 241, 245, 0.12);
+      }
+
+      .label {
+        color: var(--muted-strong);
+        font: 0.72rem/1 var(--font-mono);
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .post h2 {
+        margin: 0;
+        color: #ffffff;
+        font-size: clamp(1.45rem, 2.6vw, 2.2rem);
+        line-height: 1.08;
+      }
+
+      .post p {
+        margin: 10px 0 0;
+        color: #d7dbe0;
+        font-size: clamp(1rem, 1.35vw, 1.12rem);
+        line-height: 1.65;
+      }
+
+      .post a {
+        display: inline-block;
+        margin-top: 14px;
+        color: var(--text);
+        border-bottom: 1px solid rgba(237, 241, 245, 0.36);
+        font: 0.82rem/1.35 var(--font-mono);
+      }
+
+      footer {
+        margin-top: 48px;
+        min-height: 92px;
+        padding: 24px 0;
+        color: var(--muted);
+        border-top: 1px solid var(--line);
+        font: 0.72rem/1.45 var(--font-mono);
+        font-weight: 760;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+      }
+
+      @media (max-width: 720px) {
+        .page { width: min(100% - 28px, 1080px); }
+        header {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 22px;
+        }
+        nav {
+          gap: 14px;
+          flex-wrap: wrap;
+        }
+        .post {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <a class="brand" href="./" aria-label="torque home">
+          <svg class="brand-mark" viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false">
+            <path d="M24 5.5 42.5 24 24 42.5 5.5 24Z" stroke="currentColor" stroke-width="2.8" stroke-linejoin="round"></path>
+            <path d="M18 19h12" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"></path>
+            <path d="M24 19v12" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"></path>
+          </svg>
+          <span>torque</span>
+        </a>
+        <nav aria-label="Primary">
+          <a class="docs-link" href="./docs.html">Docs</a>
+          <a href="./blog.html">Blog</a>
+          <a href="https://github.com/ingresslabs/torque">GitHub</a>
+          <a href="https://github.com/ingresslabs/torque/releases">Releases</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="hero" aria-labelledby="title">
+          <h1 id="title">Torque Blog</h1>
+          <p class="lede">Engineering notes and case studies from real build, verify, plan, apply, and debugging workflows.</p>
+        </section>
+
+        <section class="posts" aria-label="Blog posts">
+          <article class="post">
+            <div class="label">Field note</div>
+            <div>
+              <h2>Atlassian Data Center As A Torque Stack</h2>
+              <p>Deploy Atlassian Data Center charts with Torque, convert the release commands into a stack, add secret:// references, generate HTML verifier and Helmer evidence, build custom images, and debug the live rollout with torque logs.</p>
+              <a href="./blog-atlassian-torque-case-study.html">Read the case study</a>
+            </div>
+          </article>
+
+          <article class="post">
+            <div class="label">Engineering note</div>
+            <div>
+              <h2>One Torque Talking To Another</h2>
+              <p>A practical pattern for agent-driven delivery through the MCP remote bridge, systemd daemon install path, and S3 BuildKit cache advisor workflow.</p>
+              <a href="./blog-mcp-s3-cache.html">Read the engineering note</a>
+            </div>
+          </article>
+        </section>
+      </main>
+
+      <footer>Reviewable delivery, agent-ready.</footer>
+    </div>
+  </body>
+</html>

@@ -270,44 +270,30 @@
         border-bottom: 0;
       }
 
-      .log-tip-list {
+      .logs-examples {
         display: grid;
         gap: 14px;
+        margin: clamp(8px, 2vw, 18px) 0 clamp(18px, 4vw, 34px);
+      }
+
+      .logs-examples h2 {
         margin: 0;
-        padding: 0;
-        list-style: none;
-      }
-
-      .log-tip-list li {
-        min-width: 0;
-        padding: 14px;
-        border: 1px solid rgba(237, 241, 245, 0.14);
-        border-radius: 7px;
-        background: rgba(237, 241, 245, 0.04);
-      }
-
-      .log-tip-list strong {
-        display: block;
         color: #ffffff;
-        font-size: 0.98rem;
-        line-height: 1.25;
+        font-size: clamp(1.25rem, 2vw, 1.8rem);
+        line-height: 1.12;
       }
 
-      .log-tip-list span {
-        display: block;
-        margin-top: 6px;
-        color: var(--muted);
-        font-size: 0.94rem;
-        line-height: 1.55;
+      .log-cut {
+        border-top: 0;
+        padding-top: 0;
       }
 
-      .log-tip-list pre {
-        margin: 12px 0 0;
-        padding: 12px;
+      .log-cut pre {
+        margin: 14px 0 0;
+        padding: 0;
         color: #f7f9fb;
-        border: 1px solid rgba(237, 241, 245, 0.12);
-        border-radius: 6px;
-        background: rgba(0, 0, 0, 0.62);
+        border: 0;
+        background: transparent;
         font: 0.76rem/1.45 var(--font-mono);
         white-space: pre-wrap;
         overflow-wrap: anywhere;
@@ -413,7 +399,7 @@
         </a>
         <nav aria-label="Primary">
           <a class="docs-link" href="./docs.html">Docs</a>
-          <a href="./blog-mcp-s3-cache.html">Blog</a>
+          <a href="./blog.html">Blog</a>
           <a href="https://github.com/ingresslabs/torque">GitHub</a>
           <a href="https://github.com/ingresslabs/torque/releases">Releases</a>
         </nav>
@@ -421,7 +407,6 @@
 
       <main>
         <section class="article-hero" aria-labelledby="title">
-          <div class="eyebrow">Case study</div>
           <h1 id="title">Atlassian Data Center As A Torque Stack</h1>
           <p class="dek">
             A simple field note from a two-node k3s lab: start with Atlassian
@@ -432,6 +417,8 @@
         </section>
 
         <article class="article-body" aria-label="Article">
+          <p>Torque cuts DevOps tool sprawl and restores development velocity for agentic delivery flows.</p>
+
           <p>The starting point was intentionally ordinary: the public Atlassian Data Center Helm charts, a pair of Linux hosts, and a need to prove that a real multi-application stack could be shipped without falling back to a hand-written runbook. The target stack was not a toy. It included Jira, Confluence, Bitbucket, Bamboo, Crowd, a Bamboo agent, PostgreSQL backing databases, and shared storage for the products that need it. That mix is useful because it behaves like enterprise software usually behaves: stateful services, chart defaults, long startup times, product setup screens, secret material, persistent volumes, and several places where a deployment tool has to show its work.</p>
 
           <p>The first pass was direct. I installed k3s across the two hosts, prepared NFS-backed shared storage, pulled the Atlassian charts from <code>atlassian/data-center-helm-charts</code>, and used Torque to apply each release. That step mattered because it kept the baseline boring. Before turning the setup into a stack, I wanted to know the charts rendered, the services came up, the NodePorts were reachable, and the product pods could get to their databases. Torque was already useful there because the apply path gave me a consistent release loop and verifier output instead of a collection of one-off Helm commands.</p>
@@ -466,49 +453,33 @@
 
           <p>The next problem was secrets. Plaintext database passwords in values files are exactly the kind of shortcut that becomes permanent if nobody removes it early. I added a local Torque secret provider and changed the prerequisite values to use <code>secret://local/...</code> references for the database passwords and Bamboo agent security token. One practical lesson came out of that work: secret resolution belongs in the supplied values path, not buried in a chart default file that the deploy tool does not own. Moving the references into the explicit values file made the behavior obvious, and the generated Kubernetes Secrets were then checked to confirm that the cluster received resolved values instead of literal <code>secret://</code> strings.</p>
 
-          <p>With the stack and secret provider in place, the deployment path became stricter. I used verifier in blocking mode with <code>--mode block --fail-on high</code>, generated per-release evidence, and required that evidence before apply. The actual apply path used <code>--require-verified</code> and <code>--drift-guard</code>, so the rollout had to match the verified plan instead of silently accepting a changed render. Helmer was used beside that flow to produce plan JSON for review. In practice, this is the part that makes a Torque case study different from a normal install note. The output is not just "the pods are running"; it is a bundle of stack files, rendered plans, verifier reports, and apply evidence that another operator can inspect later.</p>
+          <p>With the stack and secret provider in place, the deployment path became stricter. I used verifier in blocking mode with <code>--mode block --fail-on high</code>, generated per-release evidence, and required that evidence before apply. The actual apply path used <code>--require-verified</code> and <code>--drift-guard</code>, so the rollout had to match the verified plan instead of silently accepting a changed render. Helmer was used beside that flow to produce HTML plans for review. In practice, this is the part that makes a Torque case study different from a normal install note. The output is not just "the pods are running"; it is a bundle of stack files, rendered plans, verifier reports, and apply evidence that another operator can inspect later.</p>
 
           <p>I also built custom images for the same stack. The goal was not to fork Atlassian products or bake configuration into images. The goal was to prove that Torque could own the image build step as part of the same delivery story. The Dockerfiles pinned the upstream Atlassian, PostgreSQL, and NFS provisioner bases by digest, added only small operational changes where useful, and ran through Torque build with secret scanning enabled. The Bamboo agent image is the clearest example: it keeps the upstream agent base but adds common diagnostic and CI tools such as <code>curl</code>, <code>git</code>, <code>jq</code>, <code>openssh-client</code>, <code>tar</code>, and <code>unzip</code>. The built OCI layouts were imported into k3s containerd on both nodes and then referenced from the stack values as <code>torque.local/atlassian/...</code> images.</p>
 
           <p>There were two useful debugging moments. First, generated reports showed that some chart warnings were acceptable for this lab only because the verifier gate was set to fail on high and above, not because all findings should be ignored in production. Second, one image build tripped a secret scanner false positive on packaged OpenSSH binaries inside the Bitbucket image. That is exactly the kind of case where policy should be adjustable but not disabled. I added a small scanner rules file that kept build argument and log scanning strict while avoiding that OCI-content false positive.</p>
 
-          <section class="evidence-panel" aria-labelledby="logs-title">
-            <h2 id="logs-title">Advanced Torque logs tips from this run</h2>
-            <p><code>torque logs</code> was the fastest way to separate Kubernetes problems from Atlassian first-run behavior. The same command can watch active ReplicaSets, include Kubernetes events, filter unhealthy pods, or follow a dependency chain from the stack file. I kept capture off during normal checks and only added it when the log stream needed to become durable evidence.</p>
-            <ul class="log-tip-list">
-              <li>
-                <strong>Follow an app rollout with events beside logs.</strong>
-                <span>For a stateful Atlassian product restart, include events and highlight the words that usually explain scheduling, image, and startup failures.</span>
-                <pre><code>torque logs deploy/jira -n atlassian --events --tail 80 --highlight 'ERROR|FATAL|Failed|ImagePull|BackOff'</code></pre>
-              </li>
-              <li>
-                <strong>Debug only the active Bamboo agent ReplicaSet.</strong>
-                <span>The Bamboo agent was expected to loop until Bamboo first-run setup was complete. Pinning to the active deployment view kept old ReplicaSet noise out of the session.</span>
-                <pre><code>torque logs deploy/bamboo-agent -n atlassian --deploy-mode active --events --tail 60 --highlight 'FATAL|fingerprint|setup|redirect'</code></pre>
-              </li>
-              <li>
-                <strong>Look across the namespace for pods that are not ready.</strong>
-                <span>This is useful after a stack apply because it catches app pods, database pods, and agents without guessing names first.</span>
-                <pre><code>torque logs -n atlassian --condition ready=false --events --tail 30 --exclude 'healthcheck|heartbeat'</code></pre>
-              </li>
-              <li>
-                <strong>Pull dependency context from the stack file.</strong>
-                <span>When an app complains about storage or the database, add <code>--deps</code> with the stack config so the log view follows the app and its declared prerequisites together.</span>
-                <pre><code>torque logs jira -n atlassian --config ./stack.yaml --deps --events --tail 60</code></pre>
-              </li>
-              <li>
-                <strong>Capture only the hard debugging sessions.</strong>
-                <span>For normal rollout checks, plain streaming is enough. For a case that needs handoff or later review, write a SQLite capture and attach it beside verifier and Helmer reports.</span>
-                <pre><code>torque logs deploy/bamboo-agent -n atlassian --events --tail 200 --capture ./reports/logs/bamboo-agent.sqlite</code></pre>
-              </li>
-            </ul>
+          <section class="logs-examples" aria-labelledby="logs-title">
+            <h2 id="logs-title">Advanced Torque logs examples</h2>
+            <details class="log-cut">
+              <summary>Show examples</summary>
+              <pre><code>torque logs deploy/jira -n atlassian --events --tail 80 --highlight 'ERROR|FATAL|Failed|ImagePull|BackOff'
+
+torque logs deploy/bamboo-agent -n atlassian --deploy-mode active --events --tail 60 --highlight 'FATAL|fingerprint|setup|redirect'
+
+torque logs -n atlassian --condition ready=false --events --tail 30 --exclude 'healthcheck|heartbeat'
+
+torque logs jira -n atlassian --config ./stack.yaml --deps --events --tail 60
+
+torque logs deploy/bamboo-agent -n atlassian --events --tail 200 --capture ./reports/logs/bamboo-agent.sqlite</code></pre>
+            </details>
           </section>
 
           <p>The result is a repeatable path for a difficult stack. Atlassian first-run screens and license entry still exist, and Bamboo agents still depend on Bamboo being initialized. Torque does not remove product lifecycle steps. What it does is make the infrastructure side reviewable: the charts are rendered through one path, secrets come from a provider, verifier decides whether the release can proceed, drift guard protects the apply, Helmer produces readable plan evidence, and image builds can be attached to the same operational story. That is the practical value: less magic, more files, and a deployment that can be replayed without depending on terminal memory.</p>
 
           <section class="evidence-panel" aria-labelledby="evidence-title">
             <h2 id="evidence-title">Stack files and evidence</h2>
-            <p>The attachments below are sanitized. They include stack and values files with <code>secret://</code> references, not resolved secret values. Reports are the generated verifier and Helmer artifacts used during the case study.</p>
+            <p>The attachments below are sanitized. They include stack and values files with <code>secret://</code> references, not resolved secret values. Verifier and Helmer attachments are HTML-only reports used during the case study.</p>
             <details open>
               <summary>Stack files</summary>
               <div class="evidence-list">
@@ -528,26 +499,26 @@
             <details>
               <summary>Verifier reports</summary>
               <div class="evidence-list">
-                <a href="./showcase/atlassian/reports/verifier-atlassian-prereqs.json">verifier-atlassian-prereqs.json</a>
-                <a href="./showcase/atlassian/reports/verifier-nfs-client.json">verifier-nfs-client.json</a>
-                <a href="./showcase/atlassian/reports/verifier-jira.json">verifier-jira.json</a>
-                <a href="./showcase/atlassian/reports/verifier-confluence.json">verifier-confluence.json</a>
-                <a href="./showcase/atlassian/reports/verifier-bitbucket.json">verifier-bitbucket.json</a>
-                <a href="./showcase/atlassian/reports/verifier-bamboo.json">verifier-bamboo.json</a>
-                <a href="./showcase/atlassian/reports/verifier-crowd.json">verifier-crowd.json</a>
-                <a href="./showcase/atlassian/reports/verifier-bamboo-agent.json">verifier-bamboo-agent.json</a>
+                <a href="./showcase/atlassian/reports/verifier-atlassian-prereqs.html">verifier-atlassian-prereqs.html</a>
+                <a href="./showcase/atlassian/reports/verifier-nfs-client.html">verifier-nfs-client.html</a>
+                <a href="./showcase/atlassian/reports/verifier-jira.html">verifier-jira.html</a>
+                <a href="./showcase/atlassian/reports/verifier-confluence.html">verifier-confluence.html</a>
+                <a href="./showcase/atlassian/reports/verifier-bitbucket.html">verifier-bitbucket.html</a>
+                <a href="./showcase/atlassian/reports/verifier-bamboo.html">verifier-bamboo.html</a>
+                <a href="./showcase/atlassian/reports/verifier-crowd.html">verifier-crowd.html</a>
+                <a href="./showcase/atlassian/reports/verifier-bamboo-agent.html">verifier-bamboo-agent.html</a>
               </div>
             </details>
             <details>
               <summary>Helmer plans</summary>
               <div class="evidence-list">
-                <a href="./showcase/atlassian/reports/helmer-nfs-client-plan.json">helmer-nfs-client-plan.json</a>
-                <a href="./showcase/atlassian/reports/helmer-jira-plan.json">helmer-jira-plan.json</a>
-                <a href="./showcase/atlassian/reports/helmer-confluence-plan.json">helmer-confluence-plan.json</a>
-                <a href="./showcase/atlassian/reports/helmer-bitbucket-plan.json">helmer-bitbucket-plan.json</a>
-                <a href="./showcase/atlassian/reports/helmer-bamboo-plan.json">helmer-bamboo-plan.json</a>
-                <a href="./showcase/atlassian/reports/helmer-crowd-plan.json">helmer-crowd-plan.json</a>
-                <a href="./showcase/atlassian/reports/helmer-bamboo-agent-plan.json">helmer-bamboo-agent-plan.json</a>
+                <a href="./showcase/atlassian/reports/helmer-nfs-client-plan.html">helmer-nfs-client-plan.html</a>
+                <a href="./showcase/atlassian/reports/helmer-jira-plan.html">helmer-jira-plan.html</a>
+                <a href="./showcase/atlassian/reports/helmer-confluence-plan.html">helmer-confluence-plan.html</a>
+                <a href="./showcase/atlassian/reports/helmer-bitbucket-plan.html">helmer-bitbucket-plan.html</a>
+                <a href="./showcase/atlassian/reports/helmer-bamboo-plan.html">helmer-bamboo-plan.html</a>
+                <a href="./showcase/atlassian/reports/helmer-crowd-plan.html">helmer-crowd-plan.html</a>
+                <a href="./showcase/atlassian/reports/helmer-bamboo-agent-plan.html">helmer-bamboo-agent-plan.html</a>
               </div>
             </details>
           </section>
