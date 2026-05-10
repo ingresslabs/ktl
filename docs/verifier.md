@@ -50,11 +50,11 @@ commands, args, and probe fields. Evidence bundles also write
 `boundary.matrix.json`.
 
 Add `--secret-flow-graph` when you want the secrets report and evidence bundle
-to include a redacted graph of source, Kubernetes/runtime boundary, and report
-redaction edges. The graph proves whether a detected value reached a forbidden
-boundary, whether it was reported only as a redacted preview, and whether
-allowed Kubernetes Secret material or references stayed inside approved
-boundaries.
+to include a redacted graph of values input, Helm template, rendered object,
+live Kubernetes object, boundary, and report redaction edges. The graph proves
+whether a detected value reached a forbidden boundary, whether it was reported
+only as a redacted preview, and whether allowed Kubernetes Secret material or
+references stayed inside approved boundaries.
 
 Run the benchmark corpus before making detector-quality claims:
 
@@ -63,8 +63,9 @@ torque security benchmark --corpus ./testdata/security --report benchmark.json
 ```
 
 The benchmark publishes recall by secret family, precision by file type, false
-positive rate, runtime cost, redaction escape count, flow graph size, and live
-k3s boundary matrix status when the live probe is enabled.
+positive rate, runtime cost, redaction escape count, flow graph size,
+provenance-chain count, and live k3s boundary matrix status when the live probe
+is enabled.
 
 The older `verify` binary remains available for existing CI scripts, but new docs and examples use `verifier`.
 

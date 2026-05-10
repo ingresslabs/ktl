@@ -162,12 +162,21 @@ func runRenderSecretScan(ctx context.Context, kubeconfig, kubeContext *string, c
 	if kubeContext != nil {
 		kctx = *kubeContext
 	}
-	objects, _, _, err := cfg.LoadObjects(ctx, cwd, kcfg, kctx, nil)
+	objects, renderedManifest, _, err := cfg.LoadObjects(ctx, cwd, kcfg, kctx, nil)
 	if err != nil {
 		return nil, err
 	}
 	opts.Stage = "render"
+	if strings.EqualFold(strings.TrimSpace(cfg.Target.Kind), "namespace") {
+		opts.Stage = "live"
+	}
 	opts.Source = cfg.TargetLabel()
+	opts.TargetKind = strings.ToLower(strings.TrimSpace(cfg.Target.Kind))
+	opts.ValuesFiles = append([]string(nil), cfg.Target.Chart.ValuesFiles...)
+	opts.RenderedSource = renderedManifest
+	if strings.EqualFold(strings.TrimSpace(cfg.Target.Kind), "manifest") {
+		opts.RenderedPath = cfg.Target.Manifest
+	}
 	return verify.ScanRenderedSecrets(objects, opts)
 }
 

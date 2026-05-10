@@ -121,8 +121,8 @@ fallback, and review-ready outputs without touching a real cluster.
 - MCP cache advisor tools for structured cache inspect, plan, and warm actions.
 - Helm release plans with Markdown, JSON, and rich HTML plan reports.
 - Verifier gates for charts, rendered manifests, and live namespaces.
-- Evidence-first secrets reports, secret flow graphs, benchmark corpus metrics,
-  and verifier security evidence bundles.
+- Evidence-first secrets reports, source-to-live secret flow graphs, benchmark
+  corpus metrics, and verifier security evidence bundles.
 - Predictive apply risk scoring and proof bundles for plan-to-rollout evidence.
 - Failure-to-fix repair plans that turn proof bundles into chart patches and PR bodies.
 - Auto rollback proof for failed applies and rollout SLO gates.

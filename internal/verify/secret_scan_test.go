@@ -249,6 +249,90 @@ spec:
 	}
 }
 
+func TestScanRenderedSecretsBuildsSourceToRenderedProvenance(t *testing.T) {
+	manifest := `
+# Source: app/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: prod
+data:
+  awsAccessKey: AKIA1234567890ABCDEF
+`
+	objects, err := DecodeK8SYAMLWithHelmSources(manifest)
+	if err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	report, err := ScanRenderedSecrets(objects, SecretScanOptions{
+		Mode:           ModeWarn,
+		FailOn:         SeverityHigh,
+		Source:         "chart ./app",
+		TargetKind:     "chart",
+		ValuesFiles:    []string{"values.yaml"},
+		RenderedPath:   "rendered.yaml",
+		RenderedSource: manifest,
+		FlowGraph:      true,
+		EvaluatedAt:    time.Date(2026, 5, 10, 12, 0, 0, 0, time.UTC),
+	})
+	if err != nil {
+		t.Fatalf("scan: %v", err)
+	}
+	graph := report.FlowGraph
+	if graph == nil {
+		t.Fatalf("missing flow graph")
+	}
+	if graph.Summary.ValuesSources != 1 {
+		t.Fatalf("values sources=%d, want 1: %#v", graph.Summary.ValuesSources, graph)
+	}
+	if graph.Summary.TemplateSources != 1 {
+		t.Fatalf("template sources=%d, want 1: %#v", graph.Summary.TemplateSources, graph)
+	}
+	if graph.Summary.RenderedObjects != 1 {
+		t.Fatalf("rendered objects=%d, want 1: %#v", graph.Summary.RenderedObjects, graph)
+	}
+	assertSecretFlowEdgeKind(t, graph, "values_to_template")
+	assertSecretFlowEdgeKind(t, graph, "template_to_rendered")
+	assertSecretFlowNodeKind(t, graph, "rendered_object")
+}
+
+func TestScanRenderedSecretsBuildsLiveObjectProvenance(t *testing.T) {
+	objects, err := DecodeK8SYAML(`
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: live-config
+  namespace: prod
+data:
+  awsAccessKey: AKIA1234567890ABCDEF
+`)
+	if err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	report, err := ScanRenderedSecrets(objects, SecretScanOptions{
+		Mode:        ModeWarn,
+		FailOn:      SeverityHigh,
+		Source:      "namespace prod",
+		TargetKind:  "namespace",
+		FlowGraph:   true,
+		EvaluatedAt: time.Date(2026, 5, 10, 12, 0, 0, 0, time.UTC),
+	})
+	if err != nil {
+		t.Fatalf("scan: %v", err)
+	}
+	graph := report.FlowGraph
+	if graph == nil {
+		t.Fatalf("missing flow graph")
+	}
+	if graph.Summary.LiveObjects != 1 {
+		t.Fatalf("live objects=%d, want 1: %#v", graph.Summary.LiveObjects, graph)
+	}
+	if graph.Summary.RenderedObjects != 0 {
+		t.Fatalf("rendered objects=%d, want 0 for live scan: %#v", graph.Summary.RenderedObjects, graph)
+	}
+	assertSecretFlowNodeKind(t, graph, "live_object")
+}
+
 func TestScanTextSecretsRedactsReport(t *testing.T) {
 	report, err := ScanTextSecrets([]SecretTextInput{{
 		Path:    "values/prod.yaml",
@@ -268,6 +352,26 @@ func TestScanTextSecretsRedactsReport(t *testing.T) {
 	if strings.Contains(string(raw), "ghp_1234567890abcdefghijklmnopqr") {
 		t.Fatalf("text report leaked raw token: %s", raw)
 	}
+}
+
+func assertSecretFlowNodeKind(t *testing.T, graph *SecretFlowGraph, kind string) {
+	t.Helper()
+	for _, node := range graph.Nodes {
+		if node.Kind == kind {
+			return
+		}
+	}
+	t.Fatalf("missing flow node kind %s in %#v", kind, graph.Nodes)
+}
+
+func assertSecretFlowEdgeKind(t *testing.T, graph *SecretFlowGraph, kind string) {
+	t.Helper()
+	for _, edge := range graph.Edges {
+		if edge.Kind == kind {
+			return
+		}
+	}
+	t.Fatalf("missing flow edge kind %s in %#v", kind, graph.Edges)
 }
 
 func assertBoundaryRow(t *testing.T, matrix *SecurityBoundaryMatrix, surface string, boundary string, status string, minFindings int) {

@@ -834,6 +834,7 @@ false positive rate by file type
 runtime cost
 redaction escape count
 secret flow graph nodes/edges
+source-to-live provenance chains
 live k3s boundary matrix pass/fail
 verifier rule recall by risk category
 finding fingerprint stability

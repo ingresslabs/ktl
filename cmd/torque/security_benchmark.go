@@ -77,6 +77,8 @@ type securityBenchmarkSummary struct {
 	RedactionEscapeCount    int     `json:"redactionEscapeCount"`
 	FlowGraphNodes          int     `json:"flowGraphNodes"`
 	FlowGraphEdges          int     `json:"flowGraphEdges"`
+	ProvenanceChains        int     `json:"provenanceChains"`
+	LiveObjects             int     `json:"liveObjects"`
 	BoundaryMatrixPassCount int     `json:"boundaryMatrixPassCount"`
 	BoundaryMatrixFailCount int     `json:"boundaryMatrixFailCount"`
 }
@@ -108,6 +110,8 @@ type securityBenchmarkCaseResult struct {
 	RedactionEscapes     int            `json:"redactionEscapes"`
 	FlowGraphNodes       int            `json:"flowGraphNodes"`
 	FlowGraphEdges       int            `json:"flowGraphEdges"`
+	ProvenanceChains     int            `json:"provenanceChains"`
+	LiveObjects          int            `json:"liveObjects"`
 	BoundaryMatrixPassed *bool          `json:"boundaryMatrixPassed,omitempty"`
 	FindingRules         map[string]int `json:"findingRules,omitempty"`
 	Error                string         `json:"error,omitempty"`
@@ -121,6 +125,8 @@ type securityBenchmarkLiveBoundaryMatrix struct {
 	BoundaryMatrixPassed bool   `json:"boundaryMatrixPassed,omitempty"`
 	FlowGraphNodes       int    `json:"flowGraphNodes,omitempty"`
 	FlowGraphEdges       int    `json:"flowGraphEdges,omitempty"`
+	ProvenanceChains     int    `json:"provenanceChains,omitempty"`
+	LiveObjects          int    `json:"liveObjects,omitempty"`
 	Error                string `json:"error,omitempty"`
 }
 
@@ -312,6 +318,8 @@ func runSecurityBenchmarkCase(ctx context.Context, kubeconfig, kubeContext *stri
 	if scan.FlowGraph != nil {
 		result.FlowGraphNodes = scan.FlowGraph.Summary.Nodes
 		result.FlowGraphEdges = scan.FlowGraph.Summary.Edges
+		result.ProvenanceChains = scan.FlowGraph.Summary.ProvenanceChains
+		result.LiveObjects = scan.FlowGraph.Summary.LiveObjects
 	}
 	if scan.BoundaryMatrix != nil {
 		passed := scan.BoundaryMatrix.Passed
@@ -378,6 +386,8 @@ func mergeSecurityBenchmarkResult(report *securityBenchmarkReport, spec security
 	report.Summary.RedactionEscapeCount += result.RedactionEscapes
 	report.Summary.FlowGraphNodes += result.FlowGraphNodes
 	report.Summary.FlowGraphEdges += result.FlowGraphEdges
+	report.Summary.ProvenanceChains += result.ProvenanceChains
+	report.Summary.LiveObjects += result.LiveObjects
 	if result.BoundaryMatrixPassed != nil {
 		if *result.BoundaryMatrixPassed {
 			report.Summary.BoundaryMatrixPassCount++
@@ -532,6 +542,8 @@ func runSecurityBenchmarkLiveBoundaryMatrix(ctx context.Context, kubeconfig, kub
 	if scan.FlowGraph != nil {
 		live.FlowGraphNodes = scan.FlowGraph.Summary.Nodes
 		live.FlowGraphEdges = scan.FlowGraph.Summary.Edges
+		live.ProvenanceChains = scan.FlowGraph.Summary.ProvenanceChains
+		live.LiveObjects = scan.FlowGraph.Summary.LiveObjects
 	}
 	live.Passed = scan.BoundaryMatrix != nil && scan.BoundaryMatrix.Passed && scan.FlowGraph != nil && scan.FlowGraph.Summary.ForbiddenFlows > 0
 	if !live.Passed {
@@ -635,7 +647,7 @@ func renderSecurityBenchmarkText(w interface{ Write([]byte) (int, error) }, repo
 	}
 	_, _ = fmt.Fprintf(w, "Security benchmark: %d cases (%d passed, %d failed)\n", report.Summary.Cases, report.Summary.Passed, report.Summary.Failed)
 	_, _ = fmt.Fprintf(w, "Recall: %.3f  Precision: %.3f  False positive rate: %.3f\n", report.Summary.Recall, report.Summary.Precision, report.Summary.FalsePositiveRate)
-	_, _ = fmt.Fprintf(w, "Runtime: %dms  Redaction escapes: %d  Flow graph: %d nodes / %d edges\n", report.Summary.RuntimeMillis, report.Summary.RedactionEscapeCount, report.Summary.FlowGraphNodes, report.Summary.FlowGraphEdges)
+	_, _ = fmt.Fprintf(w, "Runtime: %dms  Redaction escapes: %d  Flow graph: %d nodes / %d edges / %d provenance chains\n", report.Summary.RuntimeMillis, report.Summary.RedactionEscapeCount, report.Summary.FlowGraphNodes, report.Summary.FlowGraphEdges, report.Summary.ProvenanceChains)
 	if report.LiveK3SBoundaryMatrix.Status != "" && report.LiveK3SBoundaryMatrix.Status != "skipped" {
 		_, _ = fmt.Fprintf(w, "Live k3s boundary matrix: %s (namespace=%s)\n", report.LiveK3SBoundaryMatrix.Status, report.LiveK3SBoundaryMatrix.Namespace)
 	}

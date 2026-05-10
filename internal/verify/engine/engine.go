@@ -176,6 +176,10 @@ func Run(ctx context.Context, cfg *cfgpkg.Config, baseDir string, opts Options) 
 		}
 		if err := timer.Track("secrets", func() error {
 			var err error
+			renderedPath := ""
+			if strings.EqualFold(strings.TrimSpace(cfg.Target.Kind), "manifest") {
+				renderedPath = strings.TrimSpace(cfg.Target.Manifest)
+			}
 			secretReport, err = verify.ScanRenderedSecrets(objs, verify.SecretScanOptions{
 				Mode:           verify.Mode(strings.ToLower(strings.TrimSpace(cfg.Verify.Secrets.Mode))),
 				FailOn:         verify.Severity(strings.ToLower(strings.TrimSpace(cfg.Verify.Secrets.FailOn))),
@@ -185,6 +189,10 @@ func Run(ctx context.Context, cfg *cfgpkg.Config, baseDir string, opts Options) 
 				Surface:        "verifier.report",
 				BoundaryMatrix: cfg.Verify.SecurityBoundaryMatrix,
 				FlowGraph:      cfg.Verify.SecretFlowGraph,
+				TargetKind:     strings.ToLower(strings.TrimSpace(cfg.Target.Kind)),
+				ValuesFiles:    append([]string(nil), cfg.Target.Chart.ValuesFiles...),
+				RenderedPath:   renderedPath,
+				RenderedSource: renderedManifest,
 				EvaluatedAt:    now(),
 			})
 			if err != nil {

@@ -417,6 +417,9 @@ func assertSecurityE2EFlowGraph(t *testing.T, graph *verify.SecretFlowGraph) {
 	if graph.Summary.RawSecretStored {
 		t.Fatalf("flow graph marked raw secret stored: %#v", graph)
 	}
+	if graph.Summary.LiveObjects < 1 {
+		t.Fatalf("expected live object provenance in graph: %#v", graph)
+	}
 }
 
 func assertSecurityE2EMatrixRow(t *testing.T, matrix *verify.SecurityBoundaryMatrix, surface, boundary, status string, minFindings int) {

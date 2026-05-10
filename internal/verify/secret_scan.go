@@ -23,6 +23,10 @@ type SecretScanOptions struct {
 	Surface        string
 	BoundaryMatrix bool
 	FlowGraph      bool
+	TargetKind     string
+	ValuesFiles    []string
+	RenderedPath   string
+	RenderedSource string
 	EvaluatedAt    time.Time
 }
 
@@ -97,6 +101,7 @@ type secretCandidate struct {
 	subject    Subject
 	resource   string
 	kind       string
+	template   string
 	allowed    bool
 	reference  bool
 	decoded    bool
@@ -123,12 +128,14 @@ type secretFlowEvent struct {
 	Subject      Subject
 	FieldPath    string
 	Location     string
+	Template     string
 	RuleID       string
 	Detector     string
 	Preview      string
 	Fingerprint  string
 	Boundary     string
 	Surface      string
+	TargetKind   string
 	RawStored    bool
 }
 
@@ -150,12 +157,18 @@ func ScanRenderedSecrets(objects []map[string]any, opts SecretScanOptions) (*Sec
 		}
 		subj := subjectFromObject(obj)
 		kind := strings.TrimSpace(subj.Kind)
+		template := strings.TrimSpace(toString(obj["__torque_source"]))
+		stage := firstNonEmptyString(opts.Stage, "render")
+		if strings.EqualFold(strings.TrimSpace(opts.TargetKind), "namespace") {
+			stage = "live"
+		}
 		state.walkObject(obj, nil, secretCandidate{
-			stage:    firstNonEmptyString(opts.Stage, "render"),
-			source:   firstNonEmptyString(opts.Source, "rendered manifest"),
+			stage:    stage,
+			source:   firstNonEmptyString(template, opts.RenderedPath, opts.Source, "rendered manifest"),
 			subject:  subj,
 			resource: resourceKey(subj),
 			kind:     kind,
+			template: template,
 		})
 	}
 	report := state.report()
