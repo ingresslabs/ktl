@@ -127,14 +127,20 @@
       }
 
       .post {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr);
-        padding: 20px 0;
         border-top: 1px solid rgba(237, 241, 245, 0.12);
       }
 
       .post:last-child {
         border-bottom: 1px solid rgba(237, 241, 245, 0.12);
+      }
+
+      .post-link {
+        display: block;
+        padding: 20px 0;
+      }
+
+      .post-link:hover h2 {
+        color: var(--accent);
       }
 
       .post h2 {
@@ -144,28 +150,11 @@
         line-height: 1.08;
       }
 
-      .post h2 a {
-        color: inherit;
-        border-bottom: 0;
-      }
-
       .post p {
         margin: 10px 0 0;
         color: #d7dbe0;
         font-size: clamp(1rem, 1.35vw, 1.12rem);
         line-height: 1.65;
-      }
-
-      footer {
-        margin-top: 48px;
-        min-height: 92px;
-        padding: 24px 0;
-        color: var(--muted);
-        border-top: 1px solid var(--line);
-        font: 0.72rem/1.45 var(--font-mono);
-        font-weight: 760;
-        letter-spacing: 0.07em;
-        text-transform: uppercase;
       }
 
       @media (max-width: 720px) {
@@ -178,9 +167,6 @@
         nav {
           gap: 14px;
           flex-wrap: wrap;
-        }
-        .post {
-          grid-template-columns: minmax(0, 1fr);
         }
       }
     </style>
@@ -207,22 +193,20 @@
       <main>
         <section class="posts" aria-label="Blog posts">
           <article class="post">
-            <div>
-              <h2><a href="./blog-atlassian-torque-case-study.html">Atlassian Data Center As A Torque Stack</a></h2>
+            <a class="post-link" href="./blog-atlassian-torque-case-study.html">
+              <h2>Atlassian Data Center As A Torque Stack</h2>
               <p>Deploy Atlassian Data Center charts with Torque, convert the release commands into a stack, add secret:// references, generate HTML verifier and Helmer evidence, build custom images, and debug the live rollout with torque logs.</p>
-            </div>
+            </a>
           </article>
 
           <article class="post">
-            <div>
-              <h2><a href="./blog-mcp-s3-cache.html">One Torque Talking To Another</a></h2>
+            <a class="post-link" href="./blog-mcp-s3-cache.html">
+              <h2>One Torque Talking To Another</h2>
               <p>A practical pattern for agent-driven delivery through the MCP remote bridge, systemd daemon install path, and S3 BuildKit cache advisor workflow.</p>
-            </div>
+            </a>
           </article>
         </section>
       </main>
-
-      <footer>Reviewable delivery, agent-ready.</footer>
     </div>
   </body>
 </html>

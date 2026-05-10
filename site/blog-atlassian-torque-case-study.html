@@ -262,8 +262,11 @@
       }
 
       .preface-figure figcaption {
+        width: 100%;
         color: var(--muted);
         font: 0.76rem/1.35 var(--font-mono);
+        justify-self: center;
+        text-align: center;
       }
 
       .logs-examples {
@@ -290,7 +293,7 @@
         color: #f7f9fb;
         border: 0;
         background: transparent;
-        font: 0.76rem/1.45 var(--font-mono);
+        font: clamp(0.9rem, 1.25vw, 1.04rem)/1.5 var(--font-mono);
         white-space: pre-wrap;
         overflow-wrap: anywhere;
       }
@@ -497,7 +500,7 @@ torque logs deploy/bamboo-agent -n atlassian --events --tail 200 --capture ./rep
             </details>
           </section>
 
-          <p>This is also why Torque is perfect for working with agentic systems: Codex can drive the stack, inspect verifier and Helmer evidence, follow logs, and leave a repeatable deployment trail instead of a one-off terminal session.</p>
+          <p>This is also why Torque is perfect for working with agentic systems: Claude, Codex, Gemini, or any capable agent can drive the stack, inspect verifier and Helmer evidence, follow logs, and leave a repeatable deployment trail instead of a one-off terminal session.</p>
 
           <figure class="preface-figure">
             <img src="./assets/blog/atlassian-codex-torque.png" alt="Codex redeploy summary for the Atlassian Torque stack" loading="lazy" />
