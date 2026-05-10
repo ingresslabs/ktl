@@ -147,6 +147,7 @@ func TestBuildIndex_IncludesAgentAndCacheDocs(t *testing.T) {
 		"doc:s3-build-cache":              "--s3-cache",
 		"doc:apply-simulate":              "Live Apply Twin",
 		"doc:guardian":                    "observe-only runtime proof",
+		"doc:incident":                    "incident time machine",
 	}
 	for id, content := range want {
 		found := false

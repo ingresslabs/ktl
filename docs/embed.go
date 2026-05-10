@@ -48,6 +48,9 @@ var (
 	//go:embed guardian.md
 	GuardianMD string
 
+	//go:embed incident.md
+	IncidentMD string
+
 	//go:embed secrets-verifier-evidence-spec.md
 	SecretsVerifierEvidenceSpecMD string
 

@@ -22,6 +22,7 @@ This repo is a single-module Go CLI with an optional companion agent.
 - `logs`
 - `env`
 - `guardian`
+- `incident`
 - `secrets`
 - `version`
 
@@ -108,6 +109,12 @@ This section is intentionally short and repetitive: AI agents do best with a sta
 - Purpose: top-level `torque guardian` command for observe-only runtime proof.
 - Key surfaces: `guardian install`, `guardian report`, `guardian diff`, `guardian pr`.
 - Invariants: Guardian is observe-only; installed RBAC grants only `get`, `list`, and `watch`; drift, event, and secret-boundary evidence must redact secret-like strings.
+
+### Incident Replay Proof
+
+- Purpose: top-level `torque incident` command for observe-only incident capture, replay, explanation, and PR artifacts.
+- Key surfaces: `incident capture`, `incident replay`, `incident explain`, `incident pr`.
+- Invariants: Incident commands do not mutate clusters; captures must redact secret-like strings and omit Kubernetes Secret `data`/`stringData`; replay writes portable proof files only.
 
 ### `internal/ui`
 

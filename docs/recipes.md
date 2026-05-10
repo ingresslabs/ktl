@@ -73,6 +73,12 @@ torque guardian report --since 24h --out runtime-proof.json
 torque guardian diff --source ./torque-sim-proof --live --out drift-proof.json
 torque guardian pr --from drift-proof.json --branch fix/runtime-drift
 
+# Capture and replay an incident window
+torque incident capture --release foo -n default --since 1h --out incident.torque
+torque incident replay incident.torque --lab k3s --out incident-replay-proof
+torque incident explain --from incident-replay-proof --out root-cause.json
+torque incident pr --from root-cause.json --branch fix/foo-incident
+
 # Deploy
 torque apply --chart ./chart --release foo -n default
 

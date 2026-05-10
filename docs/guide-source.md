@@ -66,6 +66,13 @@ go install github.com/ingresslabs/torque/cmd/torque@latest
     torque guardian pr --from drift-proof.json --branch fix/runtime-drift
     ```
 
+5.  **Replay incident evidence**:
+    ```bash
+    torque incident capture --release api -n prod --since 1h --out incident.torque
+    torque incident replay incident.torque --lab k3s --out incident-replay-proof
+    torque incident explain --from incident-replay-proof --out root-cause.json
+    ```
+
 ---
 
 # Core Concepts

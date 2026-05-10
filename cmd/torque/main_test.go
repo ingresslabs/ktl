@@ -188,6 +188,7 @@ func TestRootHelpSubcommandOrder(t *testing.T) {
 		"  logs",
 		"  env",
 		"  guardian",
+		"  incident",
 		"  secrets",
 		"  security",
 		"  version",

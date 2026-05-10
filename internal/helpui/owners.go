@@ -11,6 +11,7 @@ var commandOwners = map[string][]string{
 	"torque init":           {"internal/appconfig"},
 	"torque guardian":       {"cmd/torque", "internal/deployplan"},
 	"torque help":           {"internal/helpui"},
+	"torque incident":       {"cmd/torque", "internal/deploy"},
 	"torque logs":           {"internal/tailer"},
 	"torque replay":         {"cmd/torque"},
 	"torque secrets":        {"internal/secretstore"},

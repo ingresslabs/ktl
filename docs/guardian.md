@@ -97,3 +97,13 @@ torque guardian pr --from ./torque-runtime-proof --out ./fix
 The patch is intentionally conservative: Guardian does not decide whether the
 source chart or the live object is authoritative. It records proof and
 validation commands so the repair happens through review.
+
+## Incident Replay
+
+Use Incident beside Guardian when drift proof is not enough and you need a
+portable failure timeline:
+
+```bash
+torque incident capture --release api -n prod --since 1h --out incident.torque
+torque incident replay incident.torque --lab k3s --out incident-replay-proof/
+```

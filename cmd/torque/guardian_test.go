@@ -68,7 +68,7 @@ data:
 		APIVersion: "v1",
 		Time:       &now,
 	}})
-	proof, err := buildGuardianDiffProof(context.Background(), source, func(context.Context, *unstructured.Unstructured, string) (*unstructured.Unstructured, error) {
+	proof, err := buildGuardianDiffProof(context.Background(), source, func(_ context.Context, desired *unstructured.Unstructured, _ string) (*unstructured.Unstructured, error) {
 		return live, nil
 	}, []guardianEventRow{{
 		Time:    now.UTC().Format(time.RFC3339Nano),
@@ -127,9 +127,22 @@ spec:
         - name: api
           image: ghcr.io/acme/api:v1
 `,
+			"prod|service|api": `apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  namespace: prod
+spec:
+  selector:
+    app: api
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+`,
 		},
 	}
-	live := mustGuardianObject(t, `apiVersion: apps/v1
+	liveDeployment := mustGuardianObject(t, `apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: api
@@ -172,14 +185,121 @@ spec:
       serviceAccountName: api
       terminationGracePeriodSeconds: 30
 `)
-	proof, err := buildGuardianDiffProof(context.Background(), source, func(context.Context, *unstructured.Unstructured, string) (*unstructured.Unstructured, error) {
-		return live, nil
+	liveService := mustGuardianObject(t, `apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  namespace: prod
+spec:
+  clusterIP: 10.43.1.2
+  clusterIPs:
+    - 10.43.1.2
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: api
+  sessionAffinity: None
+  type: ClusterIP
+`)
+	proof, err := buildGuardianDiffProof(context.Background(), source, func(_ context.Context, desired *unstructured.Unstructured, _ string) (*unstructured.Unstructured, error) {
+		if strings.EqualFold(desired.GetKind(), "Service") {
+			return liveService, nil
+		}
+		return liveDeployment, nil
 	}, nil, guardianDiffBuildOptions{Namespace: "prod"})
 	if err != nil {
 		t.Fatalf("build diff proof: %v", err)
 	}
 	if proof.Blocked || proof.Status != "passed" || proof.Summary.Changed != 0 {
 		t.Fatalf("expected default-only live object to pass, got status=%s summary=%#v changes=%#v", proof.Status, proof.Summary, proof.PredictedVsLive.Changes)
+	}
+}
+
+func TestGuardianComplexRuntimeBoundaryAndAftercare(t *testing.T) {
+	rawSecret := "ghp_abcdefghijklmnopqrstuvwxyz123456"
+	source := guardianSimulationSource{
+		Release:   "api",
+		Namespace: "prod",
+		Resources: map[string]string{
+			"prod|deployment|api": `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: prod
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/acme/api:v1
+          env:
+            - name: API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: api
+                  key: token
+`,
+		},
+	}
+	now := metav1.NewTime(time.Date(2026, 5, 11, 13, 0, 0, 0, time.UTC))
+	live := mustGuardianObject(t, `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: prod
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/acme/api:v1
+          env:
+            - name: API_TOKEN
+              value: ghp_abcdefghijklmnopqrstuvwxyz123456
+status:
+  replicas: 2
+  availableReplicas: 1
+  unavailableReplicas: 1
+`)
+	live.SetManagedFields([]metav1.ManagedFieldsEntry{{
+		Manager:    "mutating-webhook",
+		Operation:  metav1.ManagedFieldsOperationUpdate,
+		APIVersion: "apps/v1",
+		Time:       &now,
+	}})
+	proof, err := buildGuardianDiffProof(context.Background(), source, func(context.Context, *unstructured.Unstructured, string) (*unstructured.Unstructured, error) {
+		return live, nil
+	}, []guardianEventRow{{
+		Time:     now.UTC().Format(time.RFC3339Nano),
+		Type:     "Warning",
+		Reason:   "Unhealthy",
+		Message:  "readiness failed token: " + rawSecret,
+		Resource: guardianResourceRef{Kind: "Pod", Namespace: "prod", Name: "api-123"},
+	}}, guardianDiffBuildOptions{Namespace: "prod"})
+	if err != nil {
+		t.Fatalf("build diff proof: %v", err)
+	}
+	if !proof.Blocked || proof.Summary.Changed != 1 || proof.Summary.RuntimeBoundary != 1 || proof.Summary.WarningEvents != 1 || proof.Summary.AftercareIssues == 0 {
+		t.Fatalf("unexpected complex proof: blocked=%t summary=%#v", proof.Blocked, proof.Summary)
+	}
+	if len(proof.ManagedFields.Owners) != 1 || !proof.ManagedFields.Owners[0].Suspicious {
+		t.Fatalf("expected suspicious webhook owner: %#v", proof.ManagedFields.Owners)
+	}
+	raw, err := json.Marshal(proof)
+	if err != nil {
+		t.Fatalf("marshal proof: %v", err)
+	}
+	if strings.Contains(string(raw), rawSecret) {
+		t.Fatalf("proof leaked raw secret: %s", raw)
 	}
 }
 

@@ -121,6 +121,26 @@ var curatedExamples = map[string][]string{
 		"# Generate patch and PR body from a drift proof\ntorque guardian pr --from drift-proof.json --branch fix/runtime-drift",
 		"# Generate fix artifacts beside a runtime proof bundle\ntorque guardian pr --from ./torque-runtime-proof",
 	},
+	"torque incident": {
+		"# Capture observe-only incident evidence\ntorque incident capture --release api -n prod --since 1h --out incident.torque",
+		"# Replay the capture as a lab proof\ntorque incident replay incident.torque --lab k3s --out incident-replay-proof",
+		"# Generate PR artifacts from root cause\ntorque incident pr --from incident-replay-proof --branch fix/api-incident",
+	},
+	"torque incident capture": {
+		"# Capture a release incident bundle\ntorque incident capture --release api -n prod --since 1h --out incident.torque",
+		"# Print capture JSON and skip pod logs\ntorque incident capture --release api -n prod --log-tail 0 --format json",
+	},
+	"torque incident replay": {
+		"# Validate an incident bundle in the k3s lab profile\ntorque incident replay incident.torque --lab k3s --out incident-replay-proof",
+		"# Fail CI when replayed evidence remains blocked\ntorque incident replay incident.torque --lab k3s --fail-on-blocked",
+	},
+	"torque incident explain": {
+		"# Write root-cause JSON from replay proof\ntorque incident explain --from incident-replay-proof --out root-cause.json",
+	},
+	"torque incident pr": {
+		"# Generate patch and PR body from root cause\ntorque incident pr --from root-cause.json --branch fix/api-incident",
+		"# Generate fix artifacts beside replay proof\ntorque incident pr --from incident-replay-proof",
+	},
 	"torque env": {
 		"# Show env var reference (machine-readable)\ntorque env --format json",
 	},

@@ -62,6 +62,8 @@ torque guardian diff --source ./torque-sim-proof --live --out drift-proof.json
 torque apply --chart ./chart --release api -n prod \
   --predict --proof-bundle ./apply-proof.json \
   --capture ./apply.sqlite --yes
+torque incident capture --release api -n prod --since 1h --out incident.torque
+torque incident replay incident.torque --lab k3s --out incident-replay-proof/
 torque logs 'api-.*' -n prod --capture ./logs.sqlite --tail 100
 ```
 
@@ -101,6 +103,18 @@ torque guardian pr --from drift-proof.json --branch fix/runtime-drift
 ```
 
 See [`docs/guardian.md`](docs/guardian.md) for Guardian runtime proof details.
+
+Incident-sensitive releases can capture a broken runtime window and turn it
+into a replayable root-cause proof:
+
+```bash
+torque incident capture --release api -n prod --since 1h --out incident.torque
+torque incident replay incident.torque --lab k3s --out incident-replay-proof/
+torque incident explain --from incident-replay-proof/ --out root-cause.json
+torque incident pr --from root-cause.json --branch fix/api-incident
+```
+
+See [`docs/incident.md`](docs/incident.md) for observe-only incident replay.
 
 Rollback-sensitive releases can ask Torque to keep proof when Helm fails or a
 post-apply SLO gate is violated:
@@ -157,6 +171,7 @@ fallback, and review-ready outputs without touching a real cluster.
 - Helm release plans with Markdown, JSON, and rich HTML plan reports.
 - Live Apply Twin simulation with server-side dry-run proof, replay validation, and repair artifacts.
 - Observe-only Guardian runtime proof for drift, events, managed fields, and PR-ready repair evidence.
+- Observe-only Incident capture and replay for causal timelines, root-cause proof, and PR-ready repair evidence.
 - Verifier gates for charts, rendered manifests, and live namespaces.
 - Evidence-first secrets reports, source-to-live secret flow graphs, benchmark
   corpus metrics, and verifier security evidence bundles.

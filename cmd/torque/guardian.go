@@ -775,7 +775,43 @@ func guardianDropLiveOnlyDefaults(desired, live map[string]any) {
 		guardianDropLivePodSpecDefaults(desired, live, "spec", "template", "spec")
 	case "pod":
 		guardianDropLivePodSpecDefaults(desired, live, "spec")
+	case "service":
+		guardianDropLiveServiceDefaults(desired, live)
 	}
+}
+
+func guardianDropLiveServiceDefaults(desired, live map[string]any) {
+	guardianRemoveLiveDefault(live, desired, "ClusterIP", "spec", "type")
+	guardianRemoveLiveDefault(live, desired, "None", "spec", "sessionAffinity")
+	guardianRemoveLiveDefault(live, desired, "Cluster", "spec", "internalTrafficPolicy")
+	guardianRemoveLiveDefault(live, desired, "SingleStack", "spec", "ipFamilyPolicy")
+	for _, field := range []string{"clusterIP", "clusterIPs", "ipFamilies"} {
+		if _, found, _ := unstructured.NestedFieldNoCopy(desired, "spec", field); !found {
+			unstructured.RemoveNestedField(live, "spec", field)
+		}
+	}
+	desiredPorts, desiredOK, _ := unstructured.NestedSlice(desired, "spec", "ports")
+	livePorts, liveOK, _ := unstructured.NestedSlice(live, "spec", "ports")
+	if !liveOK {
+		return
+	}
+	for i, value := range livePorts {
+		port, ok := value.(map[string]any)
+		if !ok {
+			continue
+		}
+		desiredHasProtocol := false
+		if desiredOK && i < len(desiredPorts) {
+			if desiredPort, ok := desiredPorts[i].(map[string]any); ok {
+				_, desiredHasProtocol = desiredPort["protocol"]
+			}
+		}
+		if !desiredHasProtocol && fmt.Sprint(port["protocol"]) == "TCP" {
+			delete(port, "protocol")
+			livePorts[i] = port
+		}
+	}
+	_ = unstructured.SetNestedSlice(live, livePorts, "spec", "ports")
 }
 
 func guardianDropLivePodSpecDefaults(desired, live map[string]any, path ...string) {
@@ -931,6 +967,11 @@ func guardianInt64(value any) (int64, bool) {
 func guardianRedactObject(v any) {
 	switch typed := v.(type) {
 	case map[string]any:
+		if name, ok := typed["name"].(string); ok && valueIsSensitiveKey(strings.ToLower(name)) {
+			if _, ok := typed["value"].(string); ok {
+				typed["value"] = "<redacted>"
+			}
+		}
 		for key, value := range typed {
 			if valueIsSensitiveKey(strings.ToLower(key)) {
 				if _, ok := value.(string); ok {
@@ -1152,9 +1193,9 @@ func guardianAftercareFindings(resource guardianResourceRef, obj *unstructured.U
 	switch strings.ToLower(obj.GetKind()) {
 	case "deployment":
 		var out []guardianAftercareFinding
-		replicas, _, _ := unstructured.NestedInt64(obj.Object, "status", "replicas")
-		available, _, _ := unstructured.NestedInt64(obj.Object, "status", "availableReplicas")
-		unavailable, _, _ := unstructured.NestedInt64(obj.Object, "status", "unavailableReplicas")
+		replicas := guardianNestedInt64(obj.Object, "status", "replicas")
+		available := guardianNestedInt64(obj.Object, "status", "availableReplicas")
+		unavailable := guardianNestedInt64(obj.Object, "status", "unavailableReplicas")
 		if replicas > 0 && available < replicas {
 			out = append(out, guardianAftercareFinding{Resource: resource, Severity: "high", Reason: "deployment_not_fully_available", Message: fmt.Sprintf("%d/%d replicas available", available, replicas)})
 		}
@@ -1165,6 +1206,17 @@ func guardianAftercareFindings(resource guardianResourceRef, obj *unstructured.U
 	default:
 		return nil
 	}
+}
+
+func guardianNestedInt64(obj map[string]any, fields ...string) int64 {
+	value, found, _ := unstructured.NestedFieldNoCopy(obj, fields...)
+	if !found {
+		return 0
+	}
+	if n, ok := guardianInt64(value); ok {
+		return n
+	}
+	return 0
 }
 
 func guardianCollectEvents(ctx context.Context, client *kube.Client, namespace string, allNamespaces bool, since string) ([]guardianEventRow, error) {
