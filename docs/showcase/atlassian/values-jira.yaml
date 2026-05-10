@@ -1,0 +1,60 @@
+image:
+  repository: torque.local/atlassian/jira-software
+  tag: 11.3.4-custom-20260510
+  pullPolicy: IfNotPresent
+
+database:
+  type: postgres72
+  url: jdbc:postgresql://jira-db:5432/jira
+  driver: org.postgresql.Driver
+  credentials:
+    secretName: jira-db-credentials
+
+volumes:
+  localHome:
+    persistentVolumeClaim:
+      create: true
+      storageClassName: local-path
+      resources:
+        requests:
+          storage: 10Gi
+  sharedHome:
+    nfsPermissionFixer:
+      enabled: false
+    persistentVolumeClaim:
+      create: true
+      storageClassName: nfs-client
+      resources:
+        requests:
+          storage: 10Gi
+
+jira:
+  securityContext:
+    fsGroup: 2001
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    runAsUser: 2001
+    runAsGroup: 2001
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+  service:
+    type: NodePort
+    nodePort: 31080
+    contextPath: /jira
+  readinessProbe:
+    enabled: false
+
+gateway:
+  create: false
+  hostnames:
+    - 91.206.14.44
+  https: false
+  externalPort: 31080
+  path: /jira

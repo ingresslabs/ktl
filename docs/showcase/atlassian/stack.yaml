@@ -1,0 +1,124 @@
+apiVersion: torque.dev/v1
+kind: Stack
+name: atlassian-data-center-boole
+
+defaults:
+  cluster:
+    name: boole-k3s
+    kubeconfig: /tmp/boole-k3s.yaml
+  apply:
+    atomic: true
+    wait: true
+    createNamespace: true
+    timeout: 30m
+  verify:
+    enabled: true
+    failOnWarnings: true
+    warnOnly: false
+    eventsWindow: 10m
+    timeout: 3m
+    denyReasons:
+      - FailedMount
+      - FailedScheduling
+      - ImagePullBackOff
+      - ErrImagePull
+      - BackOff
+      - Unhealthy
+
+runner:
+  concurrency: 2
+  progressiveConcurrency: true
+  limits:
+    maxParallelPerNamespace: 1
+
+cli:
+  inferDeps: false
+  inferConfigRefs: false
+  selector:
+    releases:
+      - nfs-client
+      - atlassian-prereqs
+      - jira
+      - confluence
+      - bitbucket
+      - bamboo
+      - crowd
+      - bamboo-agent
+    includeDeps: true
+  apply:
+    failFast: true
+    retry: 0
+
+releases:
+  - name: nfs-client
+    namespace: storage
+    chart: ./charts/release/nfs-client
+    values:
+      - ./values/nfs-client.yaml
+    apply:
+      timeout: 10m
+    tags: [storage, foundation]
+
+  - name: atlassian-prereqs
+    namespace: atlassian
+    chart: ./charts/atlassian-prereqs
+    values:
+      - ./values/atlassian-prereqs.yaml
+    needs: [nfs-client]
+    apply:
+      timeout: 10m
+    tags: [atlassian, foundation]
+
+  - name: jira
+    namespace: atlassian
+    chart: ./charts/release/jira
+    values:
+      - ./values/jira.yaml
+    needs: [atlassian-prereqs, nfs-client]
+    tags: [atlassian, app]
+
+  - name: confluence
+    namespace: atlassian
+    chart: ./charts/release/confluence
+    values:
+      - ./values/confluence.yaml
+    needs: [atlassian-prereqs, nfs-client]
+    tags: [atlassian, app]
+
+  - name: bitbucket
+    namespace: atlassian
+    chart: ./charts/release/bitbucket
+    values:
+      - ./values/bitbucket.yaml
+    needs: [atlassian-prereqs, nfs-client]
+    tags: [atlassian, app]
+
+  - name: bamboo
+    namespace: atlassian
+    chart: ./charts/release/bamboo
+    values:
+      - ./values/bamboo.yaml
+    needs: [atlassian-prereqs, nfs-client]
+    tags: [atlassian, app]
+
+  - name: crowd
+    namespace: atlassian
+    chart: ./charts/release/crowd
+    values:
+      - ./values/crowd.yaml
+    needs: [atlassian-prereqs, nfs-client]
+    tags: [atlassian, app]
+
+  - name: bamboo-agent
+    namespace: atlassian
+    chart: ./charts/release/bamboo-agent
+    values:
+      - ./values/bamboo-agent.yaml
+    needs: [bamboo]
+    apply:
+      atomic: false
+      wait: false
+      timeout: 5m
+    verify:
+      enabled: false
+    tags: [atlassian, agent]

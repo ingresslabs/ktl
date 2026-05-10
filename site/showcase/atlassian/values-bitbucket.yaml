@@ -1,0 +1,64 @@
+image:
+  repository: torque.local/atlassian/bitbucket
+  tag: 10.2.2-custom-20260510
+  pullPolicy: IfNotPresent
+
+database:
+  url: jdbc:postgresql://bitbucket-db:5432/bitbucket
+  driver: org.postgresql.Driver
+  credentials:
+    secretName: bitbucket-db-credentials
+
+volumes:
+  localHome:
+    persistentVolumeClaim:
+      create: true
+      storageClassName: local-path
+      resources:
+        requests:
+          storage: 10Gi
+  sharedHome:
+    nfsPermissionFixer:
+      enabled: false
+    persistentVolumeClaim:
+      create: true
+      storageClassName: nfs-client
+      resources:
+        requests:
+          storage: 10Gi
+
+bitbucket:
+  securityContext:
+    fsGroup: 2003
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    runAsUser: 2003
+    runAsGroup: 2003
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+  service:
+    type: NodePort
+    nodePort: 31082
+    contextPath: /bitbucket
+  sshService:
+    enabled: true
+    type: NodePort
+    nodePort: 31022
+    host: 91.206.14.44
+  readinessProbe:
+    enabled: false
+
+gateway:
+  create: false
+  hostnames:
+    - 91.206.14.44
+  https: false
+  externalPort: 31082
+  path: /bitbucket
