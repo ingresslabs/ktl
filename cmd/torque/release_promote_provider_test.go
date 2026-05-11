@@ -21,7 +21,7 @@ import (
 func TestReleasePromoteKubernetesCanaryExecuteEndToEnd(t *testing.T) {
 	dir, graphPath, keyPath := writeProofGateFixture(t, true)
 	outDir := filepath.Join(dir, "promote-kubernetes-canary")
-	clientset := kubefake.NewSimpleClientset(
+	clientset := kubefake.NewClientset(
 		testDeployment("api", "prod", 10, map[string]string{"app": "api", "track": "stable"}),
 		testDeployment("api-canary", "prod", 0, map[string]string{"app": "api", "track": "canary"}),
 	)
@@ -67,7 +67,7 @@ func TestReleasePromoteKubernetesBlueGreenExecuteEndToEnd(t *testing.T) {
 	}
 	blueSelector := map[string]string{"app": "api", "color": "blue"}
 	greenSelector := map[string]string{"app": "api", "color": "green"}
-	clientset := kubefake.NewSimpleClientset(
+	clientset := kubefake.NewClientset(
 		testDeployment("api-blue", "prod", 10, blueSelector),
 		testDeployment("api-green", "prod", 10, greenSelector),
 		testService("api", "prod", blueSelector),
@@ -187,7 +187,7 @@ func TestReleasePromoteArgoRolloutsBlueGreenExecuteEndToEnd(t *testing.T) {
 func TestReleasePromoteProviderDoesNotMutateWhenGateFails(t *testing.T) {
 	dir, graphPath, keyPath := writeProofGateFixture(t, false)
 	outDir := filepath.Join(dir, "promote-blocked-provider")
-	clientset := kubefake.NewSimpleClientset(
+	clientset := kubefake.NewClientset(
 		testDeployment("api", "prod", 10, map[string]string{"app": "api", "track": "stable"}),
 		testDeployment("api-canary", "prod", 0, map[string]string{"app": "api", "track": "canary"}),
 	)
