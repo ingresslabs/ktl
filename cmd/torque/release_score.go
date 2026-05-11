@@ -42,14 +42,14 @@ type releasePenalty struct {
 	Reason string `json:"reason"`
 }
 
-func newReleaseCommand() *cobra.Command {
+func newReleaseCommand(kubeconfig *string, kubeContext *string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "release",
 		Short: "Evaluate release readiness from proof evidence",
 		Long:  "Evaluate release readiness from signed proof graphs, release gates, and evidence coverage.",
 	}
 	cmd.AddCommand(newReleaseAutopilotCommand())
-	cmd.AddCommand(newReleasePromoteCommand())
+	cmd.AddCommand(newReleasePromoteCommand(kubeconfig, kubeContext))
 	cmd.AddCommand(newReleaseScoreCommand())
 	decorateCommandHelp(cmd, "Release Commands")
 	return cmd

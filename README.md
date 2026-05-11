@@ -218,6 +218,8 @@ torque release promote proof.graph.json \
   --steps 5,25,50,100 \
   --slo slo.yaml \
   --rollback-on-fail \
+  --provider argo-rollouts \
+  --execute --yes \
   --key .torque/keys/proof-ed25519.json \
   --fail-below 90 \
   --out-dir release-promote-canary
@@ -226,6 +228,8 @@ torque release promote proof.graph.json \
   --preview \
   --smoke smoke.json \
   --switch-traffic \
+  --provider kubernetes \
+  --execute --yes \
   --key .torque/keys/proof-ed25519.json \
   --fail-below 90 \
   --out-dir release-promote-blue-green

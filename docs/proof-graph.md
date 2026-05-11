@@ -237,9 +237,35 @@ torque release promote proof.graph.json \
   --execute --yes
 ```
 
-This gives releases a portable record of every planned traffic step without
-pretending to own a live mesh or ingress controller. Provider adapters can be
-added behind the same proof gate later.
+Real cluster providers use the same gate-first path. `--provider kubernetes`
+supports native canary scaling across stable/canary Deployments and blue/green
+Service selector switching. `--provider argo-rollouts` updates the Rollout
+strategy for canary or blue/green. Both providers write provider state, actions,
+and touched objects into the promoted proof graph only after proof checks pass:
+
+```bash
+torque release promote proof.graph.json \
+  --strategy canary \
+  --steps 5,25,50,100 \
+  --provider argo-rollouts \
+  --execute --yes \
+  --key .torque/keys/proof-ed25519.json
+torque release promote proof.graph.json \
+  --strategy blue-green \
+  --preview --smoke smoke.json --switch-traffic \
+  --provider kubernetes \
+  --active-service api \
+  --preview-service api-preview \
+  --blue-deployment api-blue \
+  --green-deployment api-green \
+  --execute --yes
+```
+
+The focused provider E2E can be rerun with:
+
+```bash
+./scripts/e2e-release-promote-providers.sh
+```
 
 ## Release Flight Recorder
 

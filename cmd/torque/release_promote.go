@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -37,6 +38,16 @@ type releasePromoteOptions struct {
 	Actor          string
 	Provider       string
 	StateOut       string
+	Kubeconfig     string
+	KubeContext    string
+	Rollout        string
+	ActiveService  string
+	PreviewService string
+	StableDeploy   string
+	CanaryDeploy   string
+	BlueDeploy     string
+	GreenDeploy    string
+	TotalReplicas  int
 	Allow          []string
 	FailBelow      int
 	RequireGate    bool
@@ -136,17 +147,38 @@ type releasePromotionSmoke struct {
 }
 
 type releasePromotionProviderState struct {
-	APIVersion   string                  `json:"apiVersion"`
-	Kind         string                  `json:"kind"`
-	GeneratedAt  string                  `json:"generatedAt"`
-	Provider     string                  `json:"provider"`
-	Applied      bool                    `json:"applied"`
-	Strategy     string                  `json:"strategy"`
-	Release      string                  `json:"release,omitempty"`
-	Namespace    string                  `json:"namespace,omitempty"`
-	Source       string                  `json:"source"`
-	FinalTraffic releasePromotionTraffic `json:"finalTraffic"`
-	Steps        []releasePromotionStep  `json:"steps,omitempty"`
+	APIVersion   string                   `json:"apiVersion"`
+	Kind         string                   `json:"kind"`
+	GeneratedAt  string                   `json:"generatedAt"`
+	Provider     string                   `json:"provider"`
+	Applied      bool                     `json:"applied"`
+	Strategy     string                   `json:"strategy"`
+	Release      string                   `json:"release,omitempty"`
+	Namespace    string                   `json:"namespace,omitempty"`
+	Source       string                   `json:"source"`
+	FinalTraffic releasePromotionTraffic  `json:"finalTraffic"`
+	Steps        []releasePromotionStep   `json:"steps,omitempty"`
+	Actions      []releasePromotionAction `json:"actions,omitempty"`
+	Objects      []releasePromotionObject `json:"objects,omitempty"`
+	Message      string                   `json:"message,omitempty"`
+}
+
+type releasePromotionAction struct {
+	Index     int                     `json:"index,omitempty"`
+	Operation string                  `json:"operation"`
+	Resource  string                  `json:"resource,omitempty"`
+	Status    string                  `json:"status"`
+	Message   string                  `json:"message,omitempty"`
+	Traffic   releasePromotionTraffic `json:"traffic,omitempty"`
+}
+
+type releasePromotionObject struct {
+	APIVersion string            `json:"apiVersion,omitempty"`
+	Kind       string            `json:"kind"`
+	Namespace  string            `json:"namespace,omitempty"`
+	Name       string            `json:"name"`
+	Before     map[string]string `json:"before,omitempty"`
+	After      map[string]string `json:"after,omitempty"`
 }
 
 type releasePromotionDecisionLog struct {
@@ -169,7 +201,7 @@ type releasePromotionDecisionLog struct {
 	ProviderState string                     `json:"providerState,omitempty"`
 }
 
-func newReleasePromoteCommand() *cobra.Command {
+func newReleasePromoteCommand(kubeconfig *string, kubeContext *string) *cobra.Command {
 	opts := releasePromoteOptions{
 		Steps:          "5,25,50,100",
 		AnalysisWindow: "5m",
@@ -201,11 +233,12 @@ func newReleasePromoteCommand() *cobra.Command {
 			if _, err := time.ParseDuration(strings.TrimSpace(opts.AnalysisWindow)); err != nil {
 				return fmt.Errorf("invalid --analysis-window: %w", err)
 			}
+			provider := normalizeReleasePromotionProviderNoErr(opts.Provider)
 			if opts.Execute && !opts.Yes {
 				return fmt.Errorf("--execute requires --yes")
 			}
-			if opts.Execute && normalizeReleasePromotionProviderNoErr(opts.Provider) != "file" {
-				return fmt.Errorf("--execute currently requires --provider file")
+			if opts.Execute && provider == "evidence" {
+				return fmt.Errorf("--execute requires a mutating provider: file, kubernetes, or argo-rollouts")
 			}
 			strategy := normalizeReleasePromotionStrategyNoErr(opts.Strategy)
 			if strategy == "canary" {
@@ -225,7 +258,9 @@ func newReleasePromoteCommand() *cobra.Command {
 		SilenceErrors: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts.ProofSource = args[0]
-			report, err := runReleasePromote(opts)
+			opts.Kubeconfig = derefString(kubeconfig)
+			opts.KubeContext = derefString(kubeContext)
+			report, err := runReleasePromote(cmd.Context(), opts)
 			if err != nil {
 				return err
 			}
@@ -256,8 +291,16 @@ func newReleasePromoteCommand() *cobra.Command {
 	cmd.Flags().StringVar(&opts.Release, "release", "", "Release name override")
 	cmd.Flags().StringVarP(&opts.Namespace, "namespace", "n", "", "Release namespace override")
 	cmd.Flags().StringVar(&opts.Actor, "actor", "release-promote", "Agent actor identity to record")
-	cmd.Flags().StringVar(&opts.Provider, "provider", "evidence", "Traffic provider: evidence or file")
-	cmd.Flags().StringVar(&opts.StateOut, "state-out", "", "File provider state output path (default: <out-dir>/traffic-state.json)")
+	cmd.Flags().StringVar(&opts.Provider, "provider", "evidence", "Traffic provider: evidence, file, kubernetes, or argo-rollouts")
+	cmd.Flags().StringVar(&opts.StateOut, "state-out", "", "Provider state output path (default: <out-dir>/traffic-state.json)")
+	cmd.Flags().StringVar(&opts.Rollout, "rollout", "", "Argo Rollouts Rollout name (default: release name)")
+	cmd.Flags().StringVar(&opts.ActiveService, "active-service", "", "Active service for blue/green traffic (default: release name)")
+	cmd.Flags().StringVar(&opts.PreviewService, "preview-service", "", "Preview service for blue/green traffic (default: <release>-preview)")
+	cmd.Flags().StringVar(&opts.StableDeploy, "stable-deployment", "", "Stable Deployment for native Kubernetes canary (default: release name)")
+	cmd.Flags().StringVar(&opts.CanaryDeploy, "canary-deployment", "", "Canary Deployment for native Kubernetes canary (default: <release>-canary)")
+	cmd.Flags().StringVar(&opts.BlueDeploy, "blue-deployment", "", "Blue Deployment for native Kubernetes blue/green (default: <release>-blue)")
+	cmd.Flags().StringVar(&opts.GreenDeploy, "green-deployment", "", "Green Deployment for native Kubernetes blue/green (default: <release>-green)")
+	cmd.Flags().IntVar(&opts.TotalReplicas, "total-replicas", 0, "Total replicas for native Kubernetes canary scaling (default: current stable+canary replicas)")
 	cmd.Flags().StringArrayVar(&opts.Allow, "allow", []string{"release-promote"}, "Allowed agent operation (repeatable or comma-separated)")
 	cmd.Flags().IntVar(&opts.FailBelow, "fail-below", 90, "Block when release score is below this value")
 	cmd.Flags().BoolVar(&opts.RequireGate, "require-gate", true, "Require proof gate success before promotion")
@@ -271,7 +314,7 @@ func newReleasePromoteCommand() *cobra.Command {
 	return cmd
 }
 
-func runReleasePromote(opts releasePromoteOptions) (releasePromotionReport, error) {
+func runReleasePromote(ctx context.Context, opts releasePromoteOptions) (releasePromotionReport, error) {
 	now := time.Now().UTC()
 	strategy, err := normalizeReleasePromotionStrategy(opts.Strategy)
 	if err != nil {
@@ -310,7 +353,7 @@ func runReleasePromote(opts releasePromoteOptions) (releasePromotionReport, erro
 	}
 	if strings.TrimSpace(opts.StateOut) != "" {
 		artifacts.ProviderState = strings.TrimSpace(opts.StateOut)
-	} else if provider == "file" {
+	} else if provider != "evidence" {
 		artifacts.ProviderState = filepath.Join(outDir, "traffic-state.json")
 	}
 
@@ -409,16 +452,30 @@ func runReleasePromote(opts releasePromoteOptions) (releasePromotionReport, erro
 
 	report.Checks = buildReleasePromotionChecks(report, opts, graph)
 	report.Passed = releasePromotionChecksPassed(report.Checks)
-	if provider == "file" {
+	if provider != "evidence" {
 		state := buildReleasePromotionProviderState(report, opts, source, now)
-		if opts.Execute && report.Passed {
-			state.Applied = true
+		if opts.Execute {
+			if report.Passed {
+				executedState, err := runReleasePromotionProvider(ctx, opts, report, source, state)
+				if err != nil {
+					state.Applied = false
+					state.Message = err.Error()
+					report.Checks = append(report.Checks, releasePromotionCheck{ID: "provider." + provider, Passed: false, Message: err.Error()})
+				} else {
+					state = executedState
+					report.Checks = append(report.Checks, releasePromotionCheck{ID: "provider." + provider, Passed: state.Applied, Message: firstNonEmpty(state.Message, provider+" provider applied traffic state")})
+				}
+			} else {
+				state.Message = "provider execution skipped because proof-backed promotion checks did not pass"
+				report.Checks = append(report.Checks, releasePromotionCheck{ID: "provider." + provider, Passed: false, Message: state.Message})
+			}
+		} else {
+			state.Message = provider + " provider plan state was written"
+			report.Checks = append(report.Checks, releasePromotionCheck{ID: "provider." + provider, Passed: true, Message: state.Message})
 		}
 		report.ProviderState = &state
 		if err := writeJSONFileEnsured(artifacts.ProviderState, state); err != nil {
-			report.Checks = append(report.Checks, releasePromotionCheck{ID: "provider.file", Passed: false, Message: "file provider state could not be written: " + err.Error()})
-		} else {
-			report.Checks = append(report.Checks, releasePromotionCheck{ID: "provider.file", Passed: true, Message: "file provider state was written"})
+			report.Checks = append(report.Checks, releasePromotionCheck{ID: "provider." + provider + ".state", Passed: false, Message: "provider state could not be written: " + err.Error()})
 		}
 	}
 	report.Passed = releasePromotionChecksPassed(report.Checks)
@@ -496,15 +553,24 @@ func normalizeReleasePromotionStrategyNoErr(value string) string {
 func normalizeReleasePromotionProvider(value string) (string, error) {
 	value = normalizeReleasePromotionProviderNoErr(value)
 	switch value {
-	case "evidence", "file":
+	case "evidence", "file", "kubernetes", "argo-rollouts":
 		return value, nil
 	default:
-		return "", fmt.Errorf("unsupported --provider %q (expected evidence or file)", strings.TrimSpace(value))
+		return "", fmt.Errorf("unsupported --provider %q (expected evidence, file, kubernetes, or argo-rollouts)", strings.TrimSpace(value))
 	}
 }
 
 func normalizeReleasePromotionProviderNoErr(value string) string {
-	return strings.ToLower(strings.TrimSpace(value))
+	value = strings.ToLower(strings.TrimSpace(value))
+	value = strings.ReplaceAll(value, "_", "-")
+	switch value {
+	case "k8s", "native", "native-kubernetes":
+		return "kubernetes"
+	case "argo", "argorollouts", "argo-rollout", "argo-rollouts":
+		return "argo-rollouts"
+	default:
+		return value
+	}
 }
 
 func parseReleasePromotionSteps(raw string) ([]int, error) {
@@ -672,11 +738,32 @@ func releasePromotionAgentCommand(opts releasePromoteOptions, proofPath string) 
 	if normalizeReleasePromotionStrategyNoErr(opts.Strategy) == "canary" {
 		cmd = append(cmd, "--steps", strings.TrimSpace(opts.Steps))
 	}
+	if provider := normalizeReleasePromotionProviderNoErr(opts.Provider); provider != "" && provider != "evidence" {
+		cmd = append(cmd, "--provider", provider)
+	}
 	if strings.TrimSpace(opts.Namespace) != "" {
 		cmd = append(cmd, "--namespace", strings.TrimSpace(opts.Namespace))
 	}
+	appendPair := func(flag, value string) {
+		if strings.TrimSpace(value) != "" {
+			cmd = append(cmd, flag, strings.TrimSpace(value))
+		}
+	}
+	appendPair("--rollout", opts.Rollout)
+	appendPair("--active-service", opts.ActiveService)
+	appendPair("--preview-service", opts.PreviewService)
+	appendPair("--stable-deployment", opts.StableDeploy)
+	appendPair("--canary-deployment", opts.CanaryDeploy)
+	appendPair("--blue-deployment", opts.BlueDeploy)
+	appendPair("--green-deployment", opts.GreenDeploy)
+	if opts.TotalReplicas > 0 {
+		cmd = append(cmd, "--total-replicas", strconv.Itoa(opts.TotalReplicas))
+	}
 	if opts.Execute {
 		cmd = append(cmd, "--execute")
+		if opts.Yes {
+			cmd = append(cmd, "--yes")
+		}
 	}
 	return cmd
 }
@@ -740,7 +827,7 @@ func buildReleasePromotionProviderState(report releasePromotionReport, opts rele
 		APIVersion:   releasePromotionTrafficAPIVersion,
 		Kind:         releasePromotionTrafficKind,
 		GeneratedAt:  now.Format(time.RFC3339Nano),
-		Provider:     "file",
+		Provider:     normalizeReleasePromotionProviderNoErr(opts.Provider),
 		Applied:      false,
 		Strategy:     report.Strategy,
 		Release:      report.Release,

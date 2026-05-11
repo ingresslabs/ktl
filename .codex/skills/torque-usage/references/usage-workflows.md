@@ -96,6 +96,26 @@ torque release promote proof.graph.json \
   --execute --yes
 ```
 
+Real cluster providers:
+
+```bash
+torque release promote proof.graph.json \
+  --strategy canary \
+  --steps 5,25,50,100 \
+  --provider argo-rollouts \
+  --rollout api \
+  --execute --yes
+torque release promote proof.graph.json \
+  --strategy blue-green \
+  --preview --switch-traffic \
+  --provider kubernetes \
+  --active-service api \
+  --preview-service api-preview \
+  --blue-deployment api-blue \
+  --green-deployment api-green \
+  --execute --yes
+```
+
 ## Agent-Safe Operations
 
 ```bash

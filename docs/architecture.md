@@ -138,8 +138,8 @@ This section is intentionally short and repetitive: AI agents do best with a sta
 ### Progressive Promotion
 
 - Purpose: proof-backed canary and blue/green promotion decisions.
-- Key surfaces: `release promote --strategy canary`, `release promote --strategy blue-green`.
-- Invariants: promotion evaluates gate, score, flight, SLO/smoke evidence, and agent authorization before writing traffic-provider state; default provider is non-mutating evidence mode; `--execute` requires `--yes` and currently uses the deterministic file provider for E2E.
+- Key surfaces: `release promote --strategy canary`, `release promote --strategy blue-green`, `--provider kubernetes`, `--provider argo-rollouts`.
+- Invariants: promotion evaluates gate, score, flight, SLO/smoke evidence, and agent authorization before writing traffic-provider state; default provider is non-mutating evidence mode; `--execute` requires `--yes`; mutating providers must record actions and touched objects in provider state before that state is attached to the promoted graph.
 
 ### Release Autopilot
 
