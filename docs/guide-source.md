@@ -194,7 +194,7 @@ Turn a failed apply proof bundle into a repair plan, optional chart patch, and P
 - `--pr-body ./repair-pr.md`: Write a Markdown PR body with root cause, evidence, patch plan, and validation commands.
 
 ## torque proof
-Build, verify, and diff release proof graphs.
+Build, verify, diff, gate, and attest release proof graphs.
 
 **Usage**: `torque proof graph ./apply-proof.json [flags]`
 - `--out proof.graph.json`: Write the graph JSON artifact.
@@ -205,6 +205,10 @@ Build, verify, and diff release proof graphs.
 **Verify**: `torque proof verify proof.graph.json --require-signature`
 
 **Diff**: `torque proof diff previous-proof.graph.json current-proof.graph.json`
+
+**Gate**: `torque proof gate proof.graph.json --out proof.gate.json`
+
+**Attest**: `torque proof attest proof.graph.json --release v1.0.8 --key .torque/keys/proof-ed25519.json --out release.attestation.json`
 
 ## torque secrets scan
 Scan source files, rendered manifests, build inputs, or text artifacts for

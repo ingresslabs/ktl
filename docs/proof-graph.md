@@ -56,6 +56,81 @@ torque proof diff previous-proof.graph.json current-proof.graph.json --format js
 The diff reports added, removed, and changed evidence artifacts, plus release
 status changes such as `succeeded` to `failed`.
 
+## Gate
+
+`proof gate` evaluates a release policy against a signed graph. The built-in
+release gate blocks promotion when the graph is unsigned, referenced files no
+longer match their recorded hashes, required release evidence is absent, images
+are unpinned, verifier evidence blocks, an SLO failure lacks rollback proof, or
+repair PR evidence is missing:
+
+```bash
+torque proof gate proof.graph.json --out proof.gate.json
+torque proof gate proof.graph.json \
+  --policy release-policy.yaml \
+  --format json
+```
+
+Policy files can tune the defaults:
+
+```yaml
+requireSignature: true
+strictFiles: true
+failOnUnpinnedImages: true
+failOnVerifierBlocked: true
+requireRollbackOnBlocked: true
+requireRollbackOnSLO: true
+requireRepairPR: true
+requiredArtifacts:
+  - image-digest
+  - helm-render
+  - verifier-report
+  - build-capture
+  - sbom
+  - supply-chain-provenance
+  - server-dry-run
+  - runtime-drift
+  - rollout-events
+  - logs-capture
+  - slo-outcome
+  - repair-pr
+```
+
+## Attest
+
+`proof attest` verifies a signed graph and signs a compact release verdict for
+PR descriptions, release notes, or change-management records:
+
+```bash
+torque proof attest proof.graph.json \
+  --release v1.0.8 \
+  --key .torque/keys/proof-ed25519.json \
+  --out release.attestation.json
+```
+
+Text output is intentionally pasteable:
+
+```text
+release=v1.0.8 commit=<commit> graph=<graph-sha256> verified=true artifacts=22 checked=14 signed=true
+```
+
+## Boole E2E
+
+The repository includes a manual remote E2E for release proof graph hardening:
+
+```bash
+scripts/e2e-proof-graph-boole.sh
+```
+
+The script builds or reuses a Linux amd64 `torque` binary, copies it to Boole,
+recreates a full proof graph fixture, verifies signature and file hashes, checks
+HTML output, diffs previous/current graphs, runs `proof gate`, signs a release
+attestation, proves tamper detection by modifying verifier evidence, then
+repeats graph/verify/diff/gate/attest for 100 iterations by default. It prints
+a single compact JSON line suitable for CI and release notes.
+
+GitHub Actions exposes the same run as the manual **Proof Graph E2E** workflow.
+
 ## Supported Inputs
 
 - `torque apply --proof-bundle` JSON;

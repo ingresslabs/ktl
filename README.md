@@ -178,6 +178,11 @@ torque proof graph ./apply-proof.json \
   --key .torque/keys/proof-ed25519.json
 torque proof verify proof.graph.json --require-signature
 torque proof diff previous-proof.graph.json proof.graph.json
+torque proof gate proof.graph.json --out proof.gate.json
+torque proof attest proof.graph.json \
+  --release v1.0.8 \
+  --key .torque/keys/proof-ed25519.json \
+  --out release.attestation.json
 ```
 
 See [`docs/proof-graph.md`](docs/proof-graph.md) for the graph contract.

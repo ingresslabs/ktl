@@ -120,8 +120,8 @@ This section is intentionally short and repetitive: AI agents do best with a sta
 ### Release Proof Graph
 
 - Purpose: top-level `torque proof` command for building, signing, verifying, and diffing release evidence graphs.
-- Key surfaces: `proof graph`, `proof verify`, `proof diff`.
-- Invariants: proof graphs store artifact paths, hashes, statuses, image digests, and optional ed25519 signatures; they do not inline raw SQLite captures, logs, manifests, or secret values.
+- Key surfaces: `proof graph`, `proof verify`, `proof diff`, `proof gate`, `proof attest`.
+- Invariants: proof graphs store artifact paths, hashes, statuses, image digests, and optional ed25519 signatures; gates evaluate policy against verified graph evidence; attestations sign compact release verdicts; proof outputs do not inline raw SQLite captures, logs, manifests, or secret values.
 
 ### `internal/ui`
 

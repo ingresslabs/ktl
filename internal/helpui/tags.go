@@ -10,6 +10,8 @@ var commandTags = map[string][]string{
 	"torque proof graph":         {"proof", "graph", "release", "html", "signature"},
 	"torque proof verify":        {"proof", "verify", "signature", "hash"},
 	"torque proof diff":          {"proof", "diff", "evidence"},
+	"torque proof gate":          {"proof", "gate", "policy", "release"},
+	"torque proof attest":        {"proof", "attest", "signature", "release"},
 	"torque init":                {"onboarding", "setup"},
 	"torque help":                {"onboarding"},
 	"torque security":            {"security", "benchmark", "evidence"},
