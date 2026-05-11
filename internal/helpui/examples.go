@@ -156,6 +156,8 @@ var curatedExamples = map[string][]string{
 		"# Canary promotion with signed proof evidence\ntorque release promote proof.graph.json --strategy canary --steps 5,25,50,100 --slo slo.yaml --rollback-on-fail --key .torque/stack/keys/ed25519.json --out-dir release-promote-canary",
 		"# Blue/green promotion with smoke evidence\ntorque release promote proof.graph.json --strategy blue-green --preview --smoke smoke.json --switch-traffic --key .torque/stack/keys/ed25519.json --out-dir release-promote-blue-green",
 		"# Deterministic E2E traffic-state provider\ntorque release promote proof.graph.json --strategy blue-green --preview --smoke smoke.json --switch-traffic --provider file --state-out traffic-state.json --execute --yes",
+		"# Real Argo Rollouts canary provider\ntorque release promote proof.graph.json --strategy canary --steps 5,25,50,100 --provider argo-rollouts --rollout api --execute --yes",
+		"# Native Kubernetes blue/green provider\ntorque release promote proof.graph.json --strategy blue-green --preview --switch-traffic --provider kubernetes --active-service api --preview-service api-preview --blue-deployment api-blue --green-deployment api-green --execute --yes",
 	},
 	"torque release score": {
 		"# Fail CI when a release score is below the promotion threshold\ntorque release score proof.graph.json --fail-below 90",

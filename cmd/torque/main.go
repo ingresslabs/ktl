@@ -247,7 +247,7 @@ func newRootCommandWithBuildService(buildService buildsvc.Service) *cobra.Comman
 	replayCmd := newReplayCommand()
 	proofCmd := newProofCommand()
 	agentCmd := newAgentCommand()
-	releaseCmd := newReleaseCommand()
+	releaseCmd := newReleaseCommand(&kubeconfigPath, &kubeContext)
 	flightCmd := newFlightCommand()
 	applyCmd := newApplyCommand(&kubeconfigPath, &kubeContext, &logLevel, &remoteAgentAddr)
 	deleteCmd := newDeleteCommand(&kubeconfigPath, &kubeContext, &logLevel, &remoteAgentAddr)

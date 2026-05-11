@@ -259,6 +259,8 @@ agent authorization checks pass.
 - `--analysis-window 5m`: Record the per-step analysis window.
 - `--provider evidence`: Default non-mutating provider that writes promotion proof only.
 - `--provider file --execute --yes --state-out traffic-state.json`: Deterministic E2E provider that writes final traffic state after checks pass.
+- `--provider kubernetes --execute --yes`: Apply native Kubernetes canary replica shifts or blue/green Service selector switches after proof checks pass.
+- `--provider argo-rollouts --execute --yes`: Configure an Argo Rollouts Rollout strategy from the proof-backed promotion plan.
 - `--key .torque/keys/proof-ed25519.json`: Sign the promoted graph and promotion attestation.
 
 ## torque release score

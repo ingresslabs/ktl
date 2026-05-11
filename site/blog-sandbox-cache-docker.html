@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sandboxed Docker Builds, Real Caches | torque</title>
+    <meta
+      name="description"
+      content="Deep Torque engineering guide for sandboxed BuildKit builds, Docker builder topology, cache modes, S3 cache workflows, secret handling, and agent-safe build operations."
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #050505;
+        --surface: #0a0a0c;
+        --elevated: #101014;
+        --text: #ffffff;
+        --muted: #a0a0aa;
+        --muted-strong: #c4c8cf;
+        --accent: #edf1f5;
+        --line: rgba(255, 255, 255, 0.10);
+        --code: #f7f9fb;
+        --radius: 10px;
+        --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        --font-mono: "SF Mono", "Monaco", "Inconsolata", "Fira Code", ui-monospace, monospace;
+      }
+
+      * { box-sizing: border-box; }
+
+      html {
+        min-height: 100%;
+        background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      body {
+        min-height: 100%;
+        margin: 0;
+        color: var(--text);
+        background:
+          linear-gradient(rgba(255,255,255,0.034) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.034) 1px, transparent 1px),
+          linear-gradient(180deg, rgba(237,241,245,0.09), rgba(5,5,5,0.76) 36%, rgba(5,5,5,0.98)),
+          var(--bg);
+        background-size: 80px 80px, 80px 80px, auto, auto;
+        font: 16px/1.6 var(--font);
+        letter-spacing: 0;
+        font-variant-numeric: tabular-nums;
+        overflow-x: hidden;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      a:hover { color: var(--accent); }
+
+      .page {
+        width: min(1180px, calc(100% - 48px));
+        margin: 0 auto;
+        min-height: 100svh;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 28px;
+        padding: 28px 0 36px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--text);
+        font-weight: 740;
+        font-size: 1.55rem;
+        line-height: 1;
+      }
+
+      .brand-mark {
+        width: 52px;
+        height: 52px;
+        color: currentColor;
+        flex: 0 0 auto;
+      }
+
+      nav {
+        display: flex;
+        gap: 28px;
+        align-items: center;
+        color: var(--muted);
+        font: 0.78rem/1 var(--font-mono);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 13px 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background:
+          linear-gradient(180deg, rgba(237, 241, 245, 0.08), rgba(184, 189, 196, 0.02)),
+          rgba(10, 10, 12, 0.70);
+      }
+
+      nav a.docs-link {
+        color: var(--text);
+        padding: 9px 12px;
+        margin: -9px -2px;
+        border: 1px solid rgba(237, 241, 245, 0.28);
+        border-radius: 8px;
+        background:
+          linear-gradient(180deg, rgba(237, 241, 245, 0.14), rgba(184, 189, 196, 0.04)),
+          rgba(16, 16, 20, 0.78);
+      }
+
+      main {
+        display: grid;
+        gap: clamp(54px, 7vw, 92px);
+        padding: 8px 0 66px;
+      }
+
+      .article-hero {
+        display: grid;
+        gap: 22px;
+        max-width: 1040px;
+      }
+
+      .eyebrow {
+        justify-self: start;
+        color: var(--accent);
+        font: clamp(0.88rem, 1.4vw, 1.08rem)/1 var(--font-mono);
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 14px 16px;
+        border: 1px solid rgba(237, 241, 245, 0.18);
+        border-radius: var(--radius);
+        background:
+          linear-gradient(180deg, rgba(237, 241, 245, 0.13), rgba(184, 189, 196, 0.035)),
+          rgba(10, 10, 12, 0.78);
+      }
+
+      h1 {
+        margin: 0;
+        color: var(--text);
+        font-size: clamp(3rem, 7vw, 6.6rem);
+        line-height: 0.94;
+        font-weight: 780;
+        letter-spacing: 0;
+      }
+
+      .dek {
+        margin: 0;
+        max-width: 820px;
+        color: var(--muted);
+        font-size: clamp(1.06rem, 1.55vw, 1.28rem);
+        line-height: 1.55;
+      }
+
+      .article-body {
+        width: min(820px, 100%);
+        display: grid;
+        gap: 24px;
+      }
+
+      .article-body p {
+        margin: 0;
+        color: #d7dbe0;
+        font-size: clamp(1.04rem, 1.42vw, 1.18rem);
+        line-height: 1.78;
+      }
+
+      .article-body h2 {
+        margin: 34px 0 0;
+        color: var(--text);
+        font-size: clamp(1.68rem, 3.2vw, 2.65rem);
+        line-height: 1.08;
+      }
+
+      .article-body h3 {
+        margin: 20px 0 0;
+        color: #ffffff;
+        font-size: clamp(1.18rem, 2vw, 1.42rem);
+        line-height: 1.22;
+      }
+
+      .article-body ul {
+        margin: 0;
+        padding-left: 1.15rem;
+        color: #d7dbe0;
+        display: grid;
+        gap: 10px;
+      }
+
+      .article-body li {
+        padding-left: 0.2rem;
+        font-size: clamp(1.01rem, 1.34vw, 1.14rem);
+        line-height: 1.68;
+      }
+
+      code {
+        color: var(--code);
+        font-family: var(--font-mono);
+        font-size: 0.93em;
+      }
+
+      pre {
+        margin: 4px 0 0;
+        padding: 18px;
+        overflow-x: auto;
+        color: #eef2f7;
+        background:
+          linear-gradient(180deg, rgba(237, 241, 245, 0.08), rgba(184, 189, 196, 0.025)),
+          rgba(10, 10, 12, 0.88);
+        border: 1px solid rgba(237, 241, 245, 0.13);
+        border-radius: var(--radius);
+        font: 0.88rem/1.55 var(--font-mono);
+      }
+
+      .diagram {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin: 6px 0 4px;
+      }
+
+      .node {
+        min-height: 116px;
+        padding: 16px;
+        border: 1px solid rgba(237, 241, 245, 0.13);
+        border-radius: var(--radius);
+        background:
+          linear-gradient(180deg, rgba(237, 241, 245, 0.10), rgba(184, 189, 196, 0.03)),
+          rgba(16, 16, 20, 0.78);
+      }
+
+      .node strong {
+        display: block;
+        color: #ffffff;
+        font-size: 0.96rem;
+        line-height: 1.2;
+      }
+
+      .node span {
+        display: block;
+        margin-top: 10px;
+        color: var(--muted);
+        font: 0.78rem/1.45 var(--font-mono);
+      }
+
+      .note-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .note {
+        padding: 16px;
+        border: 1px solid rgba(237, 241, 245, 0.12);
+        border-radius: var(--radius);
+        background: rgba(10, 10, 12, 0.72);
+      }
+
+      .note strong {
+        display: block;
+        margin-bottom: 8px;
+        color: #ffffff;
+      }
+
+      .note p {
+        font-size: 0.98rem;
+        line-height: 1.62;
+      }
+
+      footer {
+        padding: 32px 0 48px;
+        color: var(--muted);
+        border-top: 1px solid var(--line);
+      }
+
+      @media (max-width: 860px) {
+        .diagram,
+        .note-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .page { width: min(100% - 28px, 1080px); }
+        header {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 22px;
+        }
+        nav {
+          gap: 14px;
+          flex-wrap: wrap;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <a class="brand" href="./" aria-label="torque home">
+          <svg class="brand-mark" viewBox="0 0 48 48" fill="none" aria-hidden="true" focusable="false">
+            <path d="M24 5.5 42.5 24 24 42.5 5.5 24Z" stroke="currentColor" stroke-width="2.8" stroke-linejoin="round"></path>
+            <path d="M18 19h12" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"></path>
+            <path d="M24 19v12" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"></path>
+          </svg>
+          <span>torque</span>
+        </a>
+        <nav aria-label="Primary">
+          <a class="docs-link" href="./docs.html">Docs</a>
+          <a href="./blog.html">Blog</a>
+          <a href="https://github.com/ingresslabs/torque">GitHub</a>
+          <a href="https://github.com/ingresslabs/torque/releases">Releases</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="article-hero">
+          <div class="eyebrow">Build Systems</div>
+          <h1>Sandboxed Docker Builds, Real Caches</h1>
+          <p class="dek">A deep practical guide to Torque's build path: nsjail sandbox profiles, BuildKit builder topology, Docker auth boundaries, S3 cache import/export, cache warming, hermetic mode, and the failure modes that matter when agents are allowed to build images.</p>
+        </section>
+
+        <article class="article-body">
+          <p>Most Docker build advice stops at layer order: copy dependency manifests first, run the package manager, then copy the rest of the source. That is useful, but it is not enough for a release tool. A release tool has to answer harder questions. Which process was allowed to read the source tree? Which credentials reached the builder? Was the Docker socket exposed to an untrusted command? Did the cache come from a previous branch, a shared bucket, or an empty local builder? Can an agent explain why a build was fast without scraping BuildKit logs?</p>
+
+          <p>Torque treats image builds as part of the delivery proof, not a side effect before Helm. The build can run through BuildKit, write capture evidence, scan for secret leaks, generate SBOM and provenance, use local or S3 cache, and optionally re-exec inside an nsjail sandbox. That makes the build path inspectable in the same way the apply path is inspectable.</p>
+
+          <div class="diagram" aria-label="Torque build flow">
+            <div class="node"><strong>Source context</strong><span>.dockerignore, Dockerfile, build args, secret mounts, policy inputs</span></div>
+            <div class="node"><strong>Sandbox boundary</strong><span>nsjail profile, bind mounts, auth file, cache dir, builder socket</span></div>
+            <div class="node"><strong>BuildKit execution</strong><span>platforms, cache-from, cache-to, S3 manifest, output mode</span></div>
+            <div class="node"><strong>Evidence</strong><span>capture, image digest, SBOM, provenance, cache intel, proof graph</span></div>
+          </div>
+
+          <h2>The builder is the trust boundary</h2>
+          <p>There are several ways to build a container image on a workstation or build host. The easiest path is a local Docker daemon. The more controllable path is BuildKit through a configured builder address. The most isolated production path is usually a remote BuildKit daemon or a Docker Buildx container builder with credentials attached to that daemon, not passed through every CLI call.</p>
+
+          <p>Torque exposes that topology directly. <code>--builder</code> selects a BuildKit address, <code>--authfile</code> points at a Docker <code>config.json</code>, <code>--platform</code> controls multi-arch output, and <code>--push</code> or <code>--load</code> decides where the result goes. The important design rule is that Docker credentials should have the smallest possible scope. A build that only pulls from a private base image should not inherit the whole developer home directory. Use <code>--authfile</code> or a narrow sandbox bind instead of <code>--sandbox-bind-home</code> unless you are debugging a local-only setup.</p>
+
+          <pre><code>torque build . \
+  --file Dockerfile \
+  --tag ghcr.io/acme/api:dev \
+  --builder docker-container://buildx_buildkit_torque0 \
+  --authfile ./tmp/docker-config.json \
+  --platform linux/amd64 \
+  --push</code></pre>
+
+          <h2>Sandbox mode is not just one flag</h2>
+          <p><code>--sandbox</code> means the build must run inside the configured sandbox or fail. That is different from "try sandbox if available." For security-sensitive builds, fail closed is the right behavior. Torque also exposes the parts operators need when a real host is messy: <code>--sandbox-config</code>, <code>--sandbox-bin</code>, <code>--sandbox-bind</code>, <code>--sandbox-workdir</code>, <code>--sandbox-probe-path</code>, and <code>--sandbox-logs</code>.</p>
+
+          <p>The repo includes two useful profile shapes. <code>sandbox/linux-ci.cfg</code> is compatible with CI-style Linux builders and uses larger tmpfs limits. <code>sandbox/linux-strict.cfg</code> enables a tighter namespace profile, drops capabilities, avoids sysfs, and keeps only the compatibility mounts a Docker or BuildKit workload usually needs. The strict profile is the one to start from when you are reducing host exposure. The CI profile is the one to use when user namespaces or cgroup namespaces are not available on the build host.</p>
+
+          <pre><code>export TORQUE_SANDBOX_CONFIG="$(pwd)/sandbox/linux-strict.cfg"
+torque build . \
+  --tag ghcr.io/acme/api:secure \
+  --sandbox \
+  --sandbox-logs \
+  --sandbox-probe-path /var/run/docker.sock \
+  --authfile ./tmp/docker-config.json</code></pre>
+
+          <p><code>torque build sandbox doctor</code> is the fast path for diagnosing that boundary before you waste time on a full build. It checks whether the sandbox runtime can start and whether the selected context behaves the way Torque expects. Use it after changing nsjail, Docker socket mounts, CI runners, or user namespace settings.</p>
+
+          <pre><code>torque build sandbox doctor --context .
+torque build . --sandbox --sandbox-config sandbox/linux-ci.cfg --sandbox-logs</code></pre>
+
+          <h2>Cache is a correctness feature</h2>
+          <p>A fast cache that nobody trusts gets turned off. A trusted cache needs names, scope, and evidence. Torque accepts raw BuildKit cache specs with <code>--cache-from</code> and <code>--cache-to</code>, and it also provides first-class S3 flags for the common shared-cache case: <code>--s3-cache</code>, <code>--s3-cache-region</code>, <code>--s3-cache-name</code>, <code>--s3-cache-mode</code>, <code>--s3-cache-endpoint-url</code>, and <code>--s3-cache-path-style</code>.</p>
+
+          <p><code>mode=min</code> exports enough metadata for final image reuse. <code>mode=max</code> exports a deeper graph and is usually better for CI fleets where branches rebuild related layers. The cache name matters. If every branch writes the same manifest name, you get more reuse but more risk of noisy invalidation. If every commit writes a unique name, you get cleaner provenance but fewer hits. A practical default is one cache prefix per repo and one manifest name per service or mainline branch.</p>
+
+          <pre><code>torque build . \
+  --tag ghcr.io/acme/api:dev \
+  --s3-cache s3://acme-build-cache/torque/main \
+  --s3-cache-region us-east-1 \
+  --s3-cache-name api-main \
+  --s3-cache-mode max</code></pre>
+
+          <p>S3 credentials should belong to the BuildKit daemon, instance role, web identity role, or disposable builder container. Do not place AWS keys in build args, Dockerfile <code>ENV</code>, or chat-visible agent instructions. Torque carries the cache reference and region; the underlying builder should own credential resolution.</p>
+
+          <h2>Agents need cache tools, not log scraping</h2>
+          <p>Humans can read a BuildKit log and infer that <code>go mod download</code> was rebuilt because <code>go.sum</code> changed. Agents should not have to guess. Torque's MCP cache tools split the job into explicit read and write operations. <code>torque.cache.inspect</code> normalizes cache configuration. <code>torque.cache.plan</code> classifies changed paths and returns warm targets. <code>torque.cache.warm</code> performs the mutating cache export only when that is allowed.</p>
+
+          <pre><code>printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"torque.cache.plan","arguments":{"contextDir":".","dockerfile":"Dockerfile","tags":["ghcr.io/acme/api:dev"],"changedPaths":["go.mod","go.sum"],"s3Cache":"s3://acme-build-cache/torque/main","s3CacheRegion":"us-east-1","s3CacheName":"api-main"}}}\n' |
+  torque-mcp --stdio</code></pre>
+
+          <p>This is the difference between automation and a shell transcript. The agent receives structured cache state, changed-path impact, and the exact warm target to request. A reviewer can see whether the agent only inspected the cache or actually wrote to it.</p>
+
+          <h2>Dockerfile shape still matters</h2>
+          <p>Torque does not make a bad Dockerfile good. It makes cache behavior observable enough that you can fix it. Keep the build context small with <code>.dockerignore</code>. Copy dependency manifests before the full source tree. Use BuildKit secret mounts for credentials instead of <code>ARG</code> or <code>ENV</code>. Pin base images by digest when using hermetic mode. Avoid writing package-manager caches into final runtime layers. Split toolchain stages from runtime stages so dependency churn does not invalidate the image users actually run.</p>
+
+          <pre><code># syntax=docker/dockerfile:1.7
+FROM golang:1.25@sha256:... AS build
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN --mount=type=cache,target=/go/pkg/mod go mod download
+COPY . .
+RUN --mount=type=cache,target=/root/.cache/go-build go build -o /out/api ./cmd/api
+
+FROM gcr.io/distroless/base-debian12@sha256:...
+COPY --from=build /out/api /api
+USER 65532:65532
+ENTRYPOINT ["/api"]</code></pre>
+
+          <h2>Hermetic and sandbox are different controls</h2>
+          <p><code>--sandbox</code> controls where the build client process runs on the host. <code>--hermetic</code> controls what the build is allowed to depend on. A sandbox can still talk to the network if the profile allows it. A hermetic build can still be run outside a sandbox if you choose that. Use both when the release needs a strong story: sandbox to reduce host exposure, hermetic mode to require pinned bases and restrict network dependency unless <code>--allow-network</code> is explicitly present.</p>
+
+          <pre><code>torque build . \
+  --secure \
+  --tag ghcr.io/acme/api:release \
+  --attest-dir dist/attest \
+  --capture dist/build.sqlite \
+  --s3-cache s3://acme-build-cache/torque/main \
+  --s3-cache-region us-east-1</code></pre>
+
+          <div class="note-grid">
+            <div class="note">
+              <strong>Use <code>--no-cache</code> rarely</strong>
+              <p>It is useful for proving a clean rebuild, but it also hides Dockerfile structure problems. Prefer a cache matrix that changes one input at a time.</p>
+            </div>
+            <div class="note">
+              <strong>Do not cache secrets</strong>
+              <p>Use BuildKit secret mounts and Torque secret scanning. A changed secret should not become a layer digest, cache key, or proof artifact.</p>
+            </div>
+            <div class="note">
+              <strong>Keep cache writes scoped</strong>
+              <p>Use branch or service-specific S3 cache names. Let CI write shared caches; let pull requests import them unless policy allows export.</p>
+            </div>
+            <div class="note">
+              <strong>Capture the build</strong>
+              <p><code>--capture</code>, SBOM, provenance, and proof graph links turn a fast build into a release artifact someone can audit later.</p>
+            </div>
+          </div>
+
+          <h2>A practical release build recipe</h2>
+          <p>The production path should be boring: diagnose sandbox, inspect cache, build with evidence, then attach the result to the release proof. The command below intentionally keeps credentials outside the Dockerfile and cache reference, writes attestations, captures the build stream, and fails if the sandbox cannot run.</p>
+
+          <pre><code>torque build sandbox doctor --context .
+
+torque build . \
+  --file Dockerfile \
+  --tag ghcr.io/acme/api:v1.2.3 \
+  --platform linux/amd64 \
+  --sandbox \
+  --sandbox-config sandbox/linux-strict.cfg \
+  --authfile ./tmp/docker-config.json \
+  --s3-cache s3://acme-build-cache/torque/main \
+  --s3-cache-region us-east-1 \
+  --s3-cache-name api-main \
+  --s3-cache-mode max \
+  --sbom --provenance \
+  --attest-dir dist/attest \
+  --capture dist/build.sqlite \
+  --push</code></pre>
+
+          <p>The reason this matters is not just speed or security in isolation. It is operational memory. Six months later, you should be able to answer why a build had a cache miss, which builder wrote the cache, which sandbox profile was active, which digest was produced, and which release consumed it. Torque's build path is designed so that answer is in the artifacts, not trapped in a terminal scrollback.</p>
+        </article>
+      </main>
+
+      <footer>
+        <span>Sandbox profiles, BuildKit cache, Docker auth, and proof evidence belong in one reviewable build path.</span>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -29,12 +29,31 @@ torque release promote proof.graph.json \
   --preview --smoke smoke.json --switch-traffic \
   --provider file --state-out traffic-state.json \
   --execute --yes --format json
+
+torque release promote proof.graph.json \
+  --strategy canary \
+  --steps 5,25,50,100 \
+  --provider argo-rollouts \
+  --rollout api \
+  --execute --yes
+
+torque release promote proof.graph.json \
+  --strategy blue-green \
+  --preview --switch-traffic \
+  --provider kubernetes \
+  --active-service api \
+  --preview-service api-preview \
+  --blue-deployment api-blue \
+  --green-deployment api-green \
+  --execute --yes
 ```
 
 Turns canary ladders and blue/green traffic switches into proof-backed
 promotion artifacts, including gate output, release score, agent policy
 evidence, signed attestation when a key is provided, and deterministic
-traffic-state output for E2E rehearsals.
+traffic-state output for E2E rehearsals. Real providers are still gated by the
+same proof checks before Argo Rollouts or native Kubernetes traffic state is
+changed.
 
 </details>
 
