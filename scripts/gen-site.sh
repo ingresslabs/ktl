@@ -142,6 +142,7 @@ install -m 0644 .github/readme/torque-architecture-safety-matrix.png "${OUT_DIR}
 mkdir -p "${OUT_DIR}/assets/blog"
 install -m 0644 .github/readme/atlassian-devops-tooling.png "${OUT_DIR}/assets/blog/atlassian-devops-tooling.png"
 install -m 0644 .github/readme/atlassian-codex-torque.png "${OUT_DIR}/assets/blog/atlassian-codex-torque.png"
+install -m 0644 .github/readme/torque-sandbox-venus.png "${OUT_DIR}/assets/blog/torque-sandbox-venus.png"
 mkdir -p "${OUT_DIR}/showcase/reports"
 install -m 0644 docs/showcase/reports/helmer-plan.html "${OUT_DIR}/showcase/reports/helmer-plan.html"
 install -m 0644 docs/showcase/reports/torque-apply-plan.html "${OUT_DIR}/showcase/reports/torque-apply-plan.html"
