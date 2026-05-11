@@ -155,6 +155,43 @@ Scores start at 100 and subtract penalties for failed graph verification,
 missing signatures, missing required artifacts, unpinned images, blocked
 verifier/SLO evidence, missing rollback proof, or missing repair PR evidence.
 
+## Release Autopilot
+
+`torque release autopilot` composes the release proof path into one command. In
+the default evidence mode it is non-mutating and works from an existing proof
+source or proof graph:
+
+```bash
+torque release autopilot proof.graph.json \
+  --key .torque/keys/proof-ed25519.json \
+  --policy release-policy.yaml \
+  --fail-below 90 \
+  --out-dir release-autopilot
+```
+
+The output directory contains `proof.graph.json`, `proof.html`,
+`proof.gate.json`, `release-score.json`, `release.flight.torque`,
+`flight-replay.json`, `flight-explain.json`, `agent-request.json`,
+`agent-policy.json`, `agent-run.json`, and `release.attestation.json` when a
+signing key is supplied.
+
+To let Autopilot run `torque apply` first, use explicit execution confirmation:
+
+```bash
+torque release autopilot \
+  --execute --yes \
+  --chart ./chart \
+  --release api \
+  -n prod \
+  --auto-rollback \
+  --slo slo.yaml \
+  --key .torque/keys/proof-ed25519.json
+```
+
+If the apply command fails but writes proof, Autopilot still tries to produce
+the graph, gate, score, flight, agent, and attestation artifacts so the failure
+is reviewable.
+
 ## Release Flight Recorder
 
 `torque flight` records the proof graph as a portable release timeline that can
@@ -182,10 +219,11 @@ The script builds or reuses a Linux amd64 `torque` binary, copies it to Boole,
 recreates a full proof graph fixture, verifies signature and file hashes, checks
 HTML output, diffs previous/current graphs, runs `proof gate`, signs a release
 attestation, checks `agent policy` and `agent run`, scores the release, records
-and replays the release flight, proves tamper detection by modifying verifier
-evidence, then repeats graph/verify/diff/gate/attest/agent/score/flight for 100
-iterations by default. It prints a single compact JSON line suitable for CI and
-release notes.
+and replays the release flight, runs `release autopilot`, proves tamper
+detection by modifying verifier evidence, then repeats
+graph/verify/diff/gate/attest/agent/score/flight/autopilot for 100 iterations
+by default. It prints a single compact JSON line suitable for CI and release
+notes.
 
 GitHub Actions exposes the same run as the manual **Proof Graph E2E** workflow.
 

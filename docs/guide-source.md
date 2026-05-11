@@ -155,6 +155,9 @@ torque proof graph ./apply-proof.json \
 torque proof verify proof.graph.json
 torque proof gate proof.graph.json --out proof.gate.json
 torque release score proof.graph.json --out release-score.json
+torque release autopilot proof.graph.json \
+  --key .torque/keys/proof-ed25519.json \
+  --out-dir release-autopilot
 torque flight record proof.graph.json --out release.flight.torque
 torque agent policy check agent-request.json \
   --proof proof.graph.json --allow apply --require-gate
@@ -224,6 +227,19 @@ Authorize AI or automation agent operations with proof-backed permissions.
 
 `agent run` is intentionally non-mutating. It records authorization for a caller
 that will invoke the write operation through its own controlled path.
+
+## torque release autopilot
+Run the release autopilot over an existing proof source or proof graph. The
+default mode is non-mutating: it builds and signs the graph, evaluates the
+release gate, writes the score, records/replays/explains the release flight,
+checks agent authorization, and signs a release verdict.
+
+**Usage**: `torque release autopilot proof.graph.json [flags]`
+- `--out-dir release-autopilot`: Write all autopilot artifacts into one directory.
+- `--key .torque/keys/proof-ed25519.json`: Sign the graph and release attestation.
+- `--policy release-policy.yaml`: Evaluate a custom release policy.
+- `--fail-below 90`: Block when the readiness score is too low.
+- `--execute --yes --chart ./chart --release api -n prod`: Run `torque apply` first, then collect proof.
 
 ## torque release score
 Score release readiness from a signed proof graph and release gate checks.

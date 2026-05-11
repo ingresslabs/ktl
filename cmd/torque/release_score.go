@@ -48,6 +48,7 @@ func newReleaseCommand() *cobra.Command {
 		Short: "Evaluate release readiness from proof evidence",
 		Long:  "Evaluate release readiness from signed proof graphs, release gates, and evidence coverage.",
 	}
+	cmd.AddCommand(newReleaseAutopilotCommand())
 	cmd.AddCommand(newReleaseScoreCommand())
 	decorateCommandHelp(cmd, "Release Commands")
 	return cmd

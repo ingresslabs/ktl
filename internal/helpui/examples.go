@@ -143,7 +143,12 @@ var curatedExamples = map[string][]string{
 		"# Build the request from flags when no request file exists\ntorque agent run --actor codex --operation apply --command 'torque apply --chart ./chart --release api -n prod' --proof proof.graph.json --allow apply --require-gate",
 	},
 	"torque release": {
+		"# Run the proof-backed release autopilot over existing evidence\ntorque release autopilot proof.graph.json --key .torque/stack/keys/ed25519.json --out-dir release-autopilot",
 		"# Score release readiness from proof evidence\ntorque release score proof.graph.json --out release-score.json",
+	},
+	"torque release autopilot": {
+		"# Compose graph, gate, score, flight, agent authorization, and attestation artifacts\ntorque release autopilot proof.graph.json --key .torque/stack/keys/ed25519.json --fail-below 90 --out-dir release-autopilot",
+		"# Run torque apply first, then collect proof-backed release artifacts\ntorque release autopilot --execute --yes --chart ./chart --release api -n prod --auto-rollback --slo slo.yaml --key .torque/stack/keys/ed25519.json",
 	},
 	"torque release score": {
 		"# Fail CI when a release score is below the promotion threshold\ntorque release score proof.graph.json --fail-below 90",

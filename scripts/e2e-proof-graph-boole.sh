@@ -200,6 +200,8 @@ jq -e '.apiVersion == "torque.dev/release-flight/v1" and (.timeline | length) >=
 jq -e '.passed == true and .events >= 10' flight-replay.json >/dev/null
 "$torque" flight explain release.flight.torque --format json > flight-explain.json
 jq -e '.summary != "" and (.phases | length) >= 5' flight-explain.json >/dev/null
+"$torque" release autopilot proof.graph.json --key .torque/keys/proof-ed25519.json --allow apply --fail-below 80 --out-dir autopilot --format json > release-autopilot.json
+jq -e '.passed == true and .gate.passed == true and .score.score >= 80 and .replay.passed == true and .agentPolicy.allowed == true and .attestation.verified == true' release-autopilot.json >/dev/null
 
 cp evidence/verifier.report.json evidence/verifier.report.json.bak
 printf '{"passed":false,"status":"failed","tampered":true}\n' > evidence/verifier.report.json
@@ -225,6 +227,8 @@ for i in $(seq 1 "$RUNS"); do
   flight="runs/release-${i}.flight.torque"
   flight_replay="runs/flight-replay-${i}.json"
   flight_explain="runs/flight-explain-${i}.json"
+  autopilot="runs/release-autopilot-${i}.json"
+  autopilot_dir="runs/autopilot-${i}"
   "$torque" proof graph ./apply-proof.json "${attach[@]}" --out "$graph" --html "$html" --key .torque/keys/proof-ed25519.json >/dev/null
   "$torque" proof verify "$graph" --require-signature --format json > "$verify"
   jq -e '.passed == true and .signature.verified == true and ((.artifacts.failed // 0) == 0)' "$verify" >/dev/null
@@ -246,6 +250,8 @@ for i in $(seq 1 "$RUNS"); do
   jq -e '.passed == true' "$flight_replay" >/dev/null
   "$torque" flight explain "$flight" --format json > "$flight_explain"
   jq -e '.summary != ""' "$flight_explain" >/dev/null
+  "$torque" release autopilot "$graph" --key .torque/keys/proof-ed25519.json --allow apply --fail-below 80 --out-dir "$autopilot_dir" --format json > "$autopilot"
+  jq -e '.passed == true and .gate.passed == true and .score.score >= 80 and .replay.passed == true and .agentPolicy.allowed == true and .attestation.verified == true' "$autopilot" >/dev/null
   grep -q "Torque Proof Graph" "$html"
   if [ $((i % 20)) -eq 0 ]; then
     echo "loop ${i}/${RUNS} ok" >&2
@@ -268,8 +274,9 @@ jq -cn \
   --argjson agentChecks "$(jq '.checks | length' agent-policy.json)" \
   --argjson releaseScore "$(jq '.score' release-score.json)" \
   --argjson flightEvents "$(jq '.timeline | length' release.flight.torque)" \
+  --argjson autopilotPassed "$(jq '.passed' release-autopilot.json)" \
   --argjson diffAdded "$(jq '.summary.added' diff.json)" \
   --argjson diffRemoved "$(jq '.summary.removed' diff.json)" \
   --argjson diffChanged "$(jq '.summary.changed' diff.json)" \
-  '{ok:true,host:$host,sourceCommit:$sourceCommit,fixtureCommit:$fixtureCommit,binarySha256:$binarySha256,runs:$runs,seconds:$seconds,artifacts:$artifacts,checkedFiles:$checked,gateChecks:$gateChecks,agentChecks:$agentChecks,releaseScore:$releaseScore,flightEvents:$flightEvents,diff:{added:$diffAdded,removed:$diffRemoved,changed:$diffChanged},graphSha256:$graphSha256,attestationSha256:$attestationSha256,tamperFailureVerified:true}'
+  '{ok:true,host:$host,sourceCommit:$sourceCommit,fixtureCommit:$fixtureCommit,binarySha256:$binarySha256,runs:$runs,seconds:$seconds,artifacts:$artifacts,checkedFiles:$checked,gateChecks:$gateChecks,agentChecks:$agentChecks,releaseScore:$releaseScore,flightEvents:$flightEvents,autopilotPassed:$autopilotPassed,diff:{added:$diffAdded,removed:$diffRemoved,changed:$diffChanged},graphSha256:$graphSha256,attestationSha256:$attestationSha256,tamperFailureVerified:true}'
 REMOTE

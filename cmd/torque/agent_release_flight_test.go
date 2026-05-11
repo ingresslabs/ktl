@@ -154,3 +154,96 @@ func TestReleaseScoreAndFlightCommands(t *testing.T) {
 		t.Fatalf("expected flight explanation: %#v", explain)
 	}
 }
+
+func TestReleaseAutopilotWritesProofBackedBundle(t *testing.T) {
+	dir, graphPath, keyPath := writeProofGateFixture(t, true)
+	outDir := filepath.Join(dir, "autopilot")
+
+	root := newRootCommand()
+	var out bytes.Buffer
+	root.SetOut(&out)
+	root.SetErr(&out)
+	root.SetArgs([]string{
+		"release", "autopilot", graphPath,
+		"--out-dir", outDir,
+		"--key", keyPath,
+		"--allow", "apply",
+		"--actor", "codex",
+		"--release", "api",
+		"--namespace", "prod",
+		"--fail-below", "80",
+		"--format", "json",
+	})
+	if err := root.ExecuteContext(context.Background()); err != nil {
+		t.Fatalf("release autopilot: %v\n%s", err, out.String())
+	}
+	var report releaseAutopilotReport
+	if err := json.Unmarshal(out.Bytes(), &report); err != nil {
+		t.Fatalf("decode autopilot report: %v\n%s", err, out.String())
+	}
+	if !report.Passed || !report.Gate.Passed || report.Score.Score < 80 || !report.Replay.Passed {
+		t.Fatalf("expected passing autopilot report: %#v", report)
+	}
+	if report.AgentPolicy == nil || !report.AgentPolicy.Allowed || report.AgentRun == nil || !report.AgentRun.Authorized {
+		t.Fatalf("expected authorized agent records: %#v", report)
+	}
+	if report.Attestation == nil || !report.Attestation.Verified || report.Attestation.Signature == nil {
+		t.Fatalf("expected signed attestation: %#v", report.Attestation)
+	}
+	for _, path := range []string{
+		report.Artifacts.ProofGraph,
+		report.Artifacts.ProofHTML,
+		report.Artifacts.Gate,
+		report.Artifacts.Score,
+		report.Artifacts.Flight,
+		report.Artifacts.Replay,
+		report.Artifacts.Explain,
+		report.Artifacts.AgentRequest,
+		report.Artifacts.AgentPolicy,
+		report.Artifacts.AgentRun,
+		report.Artifacts.Attestation,
+	} {
+		if path == "" {
+			t.Fatalf("expected artifact path in report: %#v", report.Artifacts)
+		}
+		if _, err := os.Stat(path); err != nil {
+			t.Fatalf("expected artifact %s: %v", path, err)
+		}
+	}
+}
+
+func TestReleaseAutopilotBlocksLowScore(t *testing.T) {
+	dir, graphPath, keyPath := writeProofGateFixture(t, true)
+	outDir := filepath.Join(dir, "autopilot-low-score")
+
+	root := newRootCommand()
+	var out bytes.Buffer
+	root.SetOut(&out)
+	root.SetErr(&out)
+	root.SetArgs([]string{
+		"release", "autopilot", graphPath,
+		"--out-dir", outDir,
+		"--key", keyPath,
+		"--fail-below", "100",
+		"--format", "json",
+	})
+	if err := root.ExecuteContext(context.Background()); err == nil {
+		t.Fatalf("expected autopilot to block below score threshold")
+	}
+	var report releaseAutopilotReport
+	if err := json.Unmarshal(out.Bytes(), &report); err != nil {
+		t.Fatalf("decode blocked autopilot report: %v\n%s", err, out.String())
+	}
+	if report.Passed {
+		t.Fatalf("expected blocked autopilot report: %#v", report)
+	}
+	found := false
+	for _, check := range report.Checks {
+		if check.ID == "release.score" && !check.Passed {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected release.score blocking check: %#v", report.Checks)
+	}
+}

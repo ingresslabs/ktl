@@ -132,8 +132,14 @@ This section is intentionally short and repetitive: AI agents do best with a sta
 ### Release Score
 
 - Purpose: top-level `torque release` command for scoring release readiness from proof graph and gate evidence.
-- Key surfaces: `release score`.
+- Key surfaces: `release score`, `release autopilot`.
 - Invariants: scores are derived from verified graph evidence and failed gate checks; `--fail-below` is the CI/release guard path; score output must remain machine-readable for PRs and release notes.
+
+### Release Autopilot
+
+- Purpose: compose the proof-backed release path into one artifact-producing command.
+- Key surfaces: `release autopilot`.
+- Invariants: default mode is non-mutating and operates on an existing proof source; `--execute` requires `--yes`; every run writes graph, HTML, gate, score, flight, replay, explain, agent authorization, and optional attestation artifacts before deciding pass/fail.
 
 ### Release Flight Recorder
 
